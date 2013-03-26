@@ -6,6 +6,8 @@
     <modules>
         <module>jira-pocketknife-search</module>
         <module>jira-pocketknife-lifecycle</module>
+        <module>atlassian-pocketknife-core</module>
+        <module>jira-pocketknife-customfields</module>
     </modules>
 
     <parent>
