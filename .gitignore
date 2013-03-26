@@ -1,0 +1,13 @@
+.classpath
+.project
+.settings/
+.clover/
+.idea/
+target/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+.classpath
+.project
+.settings/
