@@ -8,6 +8,7 @@
         <module>jira-pocketknife-lifecycle</module>
         <module>atlassian-pocketknife-core</module>
         <module>jira-pocketknife-customfields</module>
+        <module>jira-pocketknife-rest</module>
     </modules>
 
     <parent>
