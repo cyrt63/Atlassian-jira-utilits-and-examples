@@ -3,7 +3,7 @@
     <parent>
         <artifactId>atlassian-pocketknife-parent-pom</artifactId>
         <groupId>com.atlassian.pocketknife</groupId>
-        <version>0.002</version>
+        <version>0.003-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
