@@ -12,7 +12,7 @@ import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchProviderFactory;
 import com.atlassian.jira.util.NotNull;
 import com.atlassian.jira.web.bean.PagerFilter;
-import com.atlassian.pocketknife.search.issue.callback.IssueDataCallback;
+import com.atlassian.pocketknife.search.issue.callback.DataCallback;
 import com.atlassian.query.Query;
 
 /**
@@ -32,28 +32,28 @@ public class IssueDataServiceImpl implements IssueDataService
 
     @Override
     @NotNull
-    public <T extends IssueDataCallback> boolean find(User user, Query query, T callback)
+    public <T extends DataCallback> boolean find(User user, Query query, T callback)
     {
         return findImpl(user, query, callback, null, false, null);
     }
 
     @Override
     @NotNull
-    public <T extends IssueDataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
+    public <T extends DataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
     {
         return findImpl(user, query, callback, null, false, andQuery);
     }
 
     @Override
     @NotNull
-    public <T extends IssueDataCallback> boolean findAndSort(User user, Query query, T callback, PagerFilter<?> pager)
+    public <T extends DataCallback> boolean findAndSort(User user, Query query, T callback, PagerFilter<?> pager)
     {
         return findImpl(user, query, callback, pager, false, null);
     }
 
     @Override
     @NotNull
-    public <T extends IssueDataCallback> boolean findOverrideSecurity(User user, Query query, T callback)
+    public <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback)
     {
         return findImpl(user, query, callback, null, true, null);
     }
@@ -62,7 +62,7 @@ public class IssueDataServiceImpl implements IssueDataService
      * Performs the find
      * Note: pager is ignored if overwriteSecurity is true
      */
-    private <T extends IssueDataCallback> boolean findImpl(User user, Query query, T callback, PagerFilter<?> pager, boolean overwriteSecurity, org.apache.lucene.search.Query andQuery)
+    private <T extends DataCallback> boolean findImpl(User user, Query query, T callback, PagerFilter<?> pager, boolean overwriteSecurity, org.apache.lucene.search.Query andQuery)
     {
         if (andQuery != null && (overwriteSecurity || pager != null))
         {
@@ -70,7 +70,7 @@ public class IssueDataServiceImpl implements IssueDataService
         }
 
         IndexSearcher searcher = searchProviderFactory.getSearcher(SearchProviderFactory.ISSUE_INDEX);
-        IssueDataFieldSelector fieldSelector = new IssueDataFieldSelector(callback.getFields());
+        PluginFieldSelector fieldSelector = new PluginFieldSelector(callback.getFields());
         IssueDataCollector collector = new IssueDataCollector(searcher, fieldSelector, callback);
 
         try

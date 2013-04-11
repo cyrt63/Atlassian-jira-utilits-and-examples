@@ -8,7 +8,7 @@ import java.util.Set;
  * 
  * @author ahennecke
  */
-public interface IssueDataCallback
+public interface DataCallback
 {
     /**
      * see DocumentConstants for possible values. These are the issue fields that we want to read from the Lucene index. You can also define your own
@@ -25,10 +25,10 @@ public interface IssueDataCallback
      *            possible values.
      * @param data : The raw Lucene data for the given field. Can be null.
      */
-    void fieldData(Long issueId, String issueKey, String fieldName, String data);
+    void fieldData(String fieldName, String data);
 
     /**
      * Called when all fields that were defined in the getFields method have passed through the fieldData method for a single issue.
      */
-    void issueComplete(Long issueId, String issueKey);
+    void documentComplete();
 }

@@ -3,7 +3,7 @@ package com.atlassian.pocketknife.search.issue.service;
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.util.NotNull;
 import com.atlassian.jira.web.bean.PagerFilter;
-import com.atlassian.pocketknife.search.issue.callback.IssueDataCallback;
+import com.atlassian.pocketknife.search.issue.callback.DataCallback;
 import com.atlassian.query.Query;
 
 /**
@@ -24,23 +24,23 @@ public interface IssueDataService
      * @return any errors that happened during the search
      */
     @NotNull
-    <T extends IssueDataCallback> boolean find(User user, Query query, T callback);
+    <T extends DataCallback> boolean find(User user, Query query, T callback);
 
     /**
      * Allows specifying an "and" lucene query in addition to a callback
      */
     @NotNull
-    <T extends IssueDataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery);
+    <T extends DataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery);
 
     /**
      * Performs a search taking sorting into account
      */
     @NotNull
-    <T extends IssueDataCallback> boolean findAndSort(User user, Query query, T callback, PagerFilter<?> pager);
+    <T extends DataCallback> boolean findAndSort(User user, Query query, T callback, PagerFilter<?> pager);
 
     /**
      * Executes a find, but overwrites security.
      */
     @NotNull
-    <T extends IssueDataCallback> boolean findOverrideSecurity(User user, Query query, T callback);
+    <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback);
 }

@@ -1,13 +1,10 @@
 package com.atlassian.pocketknife.search.issue.service;
 
-import org.apache.commons.lang.math.NumberUtils;
+import com.atlassian.jira.issue.statistics.util.FieldableDocumentHitCollector;
+import com.atlassian.pocketknife.search.issue.callback.DataCallback;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.search.IndexSearcher;
-
-import com.atlassian.jira.issue.index.DocumentConstants;
-import com.atlassian.jira.issue.statistics.util.FieldableDocumentHitCollector;
-import com.atlassian.pocketknife.search.issue.callback.IssueDataCallback;
 
 /**
  * Lucene collector to read the defined data from the document and pass it on to the callback.
@@ -17,9 +14,9 @@ import com.atlassian.pocketknife.search.issue.callback.IssueDataCallback;
 public class IssueDataCollector extends FieldableDocumentHitCollector
 {
     private final FieldSelector fieldSelector;
-    private final IssueDataCallback callback;
+    private final DataCallback callback;
 
-    public IssueDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, IssueDataCallback callback)
+    public IssueDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, DataCallback callback)
     {
         super(searcher);
         this.fieldSelector = fieldSelector;
@@ -35,10 +32,6 @@ public class IssueDataCollector extends FieldableDocumentHitCollector
     @Override
     public void collect(Document d)
     {
-        String issueIdRaw = d.get(DocumentConstants.ISSUE_ID);
-        Long issueId = d.get(DocumentConstants.ISSUE_ID) == null ? null : NumberUtils.toLong(issueIdRaw);
-        String issueKey = d.get(DocumentConstants.ISSUE_KEY);
-
         for (String fieldName : callback.getFields())
         {
             String[] values = d.getValues(fieldName);
@@ -46,14 +39,14 @@ public class IssueDataCollector extends FieldableDocumentHitCollector
             {
                 for (String value : values)
                 {
-                    callback.fieldData(issueId, issueKey, fieldName, value);
+                    callback.fieldData(fieldName, value);
                 }
             }
             else
             {
-                callback.fieldData(issueId, issueKey, fieldName, null);
+                callback.fieldData(fieldName, null);
             }
         }
-        callback.issueComplete(issueId, issueKey);
+        callback.documentComplete();
     }
 }

@@ -12,7 +12,7 @@ import com.atlassian.jira.issue.index.DocumentConstants;
  *
  * @author ahennecke
  */
-public class IssueDataFieldSelector implements FieldSelector
+public class PluginFieldSelector implements FieldSelector
 {
 
     private static final long serialVersionUID = -1279623447149899950L;
@@ -20,7 +20,7 @@ public class IssueDataFieldSelector implements FieldSelector
     /** these are the fields the caller is interested in fetching */
     private final Set<String> fieldNames;
 
-    public IssueDataFieldSelector(Set<String> fieldNames)
+    public PluginFieldSelector(Set<String> fieldNames)
     {
         this.fieldNames = fieldNames;
     }
@@ -28,7 +28,7 @@ public class IssueDataFieldSelector implements FieldSelector
     @Override
     public FieldSelectorResult accept(String fieldName)
     {
-        boolean matches = DocumentConstants.ISSUE_KEY.equals(fieldName) || DocumentConstants.ISSUE_ID.equals(fieldName) || fieldNames.contains(fieldName);
+        boolean matches = fieldNames.contains(fieldName);
         return matches ? FieldSelectorResult.LOAD : FieldSelectorResult.NO_LOAD;
     }
 }
