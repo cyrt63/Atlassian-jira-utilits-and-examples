@@ -11,12 +11,12 @@ import org.apache.lucene.search.IndexSearcher;
  *
  * @author ahennecke
  */
-public class IssueDataCollector extends FieldableDocumentHitCollector
+public class PluginDataCollector extends FieldableDocumentHitCollector
 {
     private final FieldSelector fieldSelector;
     private final DataCallback callback;
 
-    public IssueDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, DataCallback callback)
+    public PluginDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, DataCallback callback)
     {
         super(searcher);
         this.fieldSelector = fieldSelector;
