@@ -4,8 +4,6 @@ import java.util.Set;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 
-import com.atlassian.jira.issue.index.DocumentConstants;
-
 /**
  * Field selector to restrict the amount of information that's extracted from Lucene. In addition to any fields specified by the callback, we also
  * fetch issueId and issueKey.

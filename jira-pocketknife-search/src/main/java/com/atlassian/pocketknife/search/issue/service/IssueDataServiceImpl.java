@@ -71,7 +71,7 @@ public class IssueDataServiceImpl implements IssueDataService
 
         IndexSearcher searcher = searchProviderFactory.getSearcher(SearchProviderFactory.ISSUE_INDEX);
         PluginFieldSelector fieldSelector = new PluginFieldSelector(callback.getFields());
-        IssueDataCollector collector = new IssueDataCollector(searcher, fieldSelector, callback);
+        PluginDataCollector collector = new PluginDataCollector(searcher, fieldSelector, callback);
 
         try
         {
