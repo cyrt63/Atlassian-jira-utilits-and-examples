@@ -1,6 +1,8 @@
 package com.atlassian.pocketknife.search.issue.service;
 
 import java.util.Set;
+
+import com.atlassian.jira.issue.index.DocumentConstants;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 
@@ -26,7 +28,7 @@ public class PluginFieldSelector implements FieldSelector
     @Override
     public FieldSelectorResult accept(String fieldName)
     {
-        boolean matches = fieldNames.contains(fieldName);
+        boolean matches = DocumentConstants.ISSUE_KEY.equals(fieldName) || DocumentConstants.ISSUE_ID.equals(fieldName) || fieldNames.contains(fieldName);
         return matches ? FieldSelectorResult.LOAD : FieldSelectorResult.NO_LOAD;
     }
 }

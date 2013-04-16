@@ -1,10 +1,13 @@
 package com.atlassian.pocketknife.search.issue.service;
 
+import com.atlassian.jira.issue.index.DocumentConstants;
 import com.atlassian.jira.issue.statistics.util.FieldableDocumentHitCollector;
 import com.atlassian.pocketknife.search.issue.callback.DataCallback;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.search.IndexSearcher;
+
+import static com.atlassian.pocketknife.search.issue.util.NumberUtil.toLong;
 
 /**
  * Lucene collector to read the defined data from the document and pass it on to the callback.
@@ -32,6 +35,9 @@ public class PluginDataCollector extends FieldableDocumentHitCollector
     @Override
     public void collect(Document d)
     {
+        Long issueId = toLong(d.get(DocumentConstants.ISSUE_ID));
+        String issueKey = d.get(DocumentConstants.ISSUE_KEY);
+
         for (String fieldName : callback.getFields())
         {
             String[] values = d.getValues(fieldName);
@@ -39,14 +45,14 @@ public class PluginDataCollector extends FieldableDocumentHitCollector
             {
                 for (String value : values)
                 {
-                    callback.fieldData(fieldName, value);
+                    callback.fieldData(issueId, issueKey, fieldName, value);
                 }
             }
             else
             {
-                callback.fieldData(fieldName, null);
+                callback.fieldData(issueId, issueKey, fieldName, null);
             }
         }
-        callback.documentComplete();
+        callback.documentComplete(issueId, issueKey);
     }
 }
