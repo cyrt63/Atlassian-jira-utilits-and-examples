@@ -9,6 +9,7 @@
         <module>atlassian-pocketknife-core</module>
         <module>jira-pocketknife-customfields</module>
         <module>jira-pocketknife-rest</module>
+        <module>atlassian-pocketknife-dynamic-modules</module>
     </modules>
 
     <parent>
