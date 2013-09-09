@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -124,12 +125,20 @@ public class DynamicModuleRegistration
                 reg.unregister();
             }
             registrations.clear();
+            theOthers.clear();
         }
 
         @Override
         public ModuleRegistrationHandle union(ModuleRegistrationHandle other)
         {
-            return new ModuleRegistrationHandleImpl(this.registrations, Lists.newArrayList(other));
+            return new ModuleRegistrationHandleImpl(this.registrations, smoosh(this.theOthers,other));
+        }
+
+        private List<ModuleRegistrationHandle> smoosh(final List<ModuleRegistrationHandle> theOthers, final ModuleRegistrationHandle other)
+        {
+            ArrayList<ModuleRegistrationHandle> list = Lists.newArrayList(theOthers);
+            list.add(other);
+            return list;
         }
     }
 }
