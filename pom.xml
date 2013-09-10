@@ -15,7 +15,7 @@
     <parent>
 		<groupId>com.atlassian.pom</groupId>
 		<artifactId>atlassian-closedsource-pom</artifactId>
-		<version>25</version>
+		<version>39</version>
 	</parent>
 
 	<groupId>com.atlassian.pocketknife</groupId>
