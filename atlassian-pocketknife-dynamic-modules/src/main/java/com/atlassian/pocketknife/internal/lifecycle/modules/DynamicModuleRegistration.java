@@ -88,7 +88,15 @@ public class DynamicModuleRegistration
         }
 
         void unregister() {
-            serviceRegistration.unregister();
+            try
+            {
+                serviceRegistration.unregister();
+            }
+            catch (IllegalStateException ignored)
+            {
+                // if its already been unregistered with OSGI then that's cool by us.
+                // dead is dead!
+            }
             //
             // save memory by clearing out the XML we have recorded for this plugin
             GhettoCode.removeModuleDescriptorElement(moduleDescriptor.getPlugin(), moduleDescriptor.getKey());
@@ -131,12 +139,17 @@ public class DynamicModuleRegistration
         @Override
         public ModuleRegistrationHandle union(ModuleRegistrationHandle other)
         {
-            return new ModuleRegistrationHandleImpl(this.registrations, smoosh(this.theOthers,other));
+            return new ModuleRegistrationHandleImpl(this.registrations, smoosh(other));
         }
 
-        private List<ModuleRegistrationHandle> smoosh(final List<ModuleRegistrationHandle> theOthers, final ModuleRegistrationHandle other)
+        private List<ModuleRegistrationHandle> smoosh(ModuleRegistrationHandle other)
         {
-            ArrayList<ModuleRegistrationHandle> list = Lists.newArrayList(theOthers);
+            if (other == this)
+            {
+                return this.theOthers;
+            }
+            ArrayList<ModuleRegistrationHandle> list = Lists.newArrayList();
+            list.addAll(this.theOthers);
             list.add(other);
             return list;
         }
