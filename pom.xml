@@ -20,7 +20,7 @@
 
 	<groupId>com.atlassian.pocketknife</groupId>
 	<artifactId>atlassian-pocketknife-parent-pom</artifactId>
-	<version>0.008</version>
+	<version>0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
     <name>Atlassian PocketKnife Parent POM</name>
