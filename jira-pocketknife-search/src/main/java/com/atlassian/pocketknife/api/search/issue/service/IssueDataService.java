@@ -43,4 +43,10 @@ public interface IssueDataService
      */
     @NotNull
     <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback);
+
+    /**
+     * Executes a find, but overwrites security.
+     */
+    @NotNull
+    <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback, org.apache.lucene.search.Query andQuery);
 }

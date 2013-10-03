@@ -3,6 +3,7 @@ package com.atlassian.pocketknife.api.search.issue.service;
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.query.Query;
+import org.apache.lucene.search.Collector;
 
 /**
  * Exposes SearchService methods missing/unexposed in the original
@@ -18,4 +19,16 @@ public interface ExtendedSearchService
      * @return the outcome
      */
     public long searchCountOverrideSecurity(Query query, User searcher, org.apache.lucene.search.Query andQuery) throws SearchException;
+
+    /**
+     * Run a search based on the provided search criteria and, for each match, call Collector.collect() not taking
+     * into account any security constraints.
+     *
+     *
+     * @param query the lucene query to search for
+     * @param searcher the user performing the search which will be used to provide context for the search.
+     * @param collector the Lucene object that will have collect called for each match.
+     * @param andQuery optional lucene query to and with the lucene query
+     */
+    public void searchOverrideSecurity(Query query, User searcher, Collector collector, org.apache.lucene.search.Query andQuery) throws SearchException;
 }

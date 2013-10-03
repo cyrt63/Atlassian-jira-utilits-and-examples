@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.internal.search.issue.service;
 
+import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
 import com.atlassian.pocketknife.api.search.issue.service.IssueDataService;
 import org.apache.lucene.search.IndexSearcher;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ public class IssueDataServiceImpl implements IssueDataService
     @Autowired
     private SearchProvider searchProvider;
 
+    @Autowired
+    private ExtendedSearchService extendedSearchService;
+
     @Override
     @NotNull
     public <T extends DataCallback> boolean find(User user, Query query, T callback)
@@ -43,6 +47,13 @@ public class IssueDataServiceImpl implements IssueDataService
     public <T extends DataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
     {
         return findImpl(user, query, callback, null, false, andQuery);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
+    {
+        return findImpl(user, query, callback, null, true, andQuery);
     }
 
     @Override
@@ -65,9 +76,9 @@ public class IssueDataServiceImpl implements IssueDataService
      */
     private <T extends DataCallback> boolean findImpl(User user, Query query, T callback, PagerFilter<?> pager, boolean overwriteSecurity, org.apache.lucene.search.Query andQuery)
     {
-        if (andQuery != null && (overwriteSecurity || pager != null))
+        if (andQuery != null && pager != null)
         {
-            throw new IllegalStateException("andQuery not supported with pager or overrideSecurity.");
+            throw new IllegalStateException("andQuery not supported with overrideSecurity.");
         }
 
         IndexSearcher searcher = searchProviderFactory.getSearcher(SearchProviderFactory.ISSUE_INDEX);
@@ -80,7 +91,7 @@ public class IssueDataServiceImpl implements IssueDataService
             // this will fire off the query, fetch the values for the fields specified in the collector and pass them on to the callback.
             if (overwriteSecurity)
             {
-                searchProvider.searchOverrideSecurity(query, user, collector);
+                extendedSearchService.searchOverrideSecurity(query, user, collector, andQuery);
             }
             else if (pager != null)
             {
