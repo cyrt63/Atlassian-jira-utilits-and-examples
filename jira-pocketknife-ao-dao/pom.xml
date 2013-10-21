@@ -14,7 +14,6 @@
             <groupId>com.atlassian.pocketknife</groupId>
             <artifactId>jira-pocketknife-enablement</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
