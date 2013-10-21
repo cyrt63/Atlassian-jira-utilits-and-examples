@@ -12,7 +12,7 @@
         <module>atlassian-pocketknife-dynamic-modules</module>
         <module>jira-pocketknife-enablement</module>
         <module>jira-pocketknife-ao-dao</module>
-        <module>atlassian-pocketknife-upgradetask</module>
+        <module>jira-pocketknife-upgradetask</module>
     </modules>
 
     <parent>
