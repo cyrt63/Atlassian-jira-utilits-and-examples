@@ -10,6 +10,9 @@
         <module>jira-pocketknife-customfields</module>
         <module>jira-pocketknife-rest</module>
         <module>atlassian-pocketknife-dynamic-modules</module>
+        <module>jira-pocketknife-enablement</module>
+        <module>jira-pocketknife-ao-dao</module>
+        <module>atlassian-pocketknife-upgradetask</module>
     </modules>
 
     <parent>
@@ -54,6 +57,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>2.5.6.SEC02</spring.version>
         <upm.version>2.1</upm.version>
+        <fugue.version>1.1</fugue.version>
     </properties>
 
   
