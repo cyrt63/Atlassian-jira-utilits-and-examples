@@ -102,6 +102,29 @@ public class AbstractRestResource
      *******************************************************/
 
     /**
+     * @return Returns an error response using the reason stored inside the ErrorCollection
+     */
+    protected Response errorResponse(String reasonKey, com.atlassian.jira.util.ErrorCollection errors)
+    {
+        Response.Status status = getMostAppropriateStatus(errors);
+        return createErrorResponse(status, reasonKey, errors);
+    }
+
+    private Response.Status getMostAppropriateStatus(com.atlassian.jira.util.ErrorCollection errors)
+    {
+        if (errors.getReasons().isEmpty())
+        {
+            return Response.Status.INTERNAL_SERVER_ERROR;
+        }
+        else
+        {
+            // just use the first
+            int statusCode = errors.getReasons().iterator().next().getHttpStatusCode();
+            return Response.Status.fromStatusCode(statusCode);
+        }
+    }
+
+    /**
      * @return Returns a NOT_FOUND response
      */
     protected Response notFoundRequest(String reasonKey)
