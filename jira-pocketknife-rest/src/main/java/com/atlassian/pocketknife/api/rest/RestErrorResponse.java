@@ -1,30 +1,21 @@
 package com.atlassian.pocketknife.api.rest;
 
+import com.google.common.collect.Lists;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.google.common.collect.Lists;
-
-@XmlRootElement
 public class RestErrorResponse
 {
-    @XmlElement
+    @JsonProperty
     private List<Error> errors;
 
-    @XmlElement
+    @JsonProperty
     private final String reasonKey;
 
-    @XmlElement
+    @JsonProperty
     private final String reasonCode;
 
-    /**
-     * REST errors must have a reasonKey and reasonCode
-     * 
-     * @param reasonKey
-     * @param reasonCode
-     */
     public RestErrorResponse(String reasonKey, String reasonCode)
     {
         this.reasonCode = reasonCode;
@@ -32,34 +23,22 @@ public class RestErrorResponse
         errors = Lists.newArrayList();
     }
 
-    /**
-     * Add an error to the current list of errors
-     * 
-     * @param errorMessage
-     */
     public void addError(String errorMessage)
     {
         errors.add(new Error(errorMessage));
     }
 
-    /**
-     * Add an error that maps to a field
-     * 
-     * @param errorMessage
-     * @param field
-     */
     public void addError(String errorMessage, String field)
     {
         errors.add(new Error(errorMessage, field));
     }
 
-    @XmlRootElement
     private static class Error
     {
-        @XmlElement
+        @JsonProperty
         private String errorMessage;
 
-        @XmlElement
+        @JsonProperty
         private String field;
 
         public Error()

@@ -1,15 +1,13 @@
 package com.atlassian.pocketknife.api.rest;
 
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
+import com.atlassian.crowd.embedded.api.User;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
-
-import org.apache.log4j.Logger;
-
-import com.atlassian.crowd.embedded.api.User;
-import com.atlassian.jira.security.JiraAuthenticationContext;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 
 /**
  * A base class to make REST resources more structured and supportable
@@ -95,6 +93,14 @@ public class AbstractRestResource
     protected Response created(Object result)
     {
         return Response.status(Response.Status.CREATED).entity(result).cacheControl(never()).build();
+    }
+
+    /**
+     * @return a 304 Not Modified
+     */
+    protected Response notModified()
+    {
+        return Response.notModified().build();
     }
 
     /*******************************************************
