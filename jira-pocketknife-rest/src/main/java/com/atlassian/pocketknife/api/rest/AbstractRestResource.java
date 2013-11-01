@@ -147,6 +147,14 @@ public class AbstractRestResource
     }
 
     /**
+     * @return the NOT_FOUND response
+     */
+    protected Response notFoundRequest(String reasonKey, String errorMessage, String field)
+    {
+        return createErrorResponseForField(Response.Status.NOT_FOUND, reasonKey, errorMessage, field);
+    }
+
+    /**
      * @return Returns a NOT_FOUND response with errors from JIRA
      */
     protected Response notFoundRequest(String reasonKey, com.atlassian.jira.util.ErrorCollection errorCollection)
@@ -169,6 +177,14 @@ public class AbstractRestResource
     protected Response forbiddenRequest(String reasonKey, String errorMessage)
     {
         return createErrorResponse(Response.Status.FORBIDDEN, reasonKey, errorMessage);
+    }
+
+    /**
+     * @return the FORBIDDEN response
+     */
+    protected Response forbiddenRequest(String reasonKey, String errorMessage, String field)
+    {
+        return createErrorResponseForField(Response.Status.FORBIDDEN, reasonKey, errorMessage, field);
     }
 
     /**
@@ -196,6 +212,14 @@ public class AbstractRestResource
     }
 
     /**
+     * @return the UNAUTHORIZED response
+     */
+    protected Response unauthorizedRequest(String reasonKey, String errorMessage, String field)
+    {
+        return createErrorResponseForField(Response.Status.UNAUTHORIZED, reasonKey, errorMessage, field);
+    }
+
+    /**
      * @return the UNAUTHORIZED response with error messages from JIRA
      */
     protected Response unauthorizedRequest(String reasonKey, com.atlassian.jira.util.ErrorCollection errorCollection)
@@ -217,6 +241,14 @@ public class AbstractRestResource
     protected Response badRequest(String reasonKey, String errorMessage)
     {
         return createErrorResponse(Response.Status.BAD_REQUEST, reasonKey, errorMessage);
+    }
+
+    /**
+     * @return the BAD_REQUEST response
+     */
+    protected Response badRequest(String reasonKey, String errorMessage, String field)
+    {
+        return createErrorResponseForField(Response.Status.BAD_REQUEST, reasonKey, errorMessage, field);
     }
 
     /**
@@ -249,6 +281,13 @@ public class AbstractRestResource
     {
         RestErrorResponse error = new RestErrorResponse(reasonKey, String.valueOf(status.getStatusCode()));
         error.addError(errorMessage);
+        return Response.status(status).entity(error).build();
+    }
+
+    private Response createErrorResponseForField(Response.Status status, String reasonKey, String errorMessage, String field)
+    {
+        RestErrorResponse error = new RestErrorResponse(reasonKey, String.valueOf(status.getStatusCode()));
+        error.addError(errorMessage, field);
         return Response.status(status).entity(error).build();
     }
 
