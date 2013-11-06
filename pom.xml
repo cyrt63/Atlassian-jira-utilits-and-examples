@@ -4,15 +4,15 @@
 
 	<modelVersion>4.0.0</modelVersion>
     <modules>
+        <module>jira-pocketknife-enablement</module>
         <module>jira-pocketknife-search</module>
         <module>jira-pocketknife-lifecycle</module>
-        <module>atlassian-pocketknife-core</module>
         <module>jira-pocketknife-customfields</module>
         <module>jira-pocketknife-rest</module>
         <module>atlassian-pocketknife-dynamic-modules</module>
-        <module>jira-pocketknife-enablement</module>
         <module>jira-pocketknife-ao-dao</module>
         <module>jira-pocketknife-upgradetask</module>
+        <module>atlassian-pocketknife-core</module>
     </modules>
 
     <parent>
