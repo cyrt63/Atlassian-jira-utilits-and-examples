@@ -27,12 +27,14 @@
 	<packaging>pom</packaging>
 
     <name>Atlassian PocketKnife Parent POM</name>
-	<licenses>
-		<license>
-			<name>Commercial</name>
-			<comments>See details at http://www.atlassian.com/software/jira/licensing.jsp</comments>
-		</license>
-	</licenses>
+
+    <licenses>
+        <license>
+            <name>Atlassian 3.0 End User License Agreement</name>
+            <url>http://www.atlassian.com/end-user-agreement/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
 	<scm>
 	    <connection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</connection>
