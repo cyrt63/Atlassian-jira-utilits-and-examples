@@ -16,8 +16,6 @@ public interface RequestCacheService
      * @param clazz the class of the value
      * @param <T> for 2 and 2 for T
      * @return the value or null if it can be found
-     * 
-     * @throws IllegalStateException if called are made to this service when NOT on a Http thread
      */
     <T> T get(String key, Class<T> clazz);
 
@@ -30,8 +28,6 @@ public interface RequestCacheService
      * @param supplierOfValue is called when the cached value is null
      * @param <T> for 2 and 2 for T
      * @return a cached value or one form the supplier
-     * 
-     * @throws IllegalStateException if called are made to this service when NOT on a Http thread
      */
     <T> T getOrSet(String key, Class<T> clazz, Supplier<T> supplierOfValue);
 
@@ -42,8 +38,6 @@ public interface RequestCacheService
      * 
      * @param key the key to put the value under
      * @param value the value to put
-     * 
-     * @throws IllegalStateException if called are made to this service when NOT on a Http thread
      */
     void set(String key, Object value);
 
@@ -51,8 +45,6 @@ public interface RequestCacheService
      * Invalidate the cache entry for the specified key
      * 
      * @param key the key to clear
-     * 
-     * @throws IllegalStateException if called are made to this service when NOT on a Http thread
      */
     void invalidate(String key);
 

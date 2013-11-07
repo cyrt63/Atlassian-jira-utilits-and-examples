@@ -23,6 +23,11 @@ public class RequestCacheServiceImpl implements RequestCacheService
     @Override
     public void invalidate(String key)
     {
+        if (!isHttpRequest())
+        {
+            return;
+        }
+
         key = pfx(key);
 
         Map<String, Object> cache = getRequestCache();
@@ -35,6 +40,11 @@ public class RequestCacheServiceImpl implements RequestCacheService
     @Override
     public void set(String key, Object value)
     {
+        if (!isHttpRequest())
+        {
+            return;
+        }
+
         key = pfx(key);
         getRequestCache().put(key, value);
     }
@@ -42,6 +52,11 @@ public class RequestCacheServiceImpl implements RequestCacheService
     @Override
     public <T> T get(String key, Class<T> clazz)
     {
+        if (!isHttpRequest())
+        {
+            return null;
+        }
+
         key = pfx(key);
 
         Map<String, Object> cache = getRequestCache();
@@ -58,6 +73,11 @@ public class RequestCacheServiceImpl implements RequestCacheService
     @Override
     public <T> T getOrSet(String key, Class<T> clazz, Supplier<T> supplierOfValue)
     {
+        if (!isHttpRequest())
+        {
+            return supplierOfValue.get();
+        }
+
         T value = get(key, clazz);
         if (value == null)
         {
@@ -81,10 +101,15 @@ public class RequestCacheServiceImpl implements RequestCacheService
         // if we are not inside a HTTP request then the user of this class is meaningless and wrong
         // so we enforce that invariant with that most dramatic of coding constructs! The exception!
         //
-        if (ExecutingHttpRequest.get() == null)
+        if (!isHttpRequest())
         {
             throw new IllegalStateException("You must be inside a HTTP request to call the RequestCacheService.");
         }
+    }
+
+    private boolean isHttpRequest()
+    {
+        return ExecutingHttpRequest.get() != null;
     }
 
     private String pfx(String key)
