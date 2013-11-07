@@ -89,7 +89,7 @@ public class RequestCacheServiceImpl implements RequestCacheService
 
     private Map<String, Object> getRequestCache()
     {
-        checkHttpInvariant();
+//        checkHttpInvariant();
 
         // technically not API but we have a job to do here.
         return JiraAuthenticationContextImpl.getRequestCache();
