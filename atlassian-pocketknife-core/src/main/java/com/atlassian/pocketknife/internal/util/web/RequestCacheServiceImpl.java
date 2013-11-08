@@ -12,6 +12,9 @@ import com.atlassian.pocketknife.spi.info.PocketKnifePluginInfo;
 import com.google.common.base.Supplier;
 
 /**
+ * Implementation of a request level cache. Uses JIRA's request cache under the hood.
+ *
+ * Note: caching is a no-op for threads that aren't in request scope.
  */
 @Service
 public class RequestCacheServiceImpl implements RequestCacheService
@@ -89,22 +92,8 @@ public class RequestCacheServiceImpl implements RequestCacheService
 
     private Map<String, Object> getRequestCache()
     {
-//        checkHttpInvariant();
-
         // technically not API but we have a job to do here.
         return JiraAuthenticationContextImpl.getRequestCache();
-    }
-
-    private void checkHttpInvariant()
-    {
-        //
-        // if we are not inside a HTTP request then the user of this class is meaningless and wrong
-        // so we enforce that invariant with that most dramatic of coding constructs! The exception!
-        //
-        if (!isHttpRequest())
-        {
-            throw new IllegalStateException("You must be inside a HTTP request to call the RequestCacheService.");
-        }
     }
 
     private boolean isHttpRequest()
