@@ -13,12 +13,13 @@
         <module>jira-pocketknife-ao-dao</module>
         <module>jira-pocketknife-upgradetask</module>
         <module>atlassian-pocketknife-core</module>
+        <module>jira-pocketknife-cache</module>
     </modules>
 
     <parent>
 		<groupId>com.atlassian.pom</groupId>
-		<artifactId>atlassian-closedsource-pom</artifactId>
-		<version>41</version>
+		<artifactId>closedsource-pom</artifactId>
+		<version>3.0.2</version>
 	</parent>
 
 	<groupId>com.atlassian.pocketknife</groupId>
