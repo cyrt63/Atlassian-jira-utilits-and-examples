@@ -45,7 +45,11 @@ class CacheManagerSupplier implements Supplier<CacheManager>
 
     private boolean useJiraCacheManager()
     {
-        SoftwareVersion jiraVersion = jiraVersionService.version();
-        return jiraVersion.isGreaterThanOrEqualTo(MinCompatibleJiraVersion.JIRA_VERSION_WITH_CACHE_MANAGER_2);
+        /**
+         * Revisit this once a suitable Cache and JIRA version is available
+         */
+        return false;
+//        SoftwareVersion jiraVersion = jiraVersionService.version();
+//        return jiraVersion.isGreaterThanOrEqualTo(MinCompatibleJiraVersion.JIRA_VERSION_WITH_CACHE_MANAGER_2);
     }
 }

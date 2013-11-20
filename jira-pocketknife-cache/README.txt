@@ -20,6 +20,9 @@ Required Dependencies:
 
 Required package import/exports:
 
+NOTE: Not currently required as the library won't switch over to a JIRA provided CacheManager just yet (we'll have to
+wait for a suitable cache lib version as well as JIRA version that bundles it)
+
 <Export-Package>
     com.atlassian.cache;version="${cache.version}",
     com.atlassian.cache.memory;version="${cache.version}",
