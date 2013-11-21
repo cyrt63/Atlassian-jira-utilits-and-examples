@@ -41,15 +41,13 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
     private static final Logger log = LoggerFactory.getLogger(DynamicModuleDescriptorFactoryImpl.class);
 
     private final DynamicModuleRegistration dynamicModuleRegistration;
-
-    private final ModuleDescriptorFactory moduleDescriptorFactory;
-
+    private final CombinedModuleDescriptorFactoryProvider combinedModuleDescriptorFactoryProvider;
 
     @Autowired
     public DynamicModuleDescriptorFactoryImpl(DynamicModuleRegistration dynamicModuleRegistration, CombinedModuleDescriptorFactoryProvider combinedModuleDescriptorFactoryProvider)
     {
         this.dynamicModuleRegistration = dynamicModuleRegistration;
-        this.moduleDescriptorFactory = combinedModuleDescriptorFactoryProvider.getModuleDescriptorFactory();
+        this.combinedModuleDescriptorFactoryProvider = combinedModuleDescriptorFactoryProvider;
     }
 
     /**
@@ -64,6 +62,7 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
     {
         List<ModuleDescriptor> modules = Lists.newArrayList();
 
+        final ModuleDescriptorFactory moduleDescriptorFactory = combinedModuleDescriptorFactoryProvider.getModuleDescriptorFactory();
         for (String auxAtlassianPluginXML : pathsToAuxAtlassianPluginXMLs)
         {
             final PluginDescriptorReader descriptorReader = getPluginDescriptorReader(plugin, auxAtlassianPluginXML);

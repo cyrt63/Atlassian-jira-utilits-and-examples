@@ -30,7 +30,6 @@ import java.util.List;
 @Service
 public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
 {
-    private final ModuleDescriptorFactory moduleDescriptorFactory;
     private final ServiceTracker moduleDescriptorFactoryTracker;
     private final ServiceTracker listableModuleDescriptorFactoryTracker;
 
@@ -45,13 +44,11 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
 
         moduleDescriptorFactoryTracker = osgi.getServiceTracker(ModuleDescriptorFactory.class.getName());
         listableModuleDescriptorFactoryTracker = osgi.getServiceTracker(ListableModuleDescriptorFactory.class.getName());
-
-        moduleDescriptorFactory = getChainedModuleDescriptorFactory(getHostModuleDescriptoryFactory());
     }
 
     public ModuleDescriptorFactory getModuleDescriptorFactory()
     {
-        return moduleDescriptorFactory;
+        return getChainedModuleDescriptorFactory(getHostModuleDescriptoryFactory());
     }
 
     @Override
