@@ -14,6 +14,7 @@
         <module>jira-pocketknife-upgradetask</module>
         <module>atlassian-pocketknife-core</module>
         <module>jira-pocketknife-cache</module>
+        <module>jira-pocketknife-testing</module>
     </modules>
 
     <parent>
