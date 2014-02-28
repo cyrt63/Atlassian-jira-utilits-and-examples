@@ -1,6 +1,7 @@
 package com.atlassian.pocketknife.api.lifecycle.modules;
 
 import com.atlassian.plugin.Plugin;
+import org.dom4j.Element;
 
 /**
  * The use of this module factory allows a plugin to have a "controlled launch" of its functionality.  The plugin
@@ -27,5 +28,15 @@ public interface DynamicModuleDescriptorFactory
      *         thr plugin is coming down
      */
     public ModuleRegistrationHandle loadModules(final Plugin plugin, String... pathsToAuxAtlassianPluginXMLs);
+
+    /**
+     * This allows you to dynamically generated modules from html elements files as modules under your control.
+     *
+     * @param plugin                        your plugin that you want the modules to belong to
+     * @param element an dom element containing the module descriptor as if it were loaded from an actual file.
+     * @return a module registration object that you should hold onto for the life of the plugin and call unregister on when
+     *         thr plugin is coming down
+     */
+    public ModuleRegistrationHandle loadModules(final Plugin plugin, Element element);
 
 }

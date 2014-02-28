@@ -68,35 +68,17 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
             final PluginDescriptorReader descriptorReader = getPluginDescriptorReader(plugin, auxAtlassianPluginXML);
             for (Element moduleElement : descriptorReader.getModules())
             {
-                final String moduleType = moduleElement.getName();
-
-                final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(plugin, moduleType, moduleElement, moduleDescriptorFactory);
-
-                // If we're not loading the module descriptor, null is returned, so we skip it
-                if (moduleDescriptor == null)
-                {
-                    continue;
-                }
-
-                //
-                // if we have a key and we already have a module of that name, then blow up!
-                //
-                if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
-                {
-                    throw new PluginParseException("Found duplicate key '" + moduleDescriptor.getKey() + "' within plugin '" + plugin.getKey() + "'");
-                }
-
-                if (moduleDescriptor instanceof UnloadableModuleDescriptor)
-                {
-                    log.error("There were errors loading the module '" + moduleDescriptor.getName() + "'.");
-                }
-                else
-                {
-                    log.debug("Loaded module '{}' ", moduleDescriptor.getKey());
-                    modules.add(moduleDescriptor);
-                }
+                loadModulesHelper(plugin, moduleElement, moduleDescriptorFactory, modules);
             }
         }
+        return dynamicModuleRegistration.registerDescriptors(plugin, modules);
+    }
+
+    public ModuleRegistrationHandle loadModules(final Plugin plugin, Element element)
+    {
+        List<ModuleDescriptor> modules = Lists.newArrayList();
+        final ModuleDescriptorFactory moduleDescriptorFactory = combinedModuleDescriptorFactoryProvider.getModuleDescriptorFactory();
+        loadModulesHelper(plugin, element, moduleDescriptorFactory, modules);
         return dynamicModuleRegistration.registerDescriptors(plugin, modules);
     }
 
@@ -149,6 +131,35 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         return moduleDescriptor;
     }
 
+    private void loadModulesHelper(Plugin plugin, Element moduleElement, ModuleDescriptorFactory moduleDescriptorFactory, List<ModuleDescriptor> modules){
+        final String moduleType = moduleElement.getName();
+
+        final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(plugin, moduleType, moduleElement, moduleDescriptorFactory);
+
+        // If we're not loading the module descriptor, null is returned, so we skip it
+        if (moduleDescriptor == null)
+        {
+            return;
+        }
+
+        //
+        // if we have a key and we already have a module of that name, then blow up!
+        //
+        if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
+        {
+            throw new PluginParseException("Found duplicate key '" + moduleDescriptor.getKey() + "' within plugin '" + plugin.getKey() + "'");
+        }
+
+        if (moduleDescriptor instanceof UnloadableModuleDescriptor)
+        {
+            log.error("There were errors loading the module '" + moduleDescriptor.getName() + "'.");
+        }
+        else
+        {
+            log.debug("Loaded module '{}' ", moduleDescriptor.getKey());
+            modules.add(moduleDescriptor);
+        }
+    }
 
     private PluginDescriptorReader getPluginDescriptorReader(Plugin plugin, String auxAtlassianPluginXML)
     {
