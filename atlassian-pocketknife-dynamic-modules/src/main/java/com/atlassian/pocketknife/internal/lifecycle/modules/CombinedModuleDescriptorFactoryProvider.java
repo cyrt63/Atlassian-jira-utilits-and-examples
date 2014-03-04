@@ -9,6 +9,7 @@ import com.atlassian.plugin.osgi.container.OsgiContainerManager;
 import com.atlassian.plugin.osgi.external.ListableModuleDescriptorFactory;
 import com.atlassian.sal.api.component.ComponentLocator;
 import com.google.common.annotations.VisibleForTesting;
+import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +34,10 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
     private final ServiceTracker moduleDescriptorFactoryTracker;
     private final ServiceTracker listableModuleDescriptorFactoryTracker;
 
-    public CombinedModuleDescriptorFactoryProvider()
+    public CombinedModuleDescriptorFactoryProvider(BundleContext bundleContext)
     {
-        /**
-         * We need this code because this is what the OsgiPluginFactory does per plugin BUT it never exposes the resultant
-         * chained module descriptor factory so we could use it.  So we repeat this so we can gain access to all of the ModuleDescriptorFactories
-         * out there in OSGI service tracker land.
-         */
-        final OsgiContainerManager osgi = getOsgiContainerManager();
-
-        moduleDescriptorFactoryTracker = osgi.getServiceTracker(ModuleDescriptorFactory.class.getName());
-        listableModuleDescriptorFactoryTracker = osgi.getServiceTracker(ListableModuleDescriptorFactory.class.getName());
+        moduleDescriptorFactoryTracker = new ServiceTracker(bundleContext, ModuleDescriptorFactory.class.getName(), null);
+        listableModuleDescriptorFactoryTracker = new ServiceTracker(bundleContext, ListableModuleDescriptorFactory.class.getName(), null);
     }
 
     public ModuleDescriptorFactory getModuleDescriptorFactory()
