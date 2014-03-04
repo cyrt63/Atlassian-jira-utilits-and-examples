@@ -4,7 +4,9 @@ import com.atlassian.plugin.ModuleDescriptor;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.StateAware;
 import com.atlassian.pocketknife.api.lifecycle.modules.ModuleRegistrationHandle;
+import com.atlassian.pocketknife.internal.lifecycle.modules.utils.BundleUtil;
 import com.google.common.collect.Lists;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -46,7 +48,8 @@ public class DynamicModuleRegistration
      */
     public ModuleRegistrationHandle registerDescriptors(final Plugin plugin, Iterable<ModuleDescriptor> descriptors)
     {
-        BundleContext targetBundleContext = bundleContext;
+        Bundle bundle = BundleUtil.findBundleForPlugin(bundleContext, plugin.getKey());
+        BundleContext targetBundleContext = bundle.getBundleContext();
         final List<TrackedDynamicModule> registrations = newArrayList();
         for (ModuleDescriptor descriptor : descriptors)
         {
