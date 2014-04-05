@@ -14,6 +14,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
     private final ServiceTracker moduleDescriptorFactoryTracker;
     private final ServiceTracker listableModuleDescriptorFactoryTracker;
 
+    @Autowired
     public CombinedModuleDescriptorFactoryProvider(BundleContext bundleContext)
     {
         moduleDescriptorFactoryTracker = new ServiceTracker(bundleContext, ModuleDescriptorFactory.class.getName(), null);
