@@ -14,6 +14,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,13 +32,9 @@ import java.util.List;
 @Service
 public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
 {
-    private final ServiceTracker moduleDescriptorFactoryTracker;
-    private final ServiceTracker listableModuleDescriptorFactoryTracker;
 
-    public CombinedModuleDescriptorFactoryProvider(BundleContext bundleContext)
+    public CombinedModuleDescriptorFactoryProvider()
     {
-        moduleDescriptorFactoryTracker = new ServiceTracker(bundleContext, ModuleDescriptorFactory.class.getName(), null);
-        listableModuleDescriptorFactoryTracker = new ServiceTracker(bundleContext, ListableModuleDescriptorFactory.class.getName(), null);
     }
 
     public ModuleDescriptorFactory getModuleDescriptorFactory()
@@ -48,8 +45,6 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
     @Override
     public void destroy() throws Exception
     {
-        moduleDescriptorFactoryTracker.close();
-        listableModuleDescriptorFactoryTracker.close();
     }
 
     @VisibleForTesting
@@ -75,6 +70,11 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
      */
     private ModuleDescriptorFactory getChainedModuleDescriptorFactory(ModuleDescriptorFactory originalFactory)
     {
+        final OsgiContainerManager osgi = getOsgiContainerManager();
+
+        ServiceTracker moduleDescriptorFactoryTracker = osgi.getServiceTracker(ModuleDescriptorFactory.class.getName());
+        ServiceTracker listableModuleDescriptorFactoryTracker = osgi.getServiceTracker(ListableModuleDescriptorFactory.class.getName());
+
         List<ModuleDescriptorFactory> factories = new ArrayList<ModuleDescriptorFactory>();
 
         factories.add(originalFactory);
@@ -105,6 +105,9 @@ public class CombinedModuleDescriptorFactoryProvider implements DisposableBean
                 }
             }
         }
+
+        moduleDescriptorFactoryTracker.close();
+        listableModuleDescriptorFactoryTracker.close();
 
         //
         // Catch all unknown descriptors as unrecognised.  These unrecognised modules can be resolved later if
