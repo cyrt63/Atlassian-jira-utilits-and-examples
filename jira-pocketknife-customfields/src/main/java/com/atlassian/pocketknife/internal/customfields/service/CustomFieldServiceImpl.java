@@ -53,6 +53,11 @@ public class CustomFieldServiceImpl implements CustomFieldService
 
     private static final Logger logger = LoggerFactory.getLogger(CustomFieldServiceImpl.class);
 
+    /**
+     * {@link com.atlassian.jira.config.ConstantsManager} does not define the global issue type, so let do it
+     */
+    private static final String GLOBAL_ISSUETYPE = "-1";
+
     @Autowired
     private CustomFieldManager customFieldManager;
 
@@ -152,14 +157,19 @@ public class CustomFieldServiceImpl implements CustomFieldService
      */
     private Set<IssueType> getIssueTypes(Option<IssueTypeProvider> issueTypeProvider)
     {
+        Set<IssueType> issueTypes = new HashSet<IssueType>();
         if (issueTypeProvider.isDefined())
         {
-            return issueTypeProvider.get().getIssueTypes();
+            issueTypes.addAll(issueTypeProvider.get().getIssueTypes());
         }
-        else
-        {
-            return new HashSet<IssueType>();
-        }
+
+        //        client code is expecting a global context of no IssueType associated?
+        //
+        //        simply return empty list as-is, instead of adding it with a NULL IssueType as Global Context
+        //        because com.atlassian.jira.config.ConstantsManager.getIssueTypeObject(GLOBAL_ISSUETYPE); always yields a NULL
+        //        and we don't want to add it to the return set and try to catch the NULL IssueType everywhere
+
+        return issueTypes;
     }
 
     /**
@@ -170,19 +180,24 @@ public class CustomFieldServiceImpl implements CustomFieldService
      */
     private List<GenericValue> convert(Set<IssueType> issueTypes)
     {
-        List<GenericValue> values = null;
-
         Set<String> ids = new HashSet<String>();
         for (IssueType issueType : issueTypes)
         {
             ids.add(issueType.getId());
         }
 
-        if (ids.size() > 0)
+        //        client code is expecting a global context of no IssueType associated? YES.
+        //
+        //        just to made the com.atlassian.jira.issue.customfields.CustomFieldUtils.buildIssueTypes() happy
+        //        so let's add 1 special ID defined as {@link #GLOBAL_ISSUETYPE}
+        //        a list of 1 element of that special ID is interpreted as Global IssueType context
+        //        meanwhile an empty list will restricted to No Context (private)
+        if (ids.isEmpty())
         {
-            values = CustomFieldUtils.buildIssueTypes(constantsManager, ids.toArray(new String[ids.size()]));
+            ids.add(GLOBAL_ISSUETYPE);
         }
 
+        List<GenericValue> values = CustomFieldUtils.buildIssueTypes(constantsManager, ids.toArray(new String[ids.size()]));
         return values;
     }
 
