@@ -1,6 +1,5 @@
 package com.atlassian.pocketknife.internal.customfields.service;
 
-import com.atlassian.event.api.EventPublisher;
 import com.atlassian.fugue.Option;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.ConstantsManager;
@@ -16,7 +15,6 @@ import com.atlassian.jira.issue.customfields.CustomFieldUtils;
 import com.atlassian.jira.issue.customfields.option.Options;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.fields.config.FieldConfig;
-import com.atlassian.jira.issue.fields.config.manager.FieldConfigSchemeManager;
 import com.atlassian.jira.issue.fields.layout.field.EditableDefaultFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.EditableFieldLayout;
 import com.atlassian.jira.issue.fields.layout.field.FieldLayoutItem;
@@ -28,7 +26,6 @@ import com.atlassian.pocketknife.api.customfields.service.CustomFieldMetadata;
 import com.atlassian.pocketknife.api.customfields.service.CustomFieldService;
 import com.atlassian.pocketknife.api.customfields.service.FieldLockingService;
 import com.atlassian.pocketknife.api.customfields.service.IssueTypeProvider;
-import com.atlassian.pocketknife.api.persistence.GlobalPropertyDao;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.ofbiz.core.entity.GenericValue;
@@ -68,14 +65,7 @@ public class CustomFieldServiceImpl implements CustomFieldService
     private I18nHelper.BeanFactory i18nFactoryService;
 
     @Autowired
-    private FieldConfigSchemeManager fieldConfigSchemeManager;
-
-    @Autowired ApplicationProperties applicationProperties;
-
-    @Autowired EventPublisher eventPublisher;
-
-    @Autowired
-    GlobalPropertyDao globalPropertyDao;
+    private ApplicationProperties applicationProperties;
 
     @Autowired
     private FieldLayoutManager fieldLayoutManager;
@@ -96,8 +86,8 @@ public class CustomFieldServiceImpl implements CustomFieldService
             String desc = i18n.getText(fieldMetadata.getFieldDescription());
             Option<CustomFieldType> type = Option.option(customFieldManager.getCustomFieldType(fieldMetadata.getFieldType()));
             Option<CustomFieldSearcher> searcher = Option.option(customFieldManager.getCustomFieldSearcher(fieldMetadata.getFieldSearcher()));
-            Set<IssueType> issueTypes = getIssueTypes(fieldMetadata.getIssueTypeProvider());
-            List<GenericValue> genericIssueTypeValues = convert(issueTypes);
+            Set<String> issueTypeIds = getIssueTypeIds(fieldMetadata.getIssueTypeProvider());
+            List<GenericValue> genericIssueTypeValues = convert(issueTypeIds);
 
             // we use the global context here (all projects), since we're creating a field programmatically and don't really want anything project-specific
             List<JiraContextNode> contexts = CustomFieldUtils
@@ -108,13 +98,12 @@ public class CustomFieldServiceImpl implements CustomFieldService
             // add options
             if (!fieldMetadata.getOptionNames().isEmpty())
             {
-                for (IssueType issueType : issueTypes)
+                for (String issueTypeId : issueTypeIds)
                 {
-                    String issueTypeId = issueType.getId();
                     com.atlassian.fugue.Option<FieldConfig> fieldConfig = CustomFieldUtil.getRelevantConfig(customField, new IssueContextImpl(null, issueTypeId));
                     addOptionsToCustomField(customField, fieldConfig, fieldMetadata.getOptionNames(), fieldMetadata.getDefaultOptionName());
                 }
-                setOptionsOrderFromMetadata(customField, fieldMetadata, issueTypes);
+                setOptionsOrderFromMetadata(customField, fieldMetadata, issueTypeIds);
             }
 
             if (fieldMetadata.isRequireField())
@@ -155,47 +144,36 @@ public class CustomFieldServiceImpl implements CustomFieldService
      * @param issueTypeProvider
      * @return
      */
-    private Set<IssueType> getIssueTypes(Option<IssueTypeProvider> issueTypeProvider)
+    private Set<String> getIssueTypeIds(Option<IssueTypeProvider> issueTypeProvider)
     {
-        Set<IssueType> issueTypes = new HashSet<IssueType>();
+        Set<String> issueTypeIds = new HashSet<String>();
         if (issueTypeProvider.isDefined())
         {
-            issueTypes.addAll(issueTypeProvider.get().getIssueTypes());
+            for (IssueType issueType : issueTypeProvider.get().getIssueTypes())
+            {
+                issueTypeIds.add(issueType.getId());
+            }
         }
 
-        //        client code is expecting a global context of no IssueType associated?
-        //
-        //        simply return empty list as-is, instead of adding it with a NULL IssueType as Global Context
-        //        because com.atlassian.jira.config.ConstantsManager.getIssueTypeObject(GLOBAL_ISSUETYPE); always yields a NULL
-        //        and we don't want to add it to the return set and try to catch the NULL IssueType everywhere
+        // list of 1 element of special IssueType ID indicates a Global IssueType context
+        if (issueTypeIds.isEmpty())
+        {
+            issueTypeIds.add(GLOBAL_ISSUETYPE);
+        }
 
-        return issueTypes;
+        return issueTypeIds;
     }
 
     /**
-     * Convert {@link com.atlassian.jira.issue.issuetype.IssueType} to {@link org.ofbiz.core.entity.GenericValue}
+     * Convert IssueType IDs into GenericValue's
      *
-     * @param issueTypes
+     * @param issueTypeIds
      * @return
      */
-    private List<GenericValue> convert(Set<IssueType> issueTypes)
+    private List<GenericValue> convert(Set<String> issueTypeIds)
     {
         Set<String> ids = new HashSet<String>();
-        for (IssueType issueType : issueTypes)
-        {
-            ids.add(issueType.getId());
-        }
-
-        //        client code is expecting a global context of no IssueType associated? YES.
-        //
-        //        just to made the com.atlassian.jira.issue.customfields.CustomFieldUtils.buildIssueTypes() happy
-        //        so let's add 1 special ID defined as {@link #GLOBAL_ISSUETYPE}
-        //        a list of 1 element of that special ID is interpreted as Global IssueType context
-        //        meanwhile an empty list will restricted to No Context (private)
-        if (ids.isEmpty())
-        {
-            ids.add(GLOBAL_ISSUETYPE);
-        }
+        ids.addAll(issueTypeIds);
 
         List<GenericValue> values = CustomFieldUtils.buildIssueTypes(constantsManager, ids.toArray(new String[ids.size()]));
         return values;
@@ -238,13 +216,12 @@ public class CustomFieldServiceImpl implements CustomFieldService
         }
     }
 
-    private void setOptionsOrderFromMetadata(CustomField customField, CustomFieldMetadata fieldMetadata, Set<IssueType> issueTypes)
+    private void setOptionsOrderFromMetadata(CustomField customField, CustomFieldMetadata fieldMetadata, Set<String> issueTypeIds)
     {
         List<String> optionValues = getOptionValuesFromNames(fieldMetadata.getOptionNames());
 
-        for (IssueType issueType : issueTypes)
+        for (String issueTypeId : issueTypeIds)
         {
-            String issueTypeId = issueType.getId();
             com.atlassian.fugue.Option<FieldConfig> fieldConfig = CustomFieldUtil.getRelevantConfig(customField, new IssueContextImpl(null, issueTypeId));
 
             if (fieldConfig.isEmpty())
