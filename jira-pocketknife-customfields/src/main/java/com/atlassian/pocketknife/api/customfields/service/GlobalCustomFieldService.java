@@ -13,7 +13,17 @@ public interface GlobalCustomFieldService
      *
      * @param fieldMetadata the field meta data
      * @return the custom field
+     * @throws CustomFieldException if failed to create the field
      */
     CustomField getGlobalCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException;
+
+    /**
+     * Restore the field context by definition in field metadata if any changes and lock the field down, or does nothing if it's already locked
+     *
+     * @param fieldMetadata the field metadata
+     * @param customField   the custom field
+     * @return true if success, false otherwise
+     */
+    boolean restoreFieldContextAndLock(CustomFieldMetadata fieldMetadata, CustomField customField) throws CustomFieldException;
 
 }

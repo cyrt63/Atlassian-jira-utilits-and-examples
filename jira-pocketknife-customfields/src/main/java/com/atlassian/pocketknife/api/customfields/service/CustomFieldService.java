@@ -13,12 +13,12 @@ public interface CustomFieldService
     /**
      * Create a new custom field in JIRA with the given configuration
      */
-    CustomField createCustomField(CustomFieldMetadata fieldMetadata);
+    CustomField createCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException;
 
     /**
      * @return the {@link com.atlassian.jira.issue.fields.CustomField} instance for the given ID, or null if it doesn't exist
      */
-    CustomField getCustomField(Long id);
+    CustomField getCustomField(Long id) throws CustomFieldException;
 
     /**
      * @return the {@link com.atlassian.jira.issue.fields.CustomField} instance for the given String ID, or null if it doesn't exist
@@ -32,7 +32,7 @@ public interface CustomFieldService
      * @param <T>  the CustomFieldType to check for. Equality checking is done on the custom field's type.
      * @return the list of custom fields; never null
      */
-    <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type);
+    <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type) throws CustomFieldException;
 
     /**
      * Return all custom field instances which are of type {@link T}, or a subclass of {@link T}.
@@ -42,7 +42,7 @@ public interface CustomFieldService
      * @param <T>    the CustomFieldType to check for. Equality checking is done on the custom field's type.
      * @return the list of custom fields; never null
      */
-    <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type, boolean strict);
+    <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type, boolean strict) throws CustomFieldException;
 
     /**
      * Removes the custom field and all associated data. Note that this requires the custom field to be fully recognisable
@@ -51,6 +51,14 @@ public interface CustomFieldService
      * @param customField the custom field object
      * @see com.atlassian.jira.issue.CustomFieldManager#removeCustomField(com.atlassian.jira.issue.fields.CustomField)
      */
-    void removeCustomField(CustomField customField);
+    void removeCustomField(CustomField customField) throws CustomFieldException;
 
+    /**
+     * Restore the field context by definition in field metadata if any changes and lock the field down, or does nothing if it's already locked
+     *
+     * @param fieldMetadata the field metadata
+     * @param customField   the custom field
+     * @return true if success, false otherwise
+     */
+    boolean restoreFieldContextAndLock(CustomFieldMetadata fieldMetadata, CustomField customField);
 }

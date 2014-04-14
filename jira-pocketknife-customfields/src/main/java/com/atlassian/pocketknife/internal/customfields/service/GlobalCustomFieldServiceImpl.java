@@ -63,6 +63,12 @@ public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
         }
     }
 
+    @Override
+    public boolean restoreFieldContextAndLock(CustomFieldMetadata fieldMetadata, CustomField customField)
+    {
+        return customFieldService.restoreFieldContextAndLock(fieldMetadata, customField);
+    }
+
     /**
      * Internal implementation to lazily create global custom field.
      * The outer public method getGlobalCustomField is aimed to lock/prevent race condition of creating the field in multi-thread environment
