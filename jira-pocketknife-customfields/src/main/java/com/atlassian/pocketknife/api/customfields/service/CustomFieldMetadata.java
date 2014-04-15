@@ -26,9 +26,10 @@ public class CustomFieldMetadata
     private final List<String> optionNames;
     private final String defaultOptionName;
     private final boolean lockField;
+    private final String lockFieldDescription;
     private final boolean requireField;
 
-    public CustomFieldMetadata(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, List<String> optionNames, String defaultOptionName, boolean lockField, boolean requireField)
+    public CustomFieldMetadata(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField)
     {
         this.fieldName = fieldName;
         this.fieldDescription = fieldDescription;
@@ -38,6 +39,7 @@ public class CustomFieldMetadata
         this.optionNames = optionNames;
         this.defaultOptionName = defaultOptionName;
         this.lockField = lockField;
+        this.lockFieldDescription = lockFieldDescription;
         this.requireField = requireField;
     }
 
@@ -98,6 +100,11 @@ public class CustomFieldMetadata
         return lockField;
     }
 
+    public String getLockFieldDescription()
+    {
+        return lockFieldDescription;
+    }
+
     /**
      * Used to determine both "requiredness" and whether to add to the issue creation screen.
      *
@@ -111,7 +118,7 @@ public class CustomFieldMetadata
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("fieldName", fieldName).append("fieldDescription", fieldDescription).append("fieldType", fieldType).append("fieldSearcher", fieldSearcher).append("optionNames", optionNames).append("defaultOptionName", defaultOptionName).append("lockField", lockField).append("requireField", requireField).toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("fieldName", fieldName).append("fieldDescription", fieldDescription).append("fieldType", fieldType).append("fieldSearcher", fieldSearcher).append("optionNames", optionNames).append("defaultOptionName", defaultOptionName).append("lockField", lockField).append("lockFieldDescription", lockFieldDescription).append("requireField", requireField).toString();
     }
 
     /**
@@ -130,13 +137,14 @@ public class CustomFieldMetadata
         private List<String> optionNames = new ArrayList<String>();
         private String defaultOptionName;
         private boolean lockField;
+        private String lockFieldDescription;
         private boolean requireField;
 
         public Builder()
         {
         }
 
-        public Builder(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, Set<String> issueTypes, List<String> optionNames, String defaultOptionName, boolean lockField, boolean requireField)
+        public Builder(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, Set<String> issueTypes, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField)
         {
             this.fieldName = fieldName;
             this.fieldDescription = fieldDescription;
@@ -147,6 +155,7 @@ public class CustomFieldMetadata
             this.optionNames = optionNames;
             this.defaultOptionName = defaultOptionName;
             this.lockField = lockField;
+            this.lockFieldDescription = lockFieldDescription;
             this.requireField = requireField;
         }
 
@@ -223,6 +232,12 @@ public class CustomFieldMetadata
             return this;
         }
 
+        public Builder lockFieldDescription(String lockFieldDescription)
+        {
+            this.lockFieldDescription = lockFieldDescription;
+            return this;
+        }
+
         public Builder requireField(boolean requireField)
         {
             this.requireField = requireField;
@@ -231,7 +246,7 @@ public class CustomFieldMetadata
 
         public CustomFieldMetadata build()
         {
-            return new CustomFieldMetadata(fieldName, fieldDescription, fieldType, fieldSearcher, issueTypeProvider, optionNames, defaultOptionName, lockField, requireField);
+            return new CustomFieldMetadata(fieldName, fieldDescription, fieldType, fieldSearcher, issueTypeProvider, optionNames, defaultOptionName, lockField, lockFieldDescription, requireField);
         }
     }
 }
