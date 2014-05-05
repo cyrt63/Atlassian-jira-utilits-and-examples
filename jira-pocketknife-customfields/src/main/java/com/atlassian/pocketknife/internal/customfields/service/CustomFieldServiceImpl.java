@@ -381,24 +381,25 @@ public class CustomFieldServiceImpl implements CustomFieldService
     {
         try
         {
-            boolean result = !fieldMetadata.isLockField() || fieldLockingService.isFieldAlreadyLocked(customField);
-            if (!result)
+            if (!fieldMetadata.isLockField() || fieldLockingService.isFieldAlreadyLocked(customField)) {
+                return true; // no restoration needed
+            }
+            else
             {
-                result = restoreFieldContext(fieldMetadata, customField);
-                if (result)
+                if (restoreFieldContext(fieldMetadata, customField))
                 {
                     ErrorCollection errorCollection = fieldLockingService
                             .lockField(customField, fieldMetadata.getLockFieldDescription());
-                    result = errorCollection.hasAnyErrors();
-                    if (result)
+                    if (!errorCollection.hasAnyErrors())
                     {
                         fieldManager.refresh();
                         customFieldManager.refreshConfigurationSchemes(customField.getIdAsLong());
                         customFieldManager.refresh();
+                        return true; // restoration and refresh succeeded
                     }
                 }
             }
-            return result;
+            return false;
         }
         catch (RuntimeException e)
         {
@@ -469,7 +470,7 @@ public class CustomFieldServiceImpl implements CustomFieldService
                             for (String issueTypeId : getIssueTypeIds(customFieldMetadata.getIssueTypeProvider()))
                             {
                                 // at the moment, we don't support making a field required for ALL issues types
-                                if (issueTypeId.equals(GLOBAL_ISSUETYPE))
+                                if (!issueTypeId.equals(GLOBAL_ISSUETYPE))
                                 {
                                     addFieldForIssueOperationOnType(IssueOperations.CREATE_ISSUE_OPERATION, customField, issueTypeId, 0);
                                 }
