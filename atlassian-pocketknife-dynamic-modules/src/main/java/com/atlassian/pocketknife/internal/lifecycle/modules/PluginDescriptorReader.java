@@ -28,7 +28,7 @@ public class PluginDescriptorReader
 
     private final Document descriptor;
 
-    public static PluginDescriptorReader createDescriptorReadert(final InputStream source) throws PluginParseException
+    public static PluginDescriptorReader createDescriptorReader(final InputStream source) throws PluginParseException
     {
         final SAXReader reader = new SAXReader();
         reader.setMergeAdjacentText(true);

@@ -18,11 +18,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.atlassian.pocketknife.internal.lifecycle.modules.Kit.getModuleIdentifier;
+import static com.atlassian.pocketknife.internal.lifecycle.modules.Kit.pluginIdentifier;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 
 /**
- * Helper component that registers dynamic module descriptors into OSGI land and hence
- * as services of a specific plugin.
+ * Helper component that registers dynamic module descriptors into OSGI land and hence as services of a specific
+ * plugin.
  */
 @Service
 public class DynamicModuleRegistration
@@ -38,27 +41,33 @@ public class DynamicModuleRegistration
     }
 
     /**
-     * Registers descriptors.  <strong>Important: make sure any osgi service references passed into
-     * these descriptors are not proxies created by the p3 plugin, as it will cause ServiceProxyDestroyed
-     * exceptions when the p3 plugin is upgraded.</strong>
+     * Registers descriptors.  <strong>Important: make sure any osgi service references passed into these descriptors
+     * are not proxies created by the p3 plugin, as it will cause ServiceProxyDestroyed exceptions when the p3 plugin is
+     * upgraded.</strong>
      *
-     * @param plugin      the plugin to register on behalf of
+     * @param plugin the plugin to register on behalf of
      * @param descriptors the modules to register
      * @return a module registration object ready for unloading at plugin close time
      */
     public ModuleRegistrationHandle registerDescriptors(final Plugin plugin, Iterable<ModuleDescriptor> descriptors)
     {
+        String pluginId = pluginIdentifier(plugin);
+
         Bundle bundle = BundleUtil.findBundleForPlugin(bundleContext, plugin.getKey());
         BundleContext targetBundleContext = bundle.getBundleContext();
         final List<TrackedDynamicModule> registrations = newArrayList();
         for (ModuleDescriptor descriptor : descriptors)
         {
+            String moduleIdentifier = getModuleIdentifier(descriptor);
+            log.info(format("Registering module '%s' of type '%s' into plugin '%s'", moduleIdentifier, descriptor.getClass().getSimpleName(), pluginId));
+
             ModuleDescriptor<?> existingDescriptor = plugin.getModuleDescriptor(descriptor.getKey());
             if (existingDescriptor != null)
             {
-                log.error("Duplicate key '" + descriptor.getKey() + "' detected, disabling previous instance");
+                log.error(format("Duplicate key '%s' detected in plugin '%s', disabling previous instance", moduleIdentifier, pluginId));
                 ((StateAware) existingDescriptor).disabled();
             }
+
             ServiceRegistration serviceRegistration = registerModule(targetBundleContext, descriptor);
             registrations.add(new TrackedDynamicModule(serviceRegistration, descriptor));
 
@@ -69,11 +78,6 @@ public class DynamicModuleRegistration
 
     private ServiceRegistration registerModule(BundleContext targetBundleContext, ModuleDescriptor descriptor)
     {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Registering descriptor {}", descriptor.getClass().getName());
-        }
-
         return targetBundleContext.registerService(ModuleDescriptor.class.getName(), descriptor, null);
     }
 
@@ -90,9 +94,12 @@ public class DynamicModuleRegistration
             this.moduleDescriptor = moduleDescriptor;
         }
 
-        void unregister() {
+        void unregister()
+        {
             try
             {
+                String moduleIdentifier = getModuleIdentifier(moduleDescriptor);
+                log.info(format("Registering module '%s' of type '%s' ", moduleIdentifier, moduleDescriptor.getClass().getSimpleName()));
                 serviceRegistration.unregister();
             }
             catch (IllegalStateException ignored)
