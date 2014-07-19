@@ -1,26 +1,15 @@
-package com.atlassian.pocketknife.api.querydsl;
+package com.atlassian.pocketknife.spi.querydsl;
 
-import com.atlassian.annotations.PublicApi;
+import com.atlassian.annotations.PublicSpi;
+import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.SQLTemplates;
 
-import java.sql.Connection;
-
 /**
  */
-@PublicApi
+@PublicSpi
 public interface DialectConfiguration extends DialectProvider
 {
-
-    /**
-     * Detects the QueryDSL dialects to use.
-     *
-     * @param connection a live database connection to query metadata on
-     * @return a config for QueryDSL
-     * @throws java.lang.UnsupportedOperationException if the database is not supported by QueryDSL and this code
-     */
-    Config detect(Connection connection);
-
 
     /**
      * This is chance to enrich the SQL templates to your liking

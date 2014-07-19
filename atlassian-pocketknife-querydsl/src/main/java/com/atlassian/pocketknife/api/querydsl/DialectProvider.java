@@ -1,13 +1,12 @@
 package com.atlassian.pocketknife.api.querydsl;
 
+import com.atlassian.annotations.PublicApi;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.SQLTemplates;
 
 /**
- * TODO: Document this class / interface here
- *
- * @since v0.x
  */
+@PublicApi
 public interface DialectProvider
 {
     Config getDialectConfig();

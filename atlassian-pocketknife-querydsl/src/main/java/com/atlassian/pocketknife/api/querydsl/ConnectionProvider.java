@@ -1,11 +1,13 @@
 package com.atlassian.pocketknife.api.querydsl;
 
+import com.atlassian.annotations.PublicApi;
 import com.google.common.base.Function;
 
 import java.sql.Connection;
 
 /**
  */
+@PublicApi
 public interface ConnectionProvider
 {
     /**

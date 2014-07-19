@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.api.querydsl;
 
+import com.atlassian.annotations.PublicApi;
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 
 /**
  */
+@PublicApi
 public class Connections
 {
     private static final Logger log = Logger.getLogger(Connections.class);

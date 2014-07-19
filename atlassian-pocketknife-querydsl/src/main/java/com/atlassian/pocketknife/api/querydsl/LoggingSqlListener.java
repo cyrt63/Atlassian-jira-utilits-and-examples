@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.api.querydsl;
 
+import com.atlassian.annotations.PublicApi;
 import com.mysema.commons.lang.Pair;
 import com.mysema.query.QueryMetadata;
 import com.mysema.query.sql.RelationalPath;
@@ -19,8 +20,9 @@ import java.util.List;
 /**
  * A logger implementation you can use to cause QueryDSL SQL messages to be logged as they are executed
  * <p/>
- * Note : This does not log all the values on the batch methods.
+ * NOTE : This does not log all the values on the batch methods.
  */
+@PublicApi
 public class LoggingSqlListener implements SQLListener
 {
     private final DialectProvider dialectProvider;

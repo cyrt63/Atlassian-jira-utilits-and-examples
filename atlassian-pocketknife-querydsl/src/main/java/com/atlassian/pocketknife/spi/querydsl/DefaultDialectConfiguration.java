@@ -1,10 +1,15 @@
 package com.atlassian.pocketknife.spi.querydsl;
 
-import com.atlassian.pocketknife.api.querydsl.DialectConfiguration;
+import com.atlassian.annotations.PublicSpi;
+import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
+import com.atlassian.pocketknife.api.querydsl.DialectProvider;
+import com.atlassian.util.concurrent.LazyReference;
+import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.OracleTemplates;
 import com.mysema.query.sql.PostgresTemplates;
 import com.mysema.query.sql.SQLTemplates;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -12,7 +17,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This is a dialect configuration that you can use to detect and build the QueryDSL dialect config.
@@ -21,9 +25,33 @@ import java.util.concurrent.atomic.AtomicReference;
  * #enrich(com.mysema.query.sql.SQLTemplates.Builder)} and {@link #enrich(com.mysema.query.sql.Configuration)} methods
  */
 @Component
+@PublicSpi
 public class DefaultDialectConfiguration implements DialectConfiguration
 {
-    AtomicReference<Config> ref = new AtomicReference<Config>();
+    private final ConnectionProvider connectionProvider;
+
+    private final LazyReference<Config> ref = new LazyReference<DialectProvider.Config>()
+    {
+        @Override
+        protected DialectProvider.Config create() throws Exception
+        {
+            return connectionProvider.withConnection(new Function<Connection, Config>()
+            {
+                @Override
+                public DialectProvider.Config apply(final Connection input)
+                {
+                    return detect(input);
+                }
+            });
+        }
+    };
+
+
+    @Autowired
+    public DefaultDialectConfiguration(ConnectionProvider connectionProvider)
+    {
+        this.connectionProvider = connectionProvider;
+    }
 
     @Override
     public Config getDialectConfig()
@@ -31,13 +59,12 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         return ref.get();
     }
 
-    public Config detect(Connection connection)
+    private Config detect(Connection connection)
     {
         SQLTemplates sqlTemplates = buildTemplates(connection);
         Configuration configuration = enrich(new Configuration(sqlTemplates));
 
         Config config = new Config(sqlTemplates, configuration);
-        ref.set(config);
         return config;
     }
 
