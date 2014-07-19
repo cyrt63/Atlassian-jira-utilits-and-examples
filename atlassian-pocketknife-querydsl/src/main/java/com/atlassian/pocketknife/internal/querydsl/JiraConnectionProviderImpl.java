@@ -1,9 +1,9 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.jira.ofbiz.DefaultOfBizConnectionFactory;
-import com.atlassian.plugin.spring.scanner.annotation.component.JiraComponent;
 import com.atlassian.pocketknife.spi.querydsl.AbstractConnectionProvider;
 import com.google.common.annotations.VisibleForTesting;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,7 +11,8 @@ import java.sql.SQLException;
 /**
  * JIRA rules the waves!
  */
-@JiraComponent
+//@JiraComponent doesnt work because of SCANNER-22
+@Component
 public class JiraConnectionProviderImpl extends AbstractConnectionProvider
 {
     protected Connection getConnectionImpl(final boolean autoCommit)

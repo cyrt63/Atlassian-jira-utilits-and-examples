@@ -3,6 +3,7 @@ package com.atlassian.pocketknife.spi.querydsl;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.internal.querydsl.MockConnectionProvider;
 import com.atlassian.util.concurrent.LazyReference;
+import com.mysema.query.sql.HSQLDBTemplates;
 import com.mysema.query.sql.OracleTemplates;
 import com.mysema.query.sql.PostgresTemplates;
 import com.mysema.query.sql.SQLTemplates;
@@ -46,6 +47,7 @@ public class DefaultDialectConfigurationTest
         Map<String, Class> support = new LinkedHashMap<String, Class>();
         support.put("PostgreSQL", PostgresTemplates.Builder.class);
         support.put("Oracle", OracleTemplates.Builder.class);
+        support.put("HSQL", HSQLDBTemplates.Builder.class);
 
         for (String databaseName : support.keySet())
         {

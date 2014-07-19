@@ -6,6 +6,7 @@ import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.util.concurrent.LazyReference;
 import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
+import com.mysema.query.sql.HSQLDBTemplates;
 import com.mysema.query.sql.OracleTemplates;
 import com.mysema.query.sql.PostgresTemplates;
 import com.mysema.query.sql.SQLTemplates;
@@ -89,6 +90,7 @@ public class DefaultDialectConfiguration implements DialectConfiguration
     {
         support.put("PostgreSQL", PostgresTemplates.builder());
         support.put("Oracle", OracleTemplates.builder());
+        support.put("HSQL", HSQLDBTemplates.builder());
     }
 
     private SQLTemplates buildTemplates(final Connection connection)
