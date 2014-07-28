@@ -25,7 +25,7 @@
 
 	<groupId>com.atlassian.pocketknife</groupId>
 	<artifactId>atlassian-pocketknife-parent-pom</artifactId>
-	<version>0.28-SNAPSHOT</version>
+	<version>0.28</version>
 	<packaging>pom</packaging>
 
     <name>Atlassian PocketKnife Parent POM</name>
@@ -42,7 +42,8 @@
 	    <connection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</connection>
 	    <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</developerConnection>
 	    <url>ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</url>
-	</scm>
+	  <tag>atlassian-pocketknife-parent-pom-0.28</tag>
+  </scm>
 
 
 	<properties>
