@@ -4,8 +4,10 @@ import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.internal.querydsl.MockConnectionProvider;
 import com.atlassian.util.concurrent.LazyReference;
 import com.mysema.query.sql.HSQLDBTemplates;
+import com.mysema.query.sql.MySQLTemplates;
 import com.mysema.query.sql.OracleTemplates;
 import com.mysema.query.sql.PostgresTemplates;
+import com.mysema.query.sql.SQLServerTemplates;
 import com.mysema.query.sql.SQLTemplates;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -48,6 +50,8 @@ public class DefaultDialectConfigurationTest
         support.put("PostgreSQL", PostgresTemplates.Builder.class);
         support.put("Oracle", OracleTemplates.Builder.class);
         support.put("HSQL", HSQLDBTemplates.Builder.class);
+        support.put("Microsoft SQL Server", SQLServerTemplates.Builder.class);
+        support.put("MySQL", MySQLTemplates.Builder.class);
 
         for (String databaseName : support.keySet())
         {
