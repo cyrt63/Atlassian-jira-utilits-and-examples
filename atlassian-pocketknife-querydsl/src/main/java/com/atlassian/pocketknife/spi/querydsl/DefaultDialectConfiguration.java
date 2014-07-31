@@ -90,11 +90,11 @@ public class DefaultDialectConfiguration implements DialectConfiguration
 
     static
     {
-        support.put("PostgreSQL", PostgresTemplates.builder());
-        support.put("Oracle", OracleTemplates.builder());
-        support.put("HSQL", HSQLDBTemplates.builder());
-        support.put("Microsoft SQL Server", SQLServerTemplates.builder());
-        support.put("MySQL", MySQLTemplates.builder());
+        support.put(":postgresql:", PostgresTemplates.builder());
+        support.put(":oracle:", OracleTemplates.builder());
+        support.put(":hsqldb:", HSQLDBTemplates.builder());
+        support.put(":sqlserver:", SQLServerTemplates.builder().printSchema());
+        support.put(":mysql:", MySQLTemplates.builder());
     }
 
     private SQLTemplates buildTemplates(final Connection connection)
@@ -102,14 +102,13 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         try
         {
             DatabaseMetaData metaData = connection.getMetaData();
-            String databaseProductName = metaData.getDatabaseProductName();
+            String connStr = metaData.getURL();
             SQLTemplates.Builder builder = null;
 
-            //
             // which databases do we support
             for (String db : support.keySet())
             {
-                if (databaseProductName.contains(db))
+                if (connStr.contains(db))
                 {
                     builder = support.get(db);
                     break;
@@ -117,7 +116,7 @@ public class DefaultDialectConfiguration implements DialectConfiguration
             }
             if (builder == null)
             {
-                throw new UnsupportedOperationException(String.format("Unable to detect QueryDSL template support for database %s", databaseProductName));
+                throw new UnsupportedOperationException(String.format("Unable to detect QueryDSL template support for database %s", connStr));
             }
             return enrich(builder).build();
 

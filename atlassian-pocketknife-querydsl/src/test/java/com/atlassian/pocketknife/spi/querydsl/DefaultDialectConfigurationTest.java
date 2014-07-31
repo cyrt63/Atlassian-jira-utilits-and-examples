@@ -47,15 +47,15 @@ public class DefaultDialectConfigurationTest
     public void testDatabaseDetectionCoverage() throws Exception
     {
         Map<String, Class> support = new LinkedHashMap<String, Class>();
-        support.put("PostgreSQL", PostgresTemplates.Builder.class);
-        support.put("Oracle", OracleTemplates.Builder.class);
-        support.put("HSQL", HSQLDBTemplates.Builder.class);
-        support.put("Microsoft SQL Server", SQLServerTemplates.Builder.class);
-        support.put("MySQL", MySQLTemplates.Builder.class);
+        support.put(":postgresql:", PostgresTemplates.Builder.class);
+        support.put(":oracle:", OracleTemplates.Builder.class);
+        support.put(":hsqldb:", HSQLDBTemplates.Builder.class);
+        support.put(":sqlserver:", SQLServerTemplates.Builder.class);
+        support.put(":mysql:", MySQLTemplates.Builder.class);
 
-        for (String databaseName : support.keySet())
+        for (String connStr : support.keySet())
         {
-            assertDatabaseType(support.get(databaseName), databaseName);
+            assertDatabaseType(support.get(connStr), connStr);
         }
     }
 
@@ -68,11 +68,11 @@ public class DefaultDialectConfigurationTest
     @Test
     public void testDatabaseDetectionForSideEffect() throws Exception
     {
-        assertDatabaseType(PostgresTemplates.Builder.class, "PostgreSQL");
+        assertDatabaseType(PostgresTemplates.Builder.class, ":postgresql:");
         assertThat(dialectConfiguration.getDialectConfig(), Matchers.notNullValue());
     }
 
-    private void assertDatabaseType(final Class builderClass, String databaseName)
+    private void assertDatabaseType(final Class builderClass, String connStr)
             throws SQLException
     {
         dialectConfiguration = new DefaultDialectConfiguration(connectionProvider)
@@ -84,7 +84,7 @@ public class DefaultDialectConfigurationTest
                 return super.enrich(builder);
             }
         };
-        when(databaseMetaData.getDatabaseProductName()).thenReturn(databaseName);
+        when(databaseMetaData.getURL()).thenReturn(connStr);
         DialectProvider.Config config = dialectConfiguration.getDialectConfig();
 
         assertThat(config.getSqlTemplates().isUseQuotes(), Matchers.equalTo(true));
