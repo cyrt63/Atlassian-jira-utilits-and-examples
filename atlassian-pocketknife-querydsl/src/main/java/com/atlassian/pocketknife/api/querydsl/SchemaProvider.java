@@ -9,7 +9,7 @@ public interface SchemaProvider
      * Support to retrieve schema name of the given table
      *
      * @param tableName name of the table
-     * @return schema name
+     * @return the schema name associated to the table, or empty if none is available
      */
     String getSchema(String tableName);
 }
