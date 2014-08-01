@@ -62,7 +62,12 @@ public class DefaultSchemaProvider implements SchemaProvider
                         {
                             final String tableName = resultSet.getString("TABLE_NAME");
                             final String tableSchema = resultSet.getString("TABLE_SCHEM");
-                            result.put(tableName.toUpperCase(), tableSchema);
+                            String schemaName = "";
+                            if (StringUtils.isNotEmpty(tableSchema))
+                            {
+                                schemaName = tableSchema;
+                            }
+                            result.put(tableName.toUpperCase(), schemaName);
                         }
                     }
                     finally
