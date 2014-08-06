@@ -50,3 +50,14 @@ Cache<Integer, Calendar> calendarCache = cacheManager.<Integer, Calendar>newCach
 
 
 *) JIRA 6.1.3 ships with 2.0-m2, current version is 2.0-m11 which comes before m2. 2.0 final would be before m2 too!
+
+UPDATE
+- So confusing with version of com.atlassian.cache on Maven repo https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/cache/atlassian-cache-memory/
+2.0/	Fri Jul 18 16:23:06 UTC 2014
+2.0.1/	Thu Jul 24 19:07:17 UTC 2014
+2.1.0/	Fri Jul 25 08:29:45 UTC 2014
+2.4.2/	Tue Jul 15 11:40:40 UTC 2014
+which is to pick after
+2.0-m11/	Mon Jul 21 04:24:15 UTC 2014
+- Answer: com.atlassian.cache:atlassian-cache-memory:jar:2.0
+- Based on commit on https://bitbucket.org/atlassian/atlassian-cache/commits/all?page=9, v2.0 was released after 2.0-mx releases
