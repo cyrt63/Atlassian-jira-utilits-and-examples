@@ -50,3 +50,4 @@ Cache<Integer, Calendar> calendarCache = cacheManager.<Integer, Calendar>newCach
 
 
 *) JIRA 6.1.3 ships with 2.0-m2, current version is 2.0-m11 which comes before m2. 2.0 final would be before m2 too!
+
