@@ -10,7 +10,7 @@
     <artifactId>jira-pocketknife-cache</artifactId>
 
     <properties>
-        <cache.version>2.0</cache.version>
+        <cache.version>2.0-m11</cache.version>
     </properties>
 
     <dependencies>
