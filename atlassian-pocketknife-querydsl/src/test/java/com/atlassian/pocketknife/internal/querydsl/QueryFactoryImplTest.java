@@ -1,8 +1,8 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
-import com.atlassian.pocketknife.spi.querydsl.DialectConfiguration;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
+import com.atlassian.pocketknife.spi.querydsl.DialectConfiguration;
 import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.PostgresTemplates;
@@ -52,7 +52,7 @@ public class QueryFactoryImplTest
     @Test
     public void testSelectBorrowingAndCleanup() throws Exception
     {
-        Object returnValue = queryFactory.select(new Function<SQLQuery, Object>()
+        Object returnValue = queryFactory.fetch(new Function<SQLQuery, Object>()
         {
             @Override
             public Object apply(@Nullable final SQLQuery select)
@@ -71,7 +71,7 @@ public class QueryFactoryImplTest
     {
         try
         {
-            queryFactory.select(new Function<SQLQuery, Object>()
+            queryFactory.fetch(new Function<SQLQuery, Object>()
             {
                 @Override
                 public Object apply(@Nullable final SQLQuery select)
@@ -88,3 +88,4 @@ public class QueryFactoryImplTest
         }
     }
 }
+

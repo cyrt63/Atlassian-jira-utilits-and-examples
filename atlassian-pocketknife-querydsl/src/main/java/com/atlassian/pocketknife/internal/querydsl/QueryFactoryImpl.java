@@ -1,8 +1,11 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
+import com.atlassian.pocketknife.api.querydsl.ClosePromise;
 import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
+import com.atlassian.pocketknife.api.querydsl.SelectQuery;
+import com.atlassian.pocketknife.api.querydsl.StreamyResult;
 import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.RelationalPath;
@@ -61,7 +64,7 @@ public class QueryFactoryImpl implements QueryFactory
      * @return then result of using the passed in SELECT query
      */
     @Override
-    public <T> T select(Function<SQLQuery, T> function)
+    public <T> T fetch(Function<SQLQuery, T> function)
     {
         Connection connection = connectionProvider.borrowConnection();
         try
@@ -72,6 +75,36 @@ public class QueryFactoryImpl implements QueryFactory
         {
             connectionProvider.returnConnection(connection);
         }
+    }
+
+    @Override
+    public StreamyResult select(final Function<SelectQuery, StreamyResult> function)
+    {
+        final Connection connection = connectionProvider.borrowConnection();
+        final ClosePromise closeEffect = returnConnection(connection);
+        try
+        {
+            SQLQuery queryDSLSelect = select(connection);
+            SelectQuery select = new SelectQuery(queryDSLSelect, closeEffect);
+            return function.apply(select);
+        }
+        catch (RuntimeException rte)
+        {
+            closeEffect.close();
+            throw rte;
+        }
+    }
+
+    private ClosePromise returnConnection(final Connection connection)
+    {
+        return new ClosePromise()
+        {
+            @Override
+            protected void closeEffect()
+            {
+                connectionProvider.returnConnection(connection);
+            }
+        };
     }
 
     /**

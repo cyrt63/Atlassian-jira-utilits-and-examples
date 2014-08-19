@@ -26,13 +26,32 @@ public interface QueryFactory
     SQLQuery select(Connection connection);
 
     /**
-     * Allows you to obtain a SELECT query by asking implicitly for a connection and then passing it into the call back
-     * function to use.
+     * Allows you to obtain a SELECT query by asking implicitly for a connection under the covers and creating a {@link
+     * com.mysema.query.sql.SQLQuery} you can use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will be returned as soon as this methods completes.
      *
      * @param function the callback function
      * @return then result of using the passed in SELECT query
      */
-    <T> T select(Function<SQLQuery, T> function);
+    <T> T fetch(Function<SQLQuery, T> function);
+
+    /**
+     * Allows you to obtain a SELECT query by asking implicitly for a connection and then passing it into the call back
+     * function to use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will NOT be returned as soon as this methods completes.  Instead the streamy result should be used
+     * to control connection lifecycle.
+     *
+     * @param function the callback function
+     * @return then result of using the passed in SELECT query
+     */
+    StreamyResult select(Function<SelectQuery, StreamyResult> function);
+
 
     /**
      * Returns a INSERT query given the connection and table
@@ -46,6 +65,10 @@ public interface QueryFactory
     /**
      * Allows you to obtain a INSERT query by asking implicitly for a connection and then passing it into the call back
      * function to use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will be returned as soon as this methods completes.
      *
      * @param function the callback function
      * @return the result of using the passed in INSERT query
@@ -64,6 +87,10 @@ public interface QueryFactory
     /**
      * Allows you to obtain an UPDATE query by asking implicitly for a connection and then passing it into the call back
      * function to use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will be returned as soon as this methods completes.
      *
      * @param table the table to use
      * @param function the callback function
@@ -83,6 +110,10 @@ public interface QueryFactory
     /**
      * Allows you to obtain an DELETE query by asking implicitly for a connection and then passing it into the call back
      * function to use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will be returned as soon as this methods completes.
      *
      * @param table the table to use
      * @param function the callback function
@@ -102,6 +133,10 @@ public interface QueryFactory
     /**
      * Allows you to obtain an MERGE query by asking implicitly for a connection and then passing it into the call back
      * function to use.
+     * <p/>
+     * CONNECTION LIFECYCLE NOTES :
+     * <p/>
+     * The connection will be returned as soon as this methods completes.
      *
      * @param table the table to use
      * @param function the callback function
