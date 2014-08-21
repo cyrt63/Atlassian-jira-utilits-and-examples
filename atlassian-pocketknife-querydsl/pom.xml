@@ -15,6 +15,7 @@
         <dependency>
             <groupId>com.atlassian.plugin</groupId>
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
+            <version>1.2.4</version>
         </dependency>
 
         <dependency>
@@ -23,6 +24,8 @@
             <version>2.5.6</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JIRA dependencies -->
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-api</artifactId>
@@ -36,6 +39,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Refapp dependencies -->
+        <dependency>
+            <groupId>com.atlassian.refapp</groupId>
+            <artifactId>refapp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.mysema.querydsl</groupId>
