@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2010 Mysema Ltd.
+ * All rights reserved.
+ *
+ */
+package com.atlassian.pocketknife.internal.querydsl.tables.ddl;
+
+import com.mysema.query.QueryException;
+import com.mysema.query.sql.SQLTemplates;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * DropTableClause defines a DROP TABLE clause
+ * 
+ * @author tiwe
+ *
+ */
+public class DropTableClause {
+
+    private final Connection connection;
+    
+    private final String table;
+    
+    public DropTableClause(Connection conn, SQLTemplates templates, String table) {
+        this.connection = conn;
+        this.table = templates.quoteIdentifier(table);
+    }
+    
+    @SuppressWarnings("SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE")
+    public void execute() {
+        Statement stmt = null;
+        try{
+            stmt = connection.createStatement();
+            stmt.execute("DROP TABLE " + table);
+        } catch (SQLException e) {
+            // do not rethrow
+        }finally{
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    throw new QueryException(e);
+                }
+            }            
+        }  
+    }
+    
+}
+    
