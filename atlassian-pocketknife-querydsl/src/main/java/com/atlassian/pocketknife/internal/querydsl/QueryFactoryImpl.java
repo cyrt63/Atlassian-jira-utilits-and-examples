@@ -108,7 +108,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     /**
-     * Returns a INSERT query given the connection and table
+     * Returns a INSERT query given the connection and table. Use this when you want to manage the connection yourself.
      *
      * @param connection the connection to use
      * @param table the table to use
@@ -122,7 +122,7 @@ public class QueryFactoryImpl implements QueryFactory
 
     /**
      * Allows you to obtain a INSERT query by asking implicitly for a connection and then passing it into the call back
-     * function to use.
+     * function to use. Changes will be automatically committed.
      *
      * @param function the callback function
      * @return the result of using the passed in INSERT query
@@ -142,7 +142,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     /**
-     * Returns a UPDATE query given the connection and table
+     * Returns a UPDATE query given the connection and table. Use this when you want to manage the connection yourself.
      *
      * @param connection the connection to use
      * @param table the table to use
@@ -156,7 +156,7 @@ public class QueryFactoryImpl implements QueryFactory
 
     /**
      * Allows you to obtain an UPDATE query by asking implicitly for a connection and then passing it into the call back
-     * function to use.
+     * function to use. Changes will be automatically committed.
      *
      * @param table the table to use
      * @param function the callback function
@@ -177,7 +177,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     /**
-     * Returns a DELETE query given the connection and table
+     * Returns a DELETE query given the connection and table. Use this when you want to manage the connection yourself.
      *
      * @param connection the connection to use
      * @param table the table to use
@@ -191,7 +191,7 @@ public class QueryFactoryImpl implements QueryFactory
 
     /**
      * Allows you to obtain an DELETE query by asking implicitly for a connection and then passing it into the call back
-     * function to use.
+     * function to use. Changes will be automatically committed.
      *
      * @param table the table to use
      * @param function the callback function
@@ -212,7 +212,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     /**
-     * Returns a MERGE query given the connection and table
+     * Returns a MERGE query given the connection and table. Use this when you want to manage the connection yourself.
      *
      * @param connection the connection to use
      * @param table the table to use
@@ -226,7 +226,7 @@ public class QueryFactoryImpl implements QueryFactory
 
     /**
      * Allows you to obtain an MERGE query by asking implicitly for a connection and then passing it into the call back
-     * function to use.
+     * function to use. Changes will be automatically committed.
      *
      * @param table the table to use
      * @param function the callback function
