@@ -130,7 +130,7 @@ public class QueryFactoryImpl implements QueryFactory
     @Override
     public <T> T insert(RelationalPath<?> table, Function<SQLInsertClause, T> function)
     {
-        Connection connection = connectionProvider.borrowConnection();
+        Connection connection = connectionProvider.borrowAutoCommitConnection();
         try
         {
             return function.apply(insert(connection, table));
@@ -165,7 +165,7 @@ public class QueryFactoryImpl implements QueryFactory
     @Override
     public <T> T update(RelationalPath<?> table, Function<SQLUpdateClause, T> function)
     {
-        Connection connection = connectionProvider.borrowConnection();
+        Connection connection = connectionProvider.borrowAutoCommitConnection();
         try
         {
             return function.apply(update(connection, table));
@@ -200,7 +200,7 @@ public class QueryFactoryImpl implements QueryFactory
     @Override
     public <T> T delete(RelationalPath<?> table, Function<SQLDeleteClause, T> function)
     {
-        Connection connection = connectionProvider.borrowConnection();
+        Connection connection = connectionProvider.borrowAutoCommitConnection();
         try
         {
             return function.apply(delete(connection, table));
@@ -235,7 +235,7 @@ public class QueryFactoryImpl implements QueryFactory
     @Override
     public <T> T merge(RelationalPath<?> table, Function<SQLMergeClause, T> function)
     {
-        Connection connection = connectionProvider.borrowConnection();
+        Connection connection = connectionProvider.borrowAutoCommitConnection();
         try
         {
             return function.apply(merge(connection, table));
