@@ -1,10 +1,12 @@
 package com.atlassian.pocketknife.internal.lifecycle.modules;
 
+import com.atlassian.plugin.ModuleCompleteKey;
 import com.atlassian.plugin.ModuleDescriptor;
 import com.atlassian.plugin.Plugin;
 import com.atlassian.plugin.StateAware;
 import com.atlassian.pocketknife.api.lifecycle.modules.ModuleRegistrationHandle;
 import com.atlassian.pocketknife.internal.lifecycle.modules.utils.BundleUtil;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -86,12 +88,14 @@ public class DynamicModuleRegistration
 
         private final ServiceRegistration serviceRegistration;
         private final ModuleDescriptor moduleDescriptor;
+        private final ModuleCompleteKey moduleCompleteKey;
 
 
         TrackedDynamicModule(ServiceRegistration serviceRegistration, ModuleDescriptor moduleDescriptor)
         {
             this.serviceRegistration = serviceRegistration;
             this.moduleDescriptor = moduleDescriptor;
+            this.moduleCompleteKey = new ModuleCompleteKey(moduleDescriptor.getCompleteKey());
         }
 
         void unregister()
@@ -99,7 +103,7 @@ public class DynamicModuleRegistration
             try
             {
                 String moduleIdentifier = getModuleIdentifier(moduleDescriptor);
-                log.info(format("Registering module '%s' of type '%s' ", moduleIdentifier, moduleDescriptor.getClass().getSimpleName()));
+                log.info(format("Un-registering module '%s' of type '%s' ", moduleIdentifier, moduleDescriptor.getClass().getSimpleName()));
                 serviceRegistration.unregister();
             }
             catch (IllegalStateException ignored)
@@ -110,6 +114,11 @@ public class DynamicModuleRegistration
             //
             // save memory by clearing out the XML we have recorded for this plugin
             GhettoCode.removeModuleDescriptorElement(moduleDescriptor.getPlugin(), moduleDescriptor.getKey());
+        }
+
+        public ModuleCompleteKey getModuleCompleteKey()
+        {
+            return moduleCompleteKey;
         }
     }
 
@@ -144,6 +153,24 @@ public class DynamicModuleRegistration
             }
             registrations.clear();
             theOthers.clear();
+        }
+
+        @Override
+        public Iterable<ModuleCompleteKey> getModules()
+        {
+            List<ModuleCompleteKey> keys = new ArrayList<ModuleCompleteKey>();
+            if (theOthers != null)
+            {
+                for (ModuleRegistrationHandle handle : theOthers)
+                {
+                    Iterables.addAll(keys, handle.getModules());
+                }
+            }
+            for (TrackedDynamicModule module : registrations)
+            {
+                keys.add(module.getModuleCompleteKey());
+            }
+            return keys;
         }
 
         @Override

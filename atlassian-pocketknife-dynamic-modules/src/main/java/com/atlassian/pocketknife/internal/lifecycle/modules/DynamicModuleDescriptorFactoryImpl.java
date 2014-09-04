@@ -93,6 +93,40 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         return dynamicModuleRegistration.registerDescriptors(plugin, modules);
     }
 
+    private void loadModulesHelper(Plugin plugin, Element moduleElement, ModuleDescriptorFactory moduleDescriptorFactory, List<ModuleDescriptor> modules)
+    {
+        final String moduleType = moduleElement.getName();
+        String moduleKey = getModuleIdentifier(moduleElement);
+        String pluginId = pluginIdentifier(plugin);
+
+        final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(plugin, moduleType, moduleElement, moduleDescriptorFactory);
+
+        // If we're not loading the module descriptor, null is returned, so we skip it
+        if (moduleDescriptor == null)
+        {
+            log.error(format("Skipping the module '%s' with key '%s' in plugin '%s'. Null was returned from the module descriptor factory...", moduleType, moduleKey, pluginId));
+            return;
+        }
+
+        //
+        // if we have a key and we already have a module of that name, then blow up!
+        //
+        if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
+        {
+            throw new PluginParseException("Found duplicate key '" + moduleKey + "' within plugin '" + pluginId + "'");
+        }
+
+        if (moduleDescriptor instanceof UnloadableModuleDescriptor)
+        {
+            log.error(format("There were problems loading the module '%s' with key '%s' in plugin '%s'. UnloadableModuleDescriptor returned.", moduleType, moduleKey, pluginId));
+        }
+        else
+        {
+            log.info(format("Loaded module '%s' with key '%s' in plugin '%s'.", moduleType, moduleKey, pluginId));
+            modules.add(moduleDescriptor);
+        }
+    }
+
     protected ModuleDescriptor<?> createModuleDescriptor(final Plugin plugin, String moduleType, final Element element, final ModuleDescriptorFactory moduleDescriptorFactory)
             throws PluginParseException
     {
@@ -105,6 +139,10 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         {
             log.info(format("Creating module of type '%s' with key '%s' in plugin '%s'", moduleType, moduleIdentifier, pluginId));
             moduleDescriptor = moduleDescriptorFactory.getModuleDescriptor(moduleType);
+            if (moduleDescriptor != null)
+            {
+                log.info(format("Successfully created module as type '%s'", moduleDescriptor.getClass().getName()));
+            }
         }
         // When there's a problem loading a module, return an UnrecognisedModuleDescriptor with error
         catch (final Throwable e)
@@ -143,40 +181,6 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         GhettoCode.addModuleDescriptorElement(plugin, element, element.attributeValue("key"));
 
         return moduleDescriptor;
-    }
-
-    private void loadModulesHelper(Plugin plugin, Element moduleElement, ModuleDescriptorFactory moduleDescriptorFactory, List<ModuleDescriptor> modules)
-    {
-        final String moduleType = moduleElement.getName();
-        String moduleKey = getModuleIdentifier(moduleElement);
-        String pluginId = pluginIdentifier(plugin);
-
-        final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(plugin, moduleType, moduleElement, moduleDescriptorFactory);
-
-        // If we're not loading the module descriptor, null is returned, so we skip it
-        if (moduleDescriptor == null)
-        {
-            log.error(format("Skipping the module '%s' with key '%s' in plugin '%s'. Null was returned from the module descriptor factory...", moduleType, moduleKey, pluginId));
-            return;
-        }
-
-        //
-        // if we have a key and we already have a module of that name, then blow up!
-        //
-        if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
-        {
-            throw new PluginParseException("Found duplicate key '" + moduleKey + "' within plugin '" + pluginId + "'");
-        }
-
-        if (moduleDescriptor instanceof UnloadableModuleDescriptor)
-        {
-            log.error(format("There were problems loading the module '%s' with key '%s' in plugin '%s'. UnloadableModuleDescriptor returned.", moduleType, moduleKey, pluginId));
-        }
-        else
-        {
-            log.info(format("Loaded module '%s' with key '%s' in plugin '%s'.", moduleType, moduleKey, pluginId));
-            modules.add(moduleDescriptor);
-        }
     }
 
     private PluginDescriptorReader getPluginDescriptorReader(ResourceLoader resourceLoader, String auxAtlassianPluginXML)

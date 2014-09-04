@@ -1,14 +1,18 @@
 package com.atlassian.pocketknife.internal.lifecycle.modules;
 
+import com.atlassian.plugin.ModuleCompleteKey;
 import com.atlassian.pocketknife.api.lifecycle.modules.ModuleRegistrationHandle;
 import com.google.common.collect.Lists;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.atlassian.pocketknife.internal.lifecycle.modules.DynamicModuleRegistration.ModuleRegistrationHandleImpl;
 import static com.atlassian.pocketknife.internal.lifecycle.modules.DynamicModuleRegistration.TrackedDynamicModule;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  */
@@ -19,9 +23,9 @@ public class DynamicModuleRegistrationTest
     {
         private int called = 0;
 
-        MockTrackedDynamicModule()
+        MockTrackedDynamicModule(final String completeKey)
         {
-            super(null, null);
+            super(null, new MockModuleDescriptor(completeKey));
         }
 
         @Override
@@ -54,7 +58,7 @@ public class DynamicModuleRegistrationTest
         handle = new ModuleRegistrationHandleImpl(registrations);
         for (TrackedDynamicModule extra : extras)
         {
-            ModuleRegistrationHandleImpl extraHandle = new ModuleRegistrationHandleImpl(Lists.newArrayList(extra));
+            ModuleRegistrationHandleImpl extraHandle = new ModuleRegistrationHandleImpl(newArrayList(extra));
             handle = handle.union(extraHandle);
         }
         handle.unregister();
@@ -68,6 +72,35 @@ public class DynamicModuleRegistrationTest
         assertUnregistered(extras);
     }
 
+    @Test
+    public void testCompleteKeyMerging() throws Exception
+    {
+        ArrayList<TrackedDynamicModule> registrations = makeModules("plugin1:module");
+
+        ModuleRegistrationHandle handle = new ModuleRegistrationHandleImpl(registrations);
+
+        assertCompleteKeys(handle.getModules(), newArrayList(
+                "plugin1:module1", "plugin1:module2", "plugin1:module3"));
+
+
+        ArrayList<TrackedDynamicModule> registrationsOther = makeModules("plugin2:module");
+
+        handle = handle.union(new ModuleRegistrationHandleImpl(registrationsOther));
+
+        assertCompleteKeys(handle.getModules(), newArrayList(
+                "plugin1:module1", "plugin1:module2", "plugin1:module3",
+                "plugin2:module1", "plugin2:module2", "plugin2:module3"));
+    }
+
+    private void assertCompleteKeys(final Iterable<ModuleCompleteKey> modules, List<String> keys)
+    {
+        for (ModuleCompleteKey completeKey : modules)
+        {
+            String key = completeKey.getCompleteKey();
+            Assert.assertThat(keys, CoreMatchers.hasItem(key));
+        }
+    }
+
     private void assertUnregistered(final ArrayList<TrackedDynamicModule> registrations)
     {
         for (TrackedDynamicModule registration : registrations)
@@ -78,14 +111,19 @@ public class DynamicModuleRegistrationTest
 
     private void assertUnregistered(final MockTrackedDynamicModule registration)
     {
-        Assert.assertEquals(1,registration.callCount());
+        Assert.assertEquals(1, registration.callCount());
     }
 
     private ArrayList<TrackedDynamicModule> makeModules()
     {
-        MockTrackedDynamicModule mod1 = new MockTrackedDynamicModule();
-        MockTrackedDynamicModule mod2 = new MockTrackedDynamicModule();
-        MockTrackedDynamicModule mod3 = new MockTrackedDynamicModule();
+        return makeModules("plugin:module");
+    }
+
+    private ArrayList<TrackedDynamicModule> makeModules(String prefix)
+    {
+        MockTrackedDynamicModule mod1 = new MockTrackedDynamicModule(prefix + "1");
+        MockTrackedDynamicModule mod2 = new MockTrackedDynamicModule(prefix + "2");
+        MockTrackedDynamicModule mod3 = new MockTrackedDynamicModule(prefix + "3");
 
         return Lists.<TrackedDynamicModule>newArrayList(mod1, mod2, mod3);
     }
