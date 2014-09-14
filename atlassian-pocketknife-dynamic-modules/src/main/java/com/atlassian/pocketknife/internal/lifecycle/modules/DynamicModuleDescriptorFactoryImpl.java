@@ -123,6 +123,14 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
             log.info(format("The module '%s' with key '%s' in plugin '%s' is in the list of excluded module descriptors, so not enabling.", moduleType, moduleIdentifier, pluginId));
             return null;
         }
+        else if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
+        {
+            //
+            // if have a key and we already have a module of that name, then blow up!
+            //
+            throw new PluginParseException("Found duplicate key '" + getModuleIdentifier(element) + "' within plugin '" + pluginId + "'");
+        }
+
         // Once we have the module descriptor, create it using the given information
         try
         {
@@ -158,14 +166,6 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         {
             log.error(format("Skipping the module '%s' with key '%s' in plugin '%s'. Null was returned from the module descriptor factory...", moduleType, moduleKey, pluginId));
             return;
-        }
-
-        //
-        // if we have a key and we already have a module of that name, then blow up!
-        //
-        if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
-        {
-            throw new PluginParseException("Found duplicate key '" + moduleKey + "' within plugin '" + pluginId + "'");
         }
 
         if (moduleDescriptor instanceof UnloadableModuleDescriptor)
