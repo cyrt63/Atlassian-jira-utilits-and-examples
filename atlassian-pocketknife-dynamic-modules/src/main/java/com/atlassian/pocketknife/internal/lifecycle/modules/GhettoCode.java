@@ -1,18 +1,22 @@
 package com.atlassian.pocketknife.internal.lifecycle.modules;
 
+import com.atlassian.annotations.Internal;
 import com.atlassian.plugin.Plugin;
+import com.atlassian.pocketknife.api.lifecycle.modules.ModuleDescriptorKit;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * This ghetto code is here because the plugins system does not have public methods to allow us to do what it allows
  * itself.  That's ok since we can improve it over time but for now we do the needful
- *
+ * <p/>
  * See https://ecosystem.atlassian.net/browse/PLUG-1037
  */
 public class GhettoCode
@@ -23,6 +27,8 @@ public class GhettoCode
     {
         try
         {
+            element.addAttribute(ModuleDescriptorKit.DYNAMIC_MODULE_ATTRNAME, "true");
+
             //
             // in order to support dynamic resolution of modules, the plugins system squirrels away the
             // the XML elements against that plugin so it can then later "resolve" them as
@@ -65,6 +71,42 @@ public class GhettoCode
             addModuleDescriptorElement(plugin, null, moduleKey);
         }
     }
+
+    @Internal
+    public static Map<String, Element> getModuleElements(Plugin plugin)
+    {
+        //     Map<String, Element> getModuleElements()
+        try
+        {
+            Method getModuleElements = plugin.getClass().getDeclaredMethod("getModuleElements");
+            getModuleElements.setAccessible(true);
+            Object mapOfElements = getModuleElements.invoke(plugin);
+            if (mapOfElements == null)
+            {
+                mapOfElements = new HashMap<String, Element>();
+            }
+            //noinspection unchecked
+            return (Map<String, Element>) mapOfElements;
+        }
+        catch (NoSuchMethodException e)
+        {
+            log.error("Unable to access OsgiPlugin dom.  Has the interface changed? ");
+        }
+        catch (InvocationTargetException e)
+        {
+            log.error("Unable to access OsgiPlugin dom.  Has the interface changed? ");
+        }
+        catch (IllegalAccessException e)
+        {
+            log.error("Unable to access OsgiPlugin dom.  Has the interface changed? ");
+        }
+        catch (ClassCastException e)
+        {
+            log.error("Unable to access OsgiPlugin dom.  Has the interface changed? ");
+        }
+        return Collections.emptyMap();
+    }
+
 
     private static boolean removeElementFromMap(Plugin plugin, String moduleKey)
     {
