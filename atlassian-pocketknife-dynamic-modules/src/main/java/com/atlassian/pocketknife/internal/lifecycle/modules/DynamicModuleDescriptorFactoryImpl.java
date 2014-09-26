@@ -7,6 +7,7 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.descriptors.UnloadableModuleDescriptor;
 import com.atlassian.plugin.descriptors.UnrecognisedModuleDescriptor;
 import com.atlassian.pocketknife.api.lifecycle.modules.DynamicModuleDescriptorFactory;
+import com.atlassian.pocketknife.api.lifecycle.modules.LoaderConfiguration;
 import com.atlassian.pocketknife.api.lifecycle.modules.ModuleRegistrationHandle;
 import com.atlassian.pocketknife.api.lifecycle.modules.ResourceLoader;
 import com.google.common.collect.Lists;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.atlassian.plugin.descriptors.UnloadableModuleDescriptorFactory.createUnloadableModuleDescriptor;
@@ -56,50 +58,56 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
     @Override
     public ModuleRegistrationHandle loadModules(final Plugin plugin, final String... pathsToAuxAtlassianPluginXMLs)
     {
-        ResourceLoader pluginClassloaderBased = new ResourceLoader()
-        {
-            @Override
-            public InputStream getResourceAsStream(final String resourceName)
-            {
-                return plugin.getClassLoader().getResourceAsStream(resourceName);
-            }
-        };
-        return loadModules(plugin, pluginClassloaderBased, pathsToAuxAtlassianPluginXMLs);
+        final LoaderConfiguration loaderConfiguration = new LoaderConfiguration(plugin);
+        loaderConfiguration.setPathsToAuxAtlassianPluginXMLs(Arrays.asList(pathsToAuxAtlassianPluginXMLs));
+
+        return loadModules(loaderConfiguration);
     }
 
-    /**
-     */
+    @Override
     public ModuleRegistrationHandle loadModules(final Plugin plugin, final ResourceLoader resourceLoader, final String... pathsToAuxAtlassianPluginXMLs)
     {
+        final LoaderConfiguration loaderConfiguration = new LoaderConfiguration(plugin);
+        loaderConfiguration.setResourceLoader(resourceLoader);
+        loaderConfiguration.setPathsToAuxAtlassianPluginXMLs(Arrays.asList(pathsToAuxAtlassianPluginXMLs));
+
+        return loadModules(loaderConfiguration);
+    }
+
+    @Override
+    public ModuleRegistrationHandle loadModules(final LoaderConfiguration loaderConfiguration) {
         List<ModuleDescriptor> modules = Lists.newArrayList();
 
         final ModuleDescriptorFactory moduleDescriptorFactory = combinedModuleDescriptorFactoryProvider.getModuleDescriptorFactory();
-        for (String auxAtlassianPluginXML : pathsToAuxAtlassianPluginXMLs)
+        for (String auxAtlassianPluginXML : loaderConfiguration.getPathsToAuxAtlassianPluginXMLs())
         {
-            final PluginDescriptorReader descriptorReader = getPluginDescriptorReader(resourceLoader, auxAtlassianPluginXML);
+            final PluginDescriptorReader descriptorReader = getPluginDescriptorReader(loaderConfiguration.getResourceLoader(), auxAtlassianPluginXML);
             for (Element moduleElement : descriptorReader.getModules())
             {
-                loadModulesHelper(plugin, moduleElement, moduleDescriptorFactory, modules);
+                loadModulesHelper(loaderConfiguration, moduleElement, moduleDescriptorFactory, modules);
             }
         }
-        return dynamicModuleRegistration.registerDescriptors(plugin, modules);
+
+        return dynamicModuleRegistration.registerDescriptors(loaderConfiguration.getPlugin(), modules);
     }
 
+    @Override
     public ModuleRegistrationHandle loadModules(final Plugin plugin, Element element)
     {
         List<ModuleDescriptor> modules = Lists.newArrayList();
         final ModuleDescriptorFactory moduleDescriptorFactory = combinedModuleDescriptorFactoryProvider.getModuleDescriptorFactory();
-        loadModulesHelper(plugin, element, moduleDescriptorFactory, modules);
+
+        loadModulesHelper(new LoaderConfiguration(plugin), element, moduleDescriptorFactory, modules);
         return dynamicModuleRegistration.registerDescriptors(plugin, modules);
     }
 
-    private void loadModulesHelper(Plugin plugin, Element moduleElement, ModuleDescriptorFactory moduleDescriptorFactory, List<ModuleDescriptor> modules)
+    private void loadModulesHelper(final LoaderConfiguration loaderConfiguration, Element moduleElement, ModuleDescriptorFactory moduleDescriptorFactory, List<ModuleDescriptor> modules)
     {
         final String moduleType = moduleElement.getName();
         String moduleKey = getModuleIdentifier(moduleElement);
-        String pluginId = pluginIdentifier(plugin);
+        String pluginId = pluginIdentifier(loaderConfiguration.getPlugin());
 
-        final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(plugin, moduleType, moduleElement, moduleDescriptorFactory);
+        final ModuleDescriptor<?> moduleDescriptor = createModuleDescriptor(loaderConfiguration, moduleType, moduleElement, moduleDescriptorFactory);
 
         // If we're not loading the module descriptor, null is returned, so we skip it
         if (moduleDescriptor == null)
@@ -119,14 +127,18 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         }
     }
 
-    protected ModuleDescriptor<?> createModuleDescriptor(final Plugin plugin, String moduleType, final Element element, final ModuleDescriptorFactory moduleDescriptorFactory)
+    protected ModuleDescriptor<?> createModuleDescriptor(
+            final LoaderConfiguration loaderConfiguration,
+            final String moduleType,
+            final Element element,
+            final ModuleDescriptorFactory moduleDescriptorFactory)
             throws PluginParseException
     {
         final ModuleDescriptor<?> moduleDescriptor;
 
         // Try to retrieve the module descriptor
         String moduleIdentifier = getModuleIdentifier(element);
-        String pluginId = pluginIdentifier(plugin);
+        String pluginId = pluginIdentifier(loaderConfiguration.getPlugin());
         try
         {
             log.info(format("Creating module of type '%s' with key '%s' in plugin '%s'", moduleType, moduleIdentifier, pluginId));
@@ -139,7 +151,7 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
         // When there's a problem loading a module, return an UnrecognisedModuleDescriptor with error
         catch (final Throwable e)
         {
-            final UnrecognisedModuleDescriptor descriptor = createUnrecognisedModuleDescriptor(plugin, element, e, moduleDescriptorFactory);
+            final UnrecognisedModuleDescriptor descriptor = createUnrecognisedModuleDescriptor(loaderConfiguration.getPlugin(), element, e, moduleDescriptorFactory);
 
             log.error(format("There were problems loading the module '%s' with key '%s' in plugin '%s'. The module has been disabled.", moduleType, moduleIdentifier, pluginId));
             log.error(descriptor.getErrorText(), e);
@@ -153,24 +165,31 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
             log.info(format("The module '%s' with key '%s' in plugin '%s' is in the list of excluded module descriptors, so not enabling.", moduleType, moduleIdentifier, pluginId));
             return null;
         }
-        else if (moduleDescriptor.getKey() != null && plugin.getModuleDescriptor(moduleDescriptor.getKey()) != null)
+        else if (moduleDescriptor.getKey() != null && loaderConfiguration.getPlugin().getModuleDescriptor(moduleDescriptor.getKey()) != null)
         {
-            //
-            // if have a key and we already have a module of that name, then blow up!
-            //
-            throw new PluginParseException("Found duplicate key '" + getModuleIdentifier(element) + "' within plugin '" + pluginId + "'");
+            if (loaderConfiguration.isFailOnDuplicateKey()) {
+                //
+                // if have a key and we already have a module of that name, then blow up!
+                //
+                throw new PluginParseException("Found duplicate key '" + getModuleIdentifier(element) + "' within plugin '" + pluginId + "'");
+            }
+            else
+            {
+                log.warn(format("Found duplicate key '%s' within plugin '%s', but ignoring this and moving on....."),  getModuleIdentifier(element), pluginId);
+                return null;
+            }
         }
 
         // Once we have the module descriptor, create it using the given information
         try
         {
             log.info(format("Calling init on module of type '%s' with key '%s' in plugin '%s'", moduleType, moduleIdentifier, pluginId));
-            moduleDescriptor.init(plugin, element);
+            moduleDescriptor.init(loaderConfiguration.getPlugin(), element);
         }
         // If it fails, return a dummy module that contains the error
         catch (final Exception e)
         {
-            final UnloadableModuleDescriptor descriptor = createUnloadableModuleDescriptor(plugin, element, e, moduleDescriptorFactory);
+            final UnloadableModuleDescriptor descriptor = createUnloadableModuleDescriptor(loaderConfiguration.getPlugin(), element, e, moduleDescriptorFactory);
 
             log.error(format("There were problems loading the module '%s' with key '%s'. The module and its plugin have been disabled.", moduleType, moduleIdentifier));
             log.error(descriptor.getErrorText(), e);
@@ -178,7 +197,7 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
             return descriptor;
         }
 
-        GhettoCode.addModuleDescriptorElement(plugin, element, element.attributeValue("key"));
+        GhettoCode.addModuleDescriptorElement(loaderConfiguration.getPlugin(), element, element.attributeValue("key"));
 
         return moduleDescriptor;
     }

@@ -25,9 +25,12 @@ public interface DynamicModuleDescriptorFactory
      * @param plugin                        your plugin that you want the modules to belong to
      * @param pathsToAuxAtlassianPluginXMLs a set of 1 or more auxiliary atlassian-plugin.xml style resources nn the class path
      * @return a module registration object that you should hold onto for the life of the plugin and call unregister on when
-     *         thr plugin is coming down
+     *         the plugin is coming down
+     * @deprecated Use {@link #loadModules(LoaderConfiguration)} instead
      */
+    @Deprecated
     public ModuleRegistrationHandle loadModules(final Plugin plugin, final String... pathsToAuxAtlassianPluginXMLs);
+
     /**
      * This allows you to load one or more auxiliary atlassian-plugin.xml files as modules under your control.
      *
@@ -36,8 +39,19 @@ public interface DynamicModuleDescriptorFactory
      * @param pathsToAuxAtlassianPluginXMLs a set of 1 or more auxiliary atlassian-plugin.xml style resources nn the class path
      * @return a module registration object that you should hold onto for the life of the plugin and call unregister on when
      *         thr plugin is coming down
+     * @deprecated Use {@link #loadModules(LoaderConfiguration)} instead
      */
+    @Deprecated
     public ModuleRegistrationHandle loadModules(final Plugin plugin, final ResourceLoader resourceLoader, final String... pathsToAuxAtlassianPluginXMLs);
+
+    /**
+     * This allows you to load one or more auxiliary atlassian-plugin.xml files as modules under your control.
+     *
+     * @param loaderConfiguration           the configuration to use for telling you what/how/who to load
+     * @return a module registration object that you should hold onto for the life of the plugin and call unregister on when
+     *         thr plugin is coming down
+     */
+    public ModuleRegistrationHandle loadModules(final LoaderConfiguration loaderConfiguration);
 
     /**
      * This allows you to dynamically generated modules from html elements files as modules under your control.
