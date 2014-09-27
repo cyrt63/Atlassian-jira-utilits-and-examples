@@ -3,7 +3,8 @@ package com.atlassian.pocketknife.api.lifecycle.modules;
 import com.atlassian.plugin.Plugin;
 
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LoaderConfiguration {
@@ -22,7 +23,7 @@ public class LoaderConfiguration {
 
         this.failOnDuplicateKey = true;
         this.resourceLoader = new DefaultResourceLoader();
-        this.pathsToAuxAtlassianPluginXMLs = Collections.emptyList();
+        this.pathsToAuxAtlassianPluginXMLs = new ArrayList<String>(0);
     }
 
     /**
@@ -55,7 +56,7 @@ public class LoaderConfiguration {
     }
 
     /**
-     * @return a list of 1 or more auxiliary atlassian-plugin.xml style resources nn the class path
+     * @return a list of auxiliary atlassian-plugin.xml style resources nn the class path
      */
     public List<String> getPathsToAuxAtlassianPluginXMLs() {
         return pathsToAuxAtlassianPluginXMLs;
@@ -63,6 +64,10 @@ public class LoaderConfiguration {
 
     public void setPathsToAuxAtlassianPluginXMLs(List<String> pathsToAuxAtlassianPluginXMLs) {
         this.pathsToAuxAtlassianPluginXMLs = pathsToAuxAtlassianPluginXMLs;
+    }
+
+    public void addPathsToAuxAtlassianPluginXMLs(String... pathsToAuxAtlassianPluginXMLs) {
+        this.pathsToAuxAtlassianPluginXMLs.addAll(Arrays.asList(pathsToAuxAtlassianPluginXMLs));
     }
 
     class DefaultResourceLoader implements ResourceLoader {

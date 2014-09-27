@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -87,5 +88,14 @@ public class LoaderConfigurationTest {
         config.setPathsToAuxAtlassianPluginXMLs(list);
 
         assertEquals(list, config.getPathsToAuxAtlassianPluginXMLs());
+    }
+
+    @Test
+    public void testAddPaths() {
+        final LoaderConfiguration config = new LoaderConfiguration(mockPlugin);
+
+        config.addPathsToAuxAtlassianPluginXMLs("list", "2", "another");
+
+        assertEquals(Arrays.asList("list", "2", "another"), config.getPathsToAuxAtlassianPluginXMLs());
     }
 }
