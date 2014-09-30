@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.atlassian.plugin.descriptors.UnloadableModuleDescriptorFactory.createUnloadableModuleDescriptor;
@@ -59,7 +58,7 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
     public ModuleRegistrationHandle loadModules(final Plugin plugin, final String... pathsToAuxAtlassianPluginXMLs)
     {
         final LoaderConfiguration loaderConfiguration = new LoaderConfiguration(plugin);
-        loaderConfiguration.setPathsToAuxAtlassianPluginXMLs(Arrays.asList(pathsToAuxAtlassianPluginXMLs));
+        loaderConfiguration.addPathsToAuxAtlassianPluginXMLs(pathsToAuxAtlassianPluginXMLs);
 
         return loadModules(loaderConfiguration);
     }
@@ -69,7 +68,7 @@ public class DynamicModuleDescriptorFactoryImpl implements DynamicModuleDescript
     {
         final LoaderConfiguration loaderConfiguration = new LoaderConfiguration(plugin);
         loaderConfiguration.setResourceLoader(resourceLoader);
-        loaderConfiguration.setPathsToAuxAtlassianPluginXMLs(Arrays.asList(pathsToAuxAtlassianPluginXMLs));
+        loaderConfiguration.addPathsToAuxAtlassianPluginXMLs(pathsToAuxAtlassianPluginXMLs);
 
         return loadModules(loaderConfiguration);
     }

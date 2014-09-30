@@ -3,27 +3,27 @@ package com.atlassian.pocketknife.api.lifecycle.modules;
 import com.atlassian.plugin.Plugin;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class LoaderConfiguration {
 
     private final Plugin plugin;
+    private final List<String> pathsToAuxAtlassianPluginXMLs;
 
     private ResourceLoader resourceLoader;
     private boolean failOnDuplicateKey;
-    private List<String> pathsToAuxAtlassianPluginXMLs;
 
     public LoaderConfiguration(Plugin plugin) {
         if (plugin == null) {
             throw new NullPointerException("Plugin has not been specified");
         }
         this.plugin = plugin;
+        this.pathsToAuxAtlassianPluginXMLs = new LinkedList<String>();
 
         this.failOnDuplicateKey = true;
         this.resourceLoader = new DefaultResourceLoader();
-        this.pathsToAuxAtlassianPluginXMLs = new ArrayList<String>(0);
     }
 
     /**
@@ -62,8 +62,8 @@ public class LoaderConfiguration {
         return pathsToAuxAtlassianPluginXMLs;
     }
 
-    public void setPathsToAuxAtlassianPluginXMLs(List<String> pathsToAuxAtlassianPluginXMLs) {
-        this.pathsToAuxAtlassianPluginXMLs = pathsToAuxAtlassianPluginXMLs;
+    public void addPathsToAuxAtlassianPluginXMLs(List<String> pathsToAuxAtlassianPluginXMLs) {
+        this.pathsToAuxAtlassianPluginXMLs.addAll(pathsToAuxAtlassianPluginXMLs);
     }
 
     public void addPathsToAuxAtlassianPluginXMLs(String... pathsToAuxAtlassianPluginXMLs) {

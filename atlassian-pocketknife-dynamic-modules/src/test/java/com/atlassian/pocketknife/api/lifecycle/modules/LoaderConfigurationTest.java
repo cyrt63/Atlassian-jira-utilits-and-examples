@@ -81,17 +81,17 @@ public class LoaderConfigurationTest {
     }
 
     @Test
-    public void testSetPaths() {
+    public void testAddPathsList() {
         final LoaderConfiguration config = new LoaderConfiguration(mockPlugin);
         final List<String> list = Collections.singletonList("sssss");
 
-        config.setPathsToAuxAtlassianPluginXMLs(list);
+        config.addPathsToAuxAtlassianPluginXMLs(list);
 
         assertEquals(list, config.getPathsToAuxAtlassianPluginXMLs());
     }
 
     @Test
-    public void testAddPaths() {
+    public void testAddPathsVariableArray() {
         final LoaderConfiguration config = new LoaderConfiguration(mockPlugin);
 
         config.addPathsToAuxAtlassianPluginXMLs("list", "2", "another");
