@@ -1,9 +1,11 @@
 package com.atlassian.pocketknife.api.util.runners;
 
-import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
@@ -16,17 +18,17 @@ import java.util.Map;
  * Once all the seals have been broken, the runnable will run once and never again. If there are no seals provided,
  * then the Runnable will never run.
  * <p/>
- * NOTE: Keys are case insensitive.
  */
+@ThreadSafe
 public class SealedRunner {
-    private boolean hasRun;
+    private AtomicBoolean hasRun;
     private final Runnable runnable;
-    private Map<String, Boolean> seals;
+    private ConcurrentHashMap<String, Boolean> seals;
 
     public SealedRunner(List<String> keys, Runnable runnable) {
-        this.hasRun = false;
+        this.hasRun = new AtomicBoolean(false);
         this.runnable = runnable;
-        this.seals = Maps.newHashMap();
+        this.seals = new ConcurrentHashMap<String, Boolean>();
         for (String key : keys) {
             seals.put(key, false);
         }
@@ -37,36 +39,36 @@ public class SealedRunner {
      * If all seals are broken after this call, the runnable will run.
      *
      * @param key - corresponding to a seal
-     * @return false if the key does not match a valid seal.
+     * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
      */
-    public boolean breakSeal(final String key) {
-        if (seals.containsKey(key)) {
+    public void breakSeal(final String key) {
+        if (StringUtils.isNotBlank(key) && seals.containsKey(key)) {
             seals.put(key, true);
             checkSeals();
-            return true;
+        } else {
+            throw new IllegalArgumentException("The key you have provided does not conform to a valid seal!");
         }
-        return false;
     }
 
     /**
      * Repair a seal based on the key. An unbroken seal can be repaired safely.
      *
      * @param key - corresponding to a seal
-     * @return false if the key does not match a valid seal.
+     * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
      */
-    public boolean repairSeal(final String key) {
-        if (seals.containsKey(key)) {
+    public void repairSeal(final String key) {
+        if (StringUtils.isNotBlank(key) && seals.containsKey(key)) {
             seals.put(key, false);
-            return true;
+        } else {
+            throw new IllegalArgumentException("The key you have provided does not conform to a valid seal!");
         }
-        return false;
     }
 
     /**
      * This will check if all the seals are unlocked, if they are, then it will run the runnable
      */
     private void checkSeals() {
-        if (hasRun) {
+        if (hasRun.get()) {
             return;
         }
         boolean allSealsBroken = true;
@@ -75,7 +77,7 @@ public class SealedRunner {
         }
         if (allSealsBroken) {
             runnable.run();
-            hasRun = true;
+            hasRun.set(true);
         }
     }
 }

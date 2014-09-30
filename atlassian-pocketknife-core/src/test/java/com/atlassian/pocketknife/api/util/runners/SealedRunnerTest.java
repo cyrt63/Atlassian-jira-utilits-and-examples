@@ -1,8 +1,10 @@
 package com.atlassian.pocketknife.api.util.runners;
 
 import com.google.common.collect.Lists;
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.*;
 
 public class SealedRunnerTest {
     @Test
@@ -14,11 +16,27 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("second.key");
-        Assert.assertTrue(seal.isSealBroken());
+        assertTrue(seal.isSealBroken());
+    }
+
+    @Test
+    public void testSealedRunnerCaseSensitivity() throws Exception {
+        final Seal seal = new Seal("for runnable");
+        SealedRunner runner = new SealedRunner(Lists.newArrayList("first.key", "FIRST.KEY"), new Runnable() {
+            @Override
+            public void run() {
+                seal.breakSeal();
+            }
+        });
+        assertFalse(seal.isSealBroken());
+        runner.breakSeal("first.key");
+        assertFalse(seal.isSealBroken());
+        runner.breakSeal("FIRST.KEY");
+        assertTrue(seal.isSealBroken());
     }
 
     @Test
@@ -30,15 +48,15 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("second.key");
-        Assert.assertTrue(seal.isSealBroken());
+        assertTrue(seal.isSealBroken());
         runner.breakSeal("second.key");
-        Assert.assertTrue(seal.isSealBroken());
+        assertTrue(seal.isSealBroken());
     }
 
     @Test
@@ -50,18 +68,18 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.repairSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("second.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.repairSeal("second.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testEmptyRunner() throws Exception {
         final Seal seal = new Seal("for runnable");
         SealedRunner runner = new SealedRunner(Lists.<String>newArrayList(), new Runnable() {
@@ -70,14 +88,11 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
-        runner.breakSeal("second.key");
-        Assert.assertFalse(seal.isSealBroken());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNulls() throws Exception {
         final Seal seal = new Seal("for runnable");
         SealedRunner runner = new SealedRunner(Lists.newArrayList("first.key", "second.key"), new Runnable() {
@@ -86,11 +101,21 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal(null);
-        Assert.assertFalse(seal.isSealBroken());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNulls2() throws Exception {
+        final Seal seal = new Seal("for runnable");
+        SealedRunner runner = new SealedRunner(Lists.newArrayList("first.key", "second.key"), new Runnable() {
+            @Override
+            public void run() {
+                seal.breakSeal();
+            }
+        });
+        assertFalse(seal.isSealBroken());
         runner.repairSeal(null);
-        Assert.assertFalse(seal.isSealBroken());
     }
 
     @Test
@@ -102,19 +127,19 @@ public class SealedRunnerTest {
                 seal.breakSeal();
             }
         });
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("first.key");
-        Assert.assertFalse(seal.isSealBroken());
+        assertFalse(seal.isSealBroken());
         runner.breakSeal("second.key");
-        Assert.assertTrue(seal.isSealBroken());
-        Assert.assertEquals(seal.getTimesBroken(), 1);
+        assertTrue(seal.isSealBroken());
+        assertEquals(seal.getTimesBroken(), 1);
         runner.breakSeal("first.key");
         runner.breakSeal("second.key");
-        Assert.assertEquals(seal.getTimesBroken(), 1);
+        assertEquals(seal.getTimesBroken(), 1);
         runner.repairSeal("first.key");
         runner.repairSeal("second.key");
         runner.breakSeal("first.key");
         runner.breakSeal("second.key");
-        Assert.assertEquals(seal.getTimesBroken(), 1);
+        assertEquals(seal.getTimesBroken(), 1);
     }
 }
