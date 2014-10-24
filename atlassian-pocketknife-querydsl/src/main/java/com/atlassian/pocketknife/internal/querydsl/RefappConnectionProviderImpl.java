@@ -4,6 +4,7 @@ import com.atlassian.plugin.spring.scanner.annotation.component.RefappComponent;
 import com.atlassian.plugin.spring.scanner.annotation.imports.RefappImport;
 import com.atlassian.pocketknife.spi.querydsl.AbstractConnectionProvider;
 import com.atlassian.refapp.api.ConnectionProvider;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Connection;
@@ -12,7 +13,6 @@ import java.sql.SQLException;
 @RefappComponent
 public class RefappConnectionProviderImpl extends AbstractConnectionProvider
 {
-
     private ConnectionProvider refappConnectionProvider;
 
     @Autowired
@@ -24,6 +24,8 @@ public class RefappConnectionProviderImpl extends AbstractConnectionProvider
     @Override
     protected Connection getConnectionImpl(boolean autoCommit)
     {
+        log().debug("Getting a refapp connection with auto-commit '" + autoCommit + "'");
+
         try {
             return refappConnectionProvider.connection();
         }
