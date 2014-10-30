@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.atlassian.util.concurrent.Assertions;
+
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
  * stones at the end of "The Fifth Element". Once they are all activated, something happens. Same concept behind this
@@ -25,12 +27,23 @@ public class SealedRunner {
     private final Runnable runnable;
     private ConcurrentHashMap<String, Boolean> seals;
 
+    /**
+     * Creates a new sealed runner with the given list of seals and target runnable provided.
+     *
+     * @param keys the seals to require before the runnable is invoked
+     * @param runnable the target code to run once all the seals are broken
+     */
     public SealedRunner(List<String> keys, Runnable runnable) {
         this.hasRun = new AtomicBoolean(false);
-        this.runnable = runnable;
+        this.runnable = Assertions.notNull("runnable", runnable);
         this.seals = new ConcurrentHashMap<String, Boolean>();
+
         for (String key : keys) {
-            seals.put(key, false);
+            if (StringUtils.isNotBlank(key)) {
+                seals.put(key, false);
+            } else {
+                throw new IllegalArgumentException("The seals cannot be null or blank");
+            }
         }
     }
 
@@ -42,7 +55,7 @@ public class SealedRunner {
      * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
      */
     public void breakSeal(final String key) {
-        if (StringUtils.isNotBlank(key) && seals.containsKey(key)) {
+        if (key != null && seals.containsKey(key)) {
             seals.put(key, true);
             checkSeals();
         } else {
@@ -57,7 +70,7 @@ public class SealedRunner {
      * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
      */
     public void repairSeal(final String key) {
-        if (StringUtils.isNotBlank(key) && seals.containsKey(key)) {
+        if (key != null && seals.containsKey(key)) {
             seals.put(key, false);
         } else {
             throw new IllegalArgumentException("The key you have provided does not conform to a valid seal!");
@@ -75,9 +88,8 @@ public class SealedRunner {
         for (Boolean b : seals.values()) {
             allSealsBroken = allSealsBroken && b;
         }
-        if (allSealsBroken) {
+        if (allSealsBroken && hasRun.compareAndSet(false, true)) {
             runnable.run();
-            hasRun.set(true);
         }
     }
 }
