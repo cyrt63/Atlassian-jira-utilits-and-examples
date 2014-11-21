@@ -29,7 +29,7 @@ public final class SchemaProviderAccessor implements InitializingBean, Disposabl
         instance = null;
     }
 
-    private static SchemaProvider getSchemaProvider()
+    public static SchemaProvider getSchemaProvider()
     {
         if(instance == null)
         {
