@@ -35,11 +35,15 @@ public abstract class AbstractConnectionProvider implements ConnectionProvider
 
     public Connection borrowConnection()
     {
+        log().debug("Borrowing connection without auto-commit");
+
         return getConnectionImpl(false);
     }
 
     public Connection borrowAutoCommitConnection()
     {
+        log().debug("Borrowing connection with auto-commit");
+
         return getConnectionImpl(true);
     }
 
@@ -62,6 +66,8 @@ public abstract class AbstractConnectionProvider implements ConnectionProvider
         {
             try
             {
+                log().debug("Returning borrowed connection");
+
                 connection.close();
             }
             catch (SQLException e)
