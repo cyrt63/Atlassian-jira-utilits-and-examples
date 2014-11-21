@@ -24,11 +24,13 @@ public class Connections
         {
             if (connection != null)
             {
-                log.debug("Closing connection...");
+                String schema = connection.getSchema();
+
+                log.debug("Closing connection for schema '" + schema + "'...");
 
                 connection.close();
 
-                log.debug("Closed connection for schema '" + connection.getSchema() + "'");
+                log.debug("Closed connection for schema '" + schema + "'");
             }
         }
         catch (SQLException e)
