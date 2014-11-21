@@ -26,7 +26,7 @@ public class JiraConnectionProviderImpl extends AbstractConnectionProvider
             Connection connection = instance.getConnection();
             connection.setAutoCommit(autoCommit);
 
-            log().debug("Got connection with auto-commit '" + autoCommit + "'for schema '" + connection.getSchema() + "'");
+            log().debug("Got connection with auto-commit '" + autoCommit + "'");
 
             return connection;
         }
