@@ -4,8 +4,6 @@ import com.atlassian.jira.ofbiz.DefaultOfBizConnectionFactory;
 import com.atlassian.plugin.spring.scanner.annotation.component.JiraComponent;
 import com.atlassian.pocketknife.spi.querydsl.AbstractConnectionProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.SQLException;
