@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
+import com.atlassian.fugue.Function2;
 import com.atlassian.pocketknife.api.querydsl.ClosePromise;
 import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
@@ -38,6 +39,23 @@ public class StreamyResultImpl implements StreamyResult
         return Tuples.map(closeableIterator, mapper, closePromise);
     }
 
+    @Override
+    public <O> O foldLeft(final O initial, Function2<O, Tuple, O> f)
+    {
+        if (closePromise.isClosed())
+        {
+            throw new IllegalStateException("This streaming result has already been closed");
+        }
+
+        O accumulator = initial;
+        while (closeableIterator.hasNext())
+        {
+            accumulator = f.apply(accumulator, closeableIterator.next());
+        }
+        closePromise.close();
+        return accumulator;
+    }
+	
     @Override
     public void close()
     {
