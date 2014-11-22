@@ -95,6 +95,13 @@ public class QueryFactoryImpl implements QueryFactory
         }
     }
 
+    @Override
+    public <T> T streamyFold(StreamyFoldClojure<T> clojure)
+    {
+        StreamyResult resultStream = select(clojure.query());
+        return resultStream.foldLeft(clojure.getInitialValue(), clojure.getFoldFunction());
+    }
+
     private ClosePromise returnConnection(final Connection connection)
     {
         return new ClosePromise()
@@ -245,5 +252,4 @@ public class QueryFactoryImpl implements QueryFactory
             connectionProvider.returnConnection(connection);
         }
     }
-
 }

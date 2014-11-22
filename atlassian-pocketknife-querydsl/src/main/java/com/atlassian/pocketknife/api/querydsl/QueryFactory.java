@@ -1,7 +1,9 @@
 package com.atlassian.pocketknife.api.querydsl;
 
 import com.atlassian.annotations.PublicApi;
+import com.atlassian.fugue.Function2;
 import com.google.common.base.Function;
+import com.mysema.query.Tuple;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
@@ -52,6 +54,12 @@ public interface QueryFactory
      */
     StreamyResult select(Function<SelectQuery, StreamyResult> function);
 
+    /**
+     * Run the supplied clojure with a streamy query then fold over the result and return it
+     * @param clojure
+     * @return
+     */
+    <T> T streamyFold(StreamyFoldClojure<T> clojure);
 
     /**
      * Returns a INSERT query given the connection and table. Use this when you want to manage the connection yourself.
@@ -143,4 +151,20 @@ public interface QueryFactory
      * @return the result of using the passed in MERGE query
      */
     <T> T merge(RelationalPath<?> table, Function<SQLMergeClause, T> function);
+
+    /**
+     * When running a StreamyResult style query you will often end up needing a clojure as the mapping files need to be
+     * shared between the query block and the processing function. This interface formalises this clojure so that the
+     * pattern can be easily applied, see #streamyFold
+     * 
+     * @param <O>
+     */
+    static interface StreamyFoldClojure<O>
+    {
+        Function<SelectQuery, StreamyResult> query();
+        
+        Function2<O, Tuple, O> getFoldFunction();
+        
+        O getInitialValue();
+    }
 }
