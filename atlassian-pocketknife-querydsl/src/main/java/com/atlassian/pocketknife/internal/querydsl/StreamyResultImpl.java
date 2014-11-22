@@ -47,13 +47,19 @@ public class StreamyResultImpl implements StreamyResult
             throw new IllegalStateException("This streaming result has already been closed");
         }
 
-        O accumulator = initial;
-        while (closeableIterator.hasNext())
+        try
         {
-            accumulator = f.apply(accumulator, closeableIterator.next());
+            O accumulator = initial;
+            while (closeableIterator.hasNext())
+            {
+                accumulator = f.apply(accumulator, closeableIterator.next());
+            }
+            return accumulator;
         }
-        closePromise.close();
-        return accumulator;
+        finally
+        {
+            closePromise.close();
+        }
     }
 	
     @Override
