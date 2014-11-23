@@ -61,7 +61,7 @@ public class StreamyResultImpl implements StreamyResult
             closePromise.close();
         }
     }
-	
+
     @Override
     public void close()
     {
