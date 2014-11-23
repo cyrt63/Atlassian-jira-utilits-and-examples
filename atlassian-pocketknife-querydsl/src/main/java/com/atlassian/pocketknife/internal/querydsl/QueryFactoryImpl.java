@@ -96,10 +96,10 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     @Override
-    public <T> T streamyFold(StreamyFoldClojure<T> clojure)
+    public <T> T streamyFold(StreamyFoldClosure<T> closure)
     {
-        StreamyResult resultStream = select(clojure.query());
-        return resultStream.foldLeft(clojure.getInitialValue(), clojure.getFoldFunction());
+        StreamyResult resultStream = select(closure.query());
+        return resultStream.foldLeft(closure.getInitialValue(), closure.getFoldFunction());
     }
 
     private ClosePromise returnConnection(final Connection connection)
