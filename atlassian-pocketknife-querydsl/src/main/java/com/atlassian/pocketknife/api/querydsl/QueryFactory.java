@@ -56,8 +56,11 @@ public interface QueryFactory
 
     /**
      * Run the supplied clojure with a streamy query then fold over the result and return it
-     * @param clojure
-     * @return
+     *
+     * @param clojure The clojure that will be executed
+     * @param <T> The type that is returned by the fold function
+     * @return The result of running the query specified by StreamyFoldClojure#query then running the fold from
+     * StreamyFoldClojure#getFoldFunction
      */
     <T> T streamyFold(StreamyFoldClojure<T> clojure);
 
@@ -156,15 +159,13 @@ public interface QueryFactory
      * When running a StreamyResult style query you will often end up needing a clojure as the mapping files need to be
      * shared between the query block and the processing function. This interface formalises this clojure so that the
      * pattern can be easily applied, see #streamyFold
-     * 
-     * @param <O>
      */
     static interface StreamyFoldClojure<O>
     {
         Function<SelectQuery, StreamyResult> query();
-        
+
         Function2<O, Tuple, O> getFoldFunction();
-        
+
         O getInitialValue();
     }
 }
