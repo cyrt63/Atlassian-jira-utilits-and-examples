@@ -91,25 +91,13 @@ public class QueryingConnectionTest
         SQLQuery countQuery = queryFactory.select(connection).from(employee);
         int numberOfEmployees = countQuery.list(employee.id).size();
 
-        StreamyResult allEmployeesStreamy = queryFactory.select(new Function<SelectQuery, StreamyResult>()
-        {
-            @Override
-            public StreamyResult apply(final SelectQuery input)
-            {
-                return input.from(employee).stream(employee.id);
-            }
-        });
+        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
+
+        StreamyResult allEmployeesStreamy = queryFactory.select(closure.query());
 
         try
         {
-            Integer streamyCount = allEmployeesStreamy.foldLeft(0, new Function2<Integer, Tuple, Integer>()
-            {
-                @Override
-                public Integer apply(Integer arg0, Tuple arg1)
-                {
-                    return arg0 + 1;
-                }
-            });
+            Integer streamyCount = allEmployeesStreamy.foldLeft(closure.getInitialValue(), closure.getFoldFunction());
 
             assertThat(streamyCount, Matchers.equalTo(numberOfEmployees));
         }
@@ -117,6 +105,55 @@ public class QueryingConnectionTest
         {
             allEmployeesStreamy.close();
             assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+        }
+    }
+
+    @Test
+    public void testStreamyFold() throws Exception
+    {
+        Connection connection = countingConnectionProvider.borrowConnection();
+        SQLQuery countQuery = queryFactory.select(connection).from(employee);
+        int numberOfEmployees = countQuery.list(employee.id).size();
+
+        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
+        Integer result = queryFactory.streamyFold(closure);
+        assertThat(result, Matchers.equalTo(numberOfEmployees));
+        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+    }
+
+    private class TestStreamyFoldClosure implements QueryFactory.StreamyFoldClosure<Integer>
+    {
+
+        @Override
+        public Function<SelectQuery, StreamyResult> query()
+        {
+            return new Function<SelectQuery, StreamyResult>()
+            {
+                @Override
+                public StreamyResult apply(final SelectQuery input)
+                {
+                    return input.from(employee).stream(employee.id);
+                }
+            };
+        }
+
+        @Override
+        public Function2<Integer, Tuple, Integer> getFoldFunction()
+        {
+            return new Function2<Integer, Tuple, Integer>()
+            {
+                @Override
+                public Integer apply(Integer arg0, Tuple arg1)
+                {
+                    return arg0 + 1;
+                }
+            };
+        }
+
+        @Override
+        public Integer getInitialValue()
+        {
+            return 0;
         }
     }
 
@@ -186,7 +223,6 @@ public class QueryingConnectionTest
             assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
         }
     }
-
 
     private StreamyResult createStreamyQuery()
     {
