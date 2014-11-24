@@ -40,7 +40,7 @@ public class StreamyResultImpl implements StreamyResult
     }
 
     @Override
-    public <O> O foldLeft(final O initial, Function2<O, Tuple, O> f)
+    public <T> T foldLeft(final T initial, Function2<T, Tuple, T> combiningFunction)
     {
         if (closePromise.isClosed())
         {
@@ -49,10 +49,10 @@ public class StreamyResultImpl implements StreamyResult
 
         try
         {
-            O accumulator = initial;
+            T accumulator = initial;
             while (closeableIterator.hasNext())
             {
-                accumulator = f.apply(accumulator, closeableIterator.next());
+                accumulator = combiningFunction.apply(accumulator, closeableIterator.next());
             }
             return accumulator;
         }
