@@ -23,15 +23,15 @@ public interface StreamyResult extends Closeable
      * @return and iterable of domain objects
      */
     <D> CloseableIterable<D> map(Function<Tuple, D> mapper);
-    
+
     /**
      * Fold the function f over the query and return the accumulated value, executes immediately and closes the
      * iterable.
-     * 
+     *
      * @param initial The initial value to be passed to f
      * @param f A function that takes a tuple and the accumulating value and returns the new accumulating value
      * @return The result of applying f to each element in the list starting with #initial and passing in the result of
-     *         the previous call as it traverses the result.
+     * the previous call as it traverses the result.
      */
     <O> O foldLeft(O initial, Function2<O, Tuple, O> f);
 
