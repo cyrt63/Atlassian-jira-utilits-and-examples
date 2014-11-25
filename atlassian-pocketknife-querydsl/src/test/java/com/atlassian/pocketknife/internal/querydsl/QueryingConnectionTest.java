@@ -1,6 +1,7 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.fugue.Function2;
+import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
 import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
@@ -19,6 +20,8 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import static com.atlassian.pocketknife.internal.querydsl.tables.domain.QEmployee.employee;
 import static org.junit.Assert.assertThat;
@@ -85,6 +88,55 @@ public class QueryingConnectionTest
     }
 
     @Test
+    public void testStreamyMap() throws Exception
+    {
+        Connection connection = countingConnectionProvider.borrowConnection();
+        SQLQuery query = queryFactory.select(connection).from(employee);
+        final List<Tuple> queryResult = query.list(employee.id, employee.firstname);
+        final Tuple firstTuple = queryResult.get(0);
+        Integer firstEmployeeId = firstTuple.get(employee.id);
+        String firstEmployeeName = firstTuple.get(employee.firstname);
+
+        TestStreamyMapClosure closure = new TestStreamyMapClosure(firstEmployeeId);
+        List<String> result = queryFactory.streamyMap(closure);
+        assertThat(result, Matchers.containsInAnyOrder(firstEmployeeName));
+        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+    }
+
+    private class TestStreamyMapClosure implements QueryFactory.StreamyMapClosure<String>
+    {
+        private final Integer employeeId;
+
+        private TestStreamyMapClosure(final Integer employeeId) {this.employeeId = employeeId;}
+
+        @Override
+        public Function<SelectQuery, StreamyResult> query()
+        {
+            return new Function<SelectQuery, StreamyResult>()
+            {
+                @Override
+                public StreamyResult apply(final SelectQuery input)
+                {
+                    return input.from(employee).where(employee.id.eq(employeeId)).stream(employee.firstname);
+                }
+            };
+        }
+
+        @Override
+        public Function<Tuple, String> getMapFunction()
+        {
+            return new Function<Tuple, String>()
+            {
+                @Override
+                public String apply(@Nullable final Tuple input)
+                {
+                    return input.get(employee.firstname);
+                }
+            };
+        }
+    }
+
+    @Test
     public void testSelectWithFold() throws Exception
     {
         Connection connection = countingConnectionProvider.borrowConnection();
@@ -123,7 +175,6 @@ public class QueryingConnectionTest
 
     private class TestStreamyFoldClosure implements QueryFactory.StreamyFoldClosure<Integer>
     {
-
         @Override
         public Function<SelectQuery, StreamyResult> query()
         {

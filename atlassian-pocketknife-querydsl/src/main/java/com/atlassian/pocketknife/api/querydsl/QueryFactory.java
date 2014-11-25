@@ -12,6 +12,7 @@ import com.mysema.query.sql.dml.SQLMergeClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * QueryFactory gives of QueryDSL objects, connected to database {@link java.sql.Connection}s
@@ -53,6 +54,17 @@ public interface QueryFactory
      * @return then result of using the passed in SELECT query
      */
     StreamyResult select(Function<SelectQuery, StreamyResult> function);
+
+    /**
+     * Run the supplied closure with a streamy query then map over the result and return it, this function is not
+     * lazy and will execute the method immediately and close the created StreamyResult.
+     *
+     * @param closure The closure that will be executed
+     * @param <T> The type of List that will be returned
+     * @return The result of running the query specified by StreamyFoldClosure#query then running the map from
+     * StreamyMapClosure.getMapFunction
+     */
+    <T> List<T> streamyMap(StreamyMapClosure<T> closure);
 
     /**
      * Run the supplied closure with a streamy query then fold over the result and return it
@@ -157,8 +169,8 @@ public interface QueryFactory
 
     /**
      * When running a StreamyResult style query you will often end up needing a closure as the mapping files need to be
-     * shared between the query block and the processing function. This interface formalises this closure so that the
-     * pattern can be easily applied, see #streamyFold
+     * shared between the query block and the processing function. This interface formalises this closure for fold
+     * so that the pattern can be easily applied, see QueryFactory.streamyFold
      */
     static interface StreamyFoldClosure<O>
     {
@@ -167,5 +179,26 @@ public interface QueryFactory
         Function2<O, Tuple, O> getFoldFunction();
 
         O getInitialValue();
+    }
+
+    /**
+     * When running a StreamyResult style query you will often end up needing a closure as the mapping files need to be
+     * shared between the query block and the processing function. This interface formalises this closure for map
+     * so that the pattern can be easily applied, see QueryFactory.streamyMap
+     */
+    static interface StreamyMapClosure<T>
+    {
+        /**
+         * Returns the query that will be run, this result of this function is typically used to create the StreamyResult
+         * via a call to #select
+         * @return
+         */
+        Function<SelectQuery, StreamyResult> query();
+
+        /**
+         * The function that will be passed to StreamyResult.map
+         * @return
+         */
+        Function<Tuple, T> getMapFunction();
     }
 }

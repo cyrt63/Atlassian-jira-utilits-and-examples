@@ -1,12 +1,14 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.pocketknife.api.querydsl.ClosePromise;
+import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
 import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * A factory to give off connected Query objects
@@ -92,6 +95,21 @@ public class QueryFactoryImpl implements QueryFactory
         {
             closeEffect.close();
             throw rte;
+        }
+    }
+
+    @Override
+    public <T> List<T> streamyMap(StreamyMapClosure<T> closure)
+    {
+        StreamyResult resultStream = select(closure.query());
+        CloseableIterable<T> iterable = resultStream.map(closure.getMapFunction());
+        try
+        {
+            return ImmutableList.copyOf(iterable);
+        }
+        finally
+        {
+            iterable.close();
         }
     }
 
