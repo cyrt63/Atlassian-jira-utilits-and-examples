@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.api.querydsl;
 
+import com.atlassian.fugue.Function2;
 import com.google.common.base.Function;
 import com.mysema.query.Tuple;
 
@@ -22,6 +23,17 @@ public interface StreamyResult extends Closeable
      * @return and iterable of domain objects
      */
     <D> CloseableIterable<D> map(Function<Tuple, D> mapper);
+
+    /**
+     * Fold the combiningFunction over the query and return the accumulated value, executes immediately and closes the
+     * iterable.
+     *
+     * @param initial The initial value to be passed to #combiningFunction
+     * @param combiningFunction A function that takes a tuple and the accumulating value and returns the new accumulating value
+     * @return The result of applying combiningFunction to each element in the list starting with #initial and passing in the result of
+     * the previous call as it traverses the result.
+     */
+    <T> T foldLeft(T initial, Function2<T, Tuple, T> combiningFunction);
 
     /**
      * Closes this result and releases any system resources associated with it. If the object is already closed then

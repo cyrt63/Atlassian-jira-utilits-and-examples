@@ -1,6 +1,6 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
-import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
+import com.atlassian.fugue.Function2;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
 import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
@@ -10,6 +10,8 @@ import com.atlassian.pocketknife.spi.querydsl.AbstractConnectionProvider;
 import com.atlassian.pocketknife.spi.querydsl.DefaultDialectConfiguration;
 import com.google.common.base.Function;
 import com.mysema.query.Tuple;
+import com.mysema.query.sql.SQLQuery;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,8 +82,42 @@ public class QueryingConnectionTest
             streamyResult.close();
             assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
         }
+    }
 
+    @Test
+    public void testSelectWithFold() throws Exception
+    {
+        Connection connection = countingConnectionProvider.borrowConnection();
+        SQLQuery countQuery = queryFactory.select(connection).from(employee);
+        int numberOfEmployees = countQuery.list(employee.id).size();
 
+        StreamyResult allEmployeesStreamy = queryFactory.select(new Function<SelectQuery, StreamyResult>()
+        {
+            @Override
+            public StreamyResult apply(final SelectQuery input)
+            {
+                return input.from(employee).stream(employee.id);
+            }
+        });
+
+        try
+        {
+            Integer streamyCount = allEmployeesStreamy.foldLeft(0, new Function2<Integer, Tuple, Integer>()
+            {
+                @Override
+                public Integer apply(Integer arg0, Tuple arg1)
+                {
+                    return arg0 + 1;
+                }
+            });
+
+            assertThat(streamyCount, Matchers.equalTo(numberOfEmployees));
+        }
+        finally
+        {
+            allEmployeesStreamy.close();
+            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+        }
     }
 
     @Test (expected = RuntimeException.class)
