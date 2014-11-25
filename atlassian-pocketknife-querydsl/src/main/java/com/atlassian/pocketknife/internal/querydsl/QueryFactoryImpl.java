@@ -96,10 +96,10 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     @Override
-    public <T> T streamyFold(StreamyFoldClosure<T> closure)
+    public <T> T streamyFold(T initial, StreamyFoldClosure<T> closure)
     {
         StreamyResult resultStream = select(closure.query());
-        return resultStream.foldLeft(closure.getInitialValue(), closure.getFoldFunction());
+        return resultStream.foldLeft(initial, closure.getFoldFunction());
     }
 
     private ClosePromise returnConnection(final Connection connection)
