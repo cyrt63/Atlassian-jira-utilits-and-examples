@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * QueryDSL table classes that extend this class can be instantiated without specifying a schema, allowing them to be
- * declared as static variables.
- *
+ * * QueryDSL table classes that extend this class can be instantiated without specifying a schema.
+ * <p/>
+ * This allows them to be declared as static variables and used at call sites and yet still have the capability of
+ * knowing the underlying schema name which is not known until runtime.
  */
 public abstract class RelationalBasePathWithDynamicSchema<T> extends RelationalPathBase<T>
 {
