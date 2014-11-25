@@ -22,7 +22,7 @@ public interface TransactionalExecutor
      * The transaction will be rolled back if an exception is thrown during the execution of the function.
      * <p/>
      * The {@link java.sql.Connection} is provided to the function for convenience (for example, to allow the function
-     * to commit in between operations.
+     * to commit in between operations).
      *
      * @param function what will be executed in a new transaction
      * @param <T> the return type of the function, may be {@link java.lang.Void}
