@@ -61,8 +61,10 @@ public interface QueryFactory
      *
      * @param closure The closure that will be executed
      * @param <T> The type of List that will be returned
-     * @return The result of running the query specified by StreamyFoldClosure#query then running the map from
-     * StreamyMapClosure.getMapFunction
+     * @return The result of running the query specified by
+     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#query()}
+     * then running the map from
+     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyMapClosure#getMapFunction()}
      */
     <T> List<T> streamyMap(StreamyMapClosure<T> closure);
 
@@ -194,21 +196,24 @@ public interface QueryFactory
     }
 
     /**
-     * When running a StreamyResult style query you will often end up needing a closure as the mapping files need to be
-     * shared between the query block and the processing function. This interface formalises this closure for map
-     * so that the pattern can be easily applied, see QueryFactory.streamyMap
+     * When running a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult} style query you will often end up
+     * needing a closure as the mapping files need to be shared between the query block and the processing function.
+     * This interface formalises this closure for map so that the pattern can be easily applied also see
+     * @{{@link QueryFactory#streamyMap(com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyMapClosure)}}
      */
     static interface StreamyMapClosure<T>
     {
         /**
-         * Returns the query that will be run, this result of this function is typically used to create the StreamyResult
-         * via a call to #select
+         * Returns the query that will be run, this result of this function is typically used to create the 
+         * @{@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
+         * via a call to {@link #select(com.google.common.base.Function)}
          * @return
          */
         Function<SelectQuery, StreamyResult> query();
 
         /**
-         * The function that will be passed to StreamyResult.map
+         * The function that will be passed to
+         * {@link com.atlassian.pocketknife.api.querydsl.StreamyResult#map(com.google.common.base.Function)}
          * @return
          */
         Function<Tuple, T> getMapFunction();
