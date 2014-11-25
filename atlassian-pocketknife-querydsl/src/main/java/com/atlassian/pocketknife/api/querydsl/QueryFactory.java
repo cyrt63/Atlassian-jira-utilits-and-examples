@@ -1,7 +1,9 @@
 package com.atlassian.pocketknife.api.querydsl;
 
 import com.atlassian.annotations.PublicApi;
+import com.atlassian.fugue.Function2;
 import com.google.common.base.Function;
+import com.mysema.query.Tuple;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
@@ -52,6 +54,16 @@ public interface QueryFactory
      */
     StreamyResult select(Function<SelectQuery, StreamyResult> function);
 
+    /**
+     * Run the supplied closure with a streamy query then fold over the result and return it
+     *
+     * @param initial The initial value to pass to the closure
+     * @param closure The closure that will be executed
+     * @param <T> The type that is returned by the fold function
+     * @return The result of running the query specified by {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#query()}
+     * then running the fold from {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#getFoldFunction()}
+     */
+    <T> T streamyFold(T initial, StreamyFoldClosure<T> closure);
 
     /**
      * Returns a INSERT query given the connection and table. Use this when you want to manage the connection yourself.
@@ -143,4 +155,29 @@ public interface QueryFactory
      * @return the result of using the passed in MERGE query
      */
     <T> T merge(RelationalPath<?> table, Function<SQLMergeClause, T> function);
+
+    /**
+     * When running a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult} style query you will often end up
+     * needing a closure as the mapping files need to be shared between the query block and the processing function.
+     * This interface formalises this closure so that the pattern can be easily applied also see
+     * {@link #streamyFold(Object, com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure)}
+     */
+    static interface StreamyFoldClosure<T>
+    {
+        /**
+         * Returns the query for this closure, typically this will be passed into
+         * {@link #select(com.google.common.base.Function)} t} to create the {@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
+         *
+         * @return A function that can be passed into select to create a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
+         */
+        Function<SelectQuery, StreamyResult> query();
+
+        /**
+         * Returns the function that will be folded through the query
+         *
+         * @return The function that will be passed to
+         * {@link com.atlassian.pocketknife.api.querydsl.StreamyResult#foldLeft(Object, com.atlassian.fugue.Function2)}
+         */
+        Function2<T, Tuple, T> getFoldFunction();
+    }
 }
