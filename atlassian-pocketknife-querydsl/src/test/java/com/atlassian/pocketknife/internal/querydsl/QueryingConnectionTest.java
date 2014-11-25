@@ -149,7 +149,7 @@ public class QueryingConnectionTest
 
         try
         {
-            Integer streamyCount = allEmployeesStreamy.foldLeft(closure.getInitialValue(), closure.getFoldFunction());
+            Integer streamyCount = allEmployeesStreamy.foldLeft(0, closure.getFoldFunction());
 
             assertThat(streamyCount, Matchers.equalTo(numberOfEmployees));
         }
@@ -168,7 +168,7 @@ public class QueryingConnectionTest
         int numberOfEmployees = countQuery.list(employee.id).size();
 
         TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
-        Integer result = queryFactory.streamyFold(closure);
+        Integer result = queryFactory.streamyFold(0, closure);
         assertThat(result, Matchers.equalTo(numberOfEmployees));
         assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
     }
@@ -199,12 +199,6 @@ public class QueryingConnectionTest
                     return arg0 + 1;
                 }
             };
-        }
-
-        @Override
-        public Integer getInitialValue()
-        {
-            return 0;
         }
     }
 
