@@ -60,10 +60,17 @@ public final class TransactionExecutorImpl implements TransactionalExecutor
             T result;
             try
             {
+                log.debug("Invoking function within database transaction");
+
                 result = toExecute.apply(connection);
             }
             catch(RuntimeException exceptionThrownFromFunction)
             {
+                log.debug(
+                        "Unable to invoke function within database transaction due to: {}",
+                        exceptionThrownFromFunction.getMessage()
+                );
+
                 rollback(connection);
 
                 throw exceptionThrownFromFunction;
@@ -76,6 +83,8 @@ public final class TransactionExecutorImpl implements TransactionalExecutor
 
         private void commit(final Connection connection)
         {
+            log.debug("Performing commit on connection");
+
             try
             {
                 connection.commit();
@@ -88,13 +97,15 @@ public final class TransactionExecutorImpl implements TransactionalExecutor
 
         private void rollback(final Connection connection)
         {
+            log.debug("Performing rollback on connection");
+
             try
             {
                 connection.rollback();
             }
             catch (SQLException rollbackException)
             {
-                log.error("Unable to rollback connection: {}", rollbackException.getMessage());
+                log.error("Unable to rollback connection due to: {}", rollbackException.getMessage());
                 // Swallow this as we want to rethrow the original exception
             }
         }
