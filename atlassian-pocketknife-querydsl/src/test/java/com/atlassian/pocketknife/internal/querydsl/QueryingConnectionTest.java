@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import static com.atlassian.pocketknife.internal.querydsl.tables.domain.QEmployee.employee;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -55,7 +56,7 @@ public class QueryingConnectionTest
         }
         countingConnectionProvider.returnConnection(connection);
 
-        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
 
     }
 
@@ -83,7 +84,7 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
         }
     }
 
@@ -100,7 +101,7 @@ public class QueryingConnectionTest
         TestStreamyMapClosure closure = new TestStreamyMapClosure(firstEmployeeId);
         List<String> result = queryFactory.streamyMap(closure);
         assertThat(result, Matchers.containsInAnyOrder(firstEmployeeName));
-        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
     }
 
     private class TestStreamyMapClosure implements QueryFactory.StreamyMapClosure<String>
@@ -110,7 +111,7 @@ public class QueryingConnectionTest
         private TestStreamyMapClosure(final Integer employeeId) {this.employeeId = employeeId;}
 
         @Override
-        public Function<SelectQuery, StreamyResult> query()
+        public Function<SelectQuery, StreamyResult> getQuery()
         {
             return new Function<SelectQuery, StreamyResult>()
             {
@@ -145,18 +146,18 @@ public class QueryingConnectionTest
 
         TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
 
-        StreamyResult allEmployeesStreamy = queryFactory.select(closure.query());
+        StreamyResult allEmployeesStreamy = queryFactory.select(closure.getQuery());
 
         try
         {
             Integer streamyCount = allEmployeesStreamy.foldLeft(0, closure.getFoldFunction());
 
-            assertThat(streamyCount, Matchers.equalTo(numberOfEmployees));
+            assertThat(streamyCount, equalTo(numberOfEmployees));
         }
         finally
         {
             allEmployeesStreamy.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
         }
     }
 
@@ -169,14 +170,14 @@ public class QueryingConnectionTest
 
         TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
         Integer result = queryFactory.streamyFold(0, closure);
-        assertThat(result, Matchers.equalTo(numberOfEmployees));
-        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+        assertThat(result, equalTo(numberOfEmployees));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
     }
 
     private class TestStreamyFoldClosure implements QueryFactory.StreamyFoldClosure<Integer>
     {
         @Override
-        public Function<SelectQuery, StreamyResult> query()
+        public Function<SelectQuery, StreamyResult> getQuery()
         {
             return new Function<SelectQuery, StreamyResult>()
             {
@@ -231,7 +232,7 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
         }
     }
 
@@ -265,7 +266,7 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
         }
     }
 

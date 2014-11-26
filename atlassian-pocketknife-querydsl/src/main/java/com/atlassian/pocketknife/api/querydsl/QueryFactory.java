@@ -57,24 +57,26 @@ public interface QueryFactory
 
     /**
      * Run the supplied closure with a streamy query then map over the result and return it, this function is not
-     * lazy and will execute the method immediately and close the created StreamyResult.
+     * lazy and will execute the method immediately and close the created StreamyResult which means that it will
+     * pull all the transformed results into memory.
      *
      * @param closure The closure that will be executed
      * @param <T> The type of List that will be returned
      * @return The result of running the query specified by
-     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#query()}
+     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#getQuery()}
      * then running the map from
      * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyMapClosure#getMapFunction()}
      */
     <T> List<T> streamyMap(StreamyMapClosure<T> closure);
 
     /**
-     * Run the supplied closure with a streamy query then fold over the result and return it
+     * Run the supplied closure with a streamy query then fold over the result and return it, note that due to the way
+     * this function is used this is going to pull all the results back into memory.
      *
      * @param initial The initial value to pass to the closure
      * @param closure The closure that will be executed
      * @param <T> The type that is returned by the fold function
-     * @return The result of running the query specified by {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#query()}
+     * @return The result of running the query specified by {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#getQuery()}
      * then running the fold from {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#getFoldFunction()}
      */
     <T> T streamyFold(T initial, StreamyFoldClosure<T> closure);
@@ -184,7 +186,7 @@ public interface QueryFactory
          *
          * @return A function that can be passed into select to create a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
          */
-        Function<SelectQuery, StreamyResult> query();
+        Function<SelectQuery, StreamyResult> getQuery();
 
         /**
          * Returns the function that will be folded through the query
@@ -209,7 +211,7 @@ public interface QueryFactory
          * via a call to {@link #select(com.google.common.base.Function)}
          * @return
          */
-        Function<SelectQuery, StreamyResult> query();
+        Function<SelectQuery, StreamyResult> getQuery();
 
         /**
          * The function that will be passed to
