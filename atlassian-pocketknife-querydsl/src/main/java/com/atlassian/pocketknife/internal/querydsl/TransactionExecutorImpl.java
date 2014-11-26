@@ -19,7 +19,7 @@ import static com.atlassian.util.concurrent.Assertions.notNull;
 @Component
 public final class TransactionExecutorImpl implements TransactionalExecutor
 {
-    private static final Logger LOG = LoggerFactory.getLogger(TransactionExecutorImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TransactionExecutorImpl.class);
 
     private final ConnectionProvider connectionProvider;
 
@@ -94,7 +94,7 @@ public final class TransactionExecutorImpl implements TransactionalExecutor
             }
             catch (SQLException rollbackException)
             {
-                LOG.error("Unable to rollback connection: {}", rollbackException.getMessage());
+                log.error("Unable to rollback connection: {}", rollbackException.getMessage());
                 // Swallow this as we want to rethrow the original exception
             }
         }
