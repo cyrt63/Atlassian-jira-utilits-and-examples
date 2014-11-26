@@ -26,7 +26,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @PublicApi
 public class LoggingSqlListener implements SQLListener
 {
-    private static final Logger LOG = LoggerFactory.getLogger(LoggingSqlListener.class);
+    private static final Logger log = LoggerFactory.getLogger(LoggingSqlListener.class);
 
     private final Configuration configuration;
 
@@ -48,7 +48,7 @@ public class LoggingSqlListener implements SQLListener
         }
         if (sb.length() > 0)
         {
-            LOG.debug(sb.toString());
+            log.debug(sb.toString());
         }
     }
 
