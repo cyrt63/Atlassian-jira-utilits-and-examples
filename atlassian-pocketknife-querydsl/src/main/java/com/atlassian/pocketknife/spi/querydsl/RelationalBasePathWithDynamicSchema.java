@@ -14,10 +14,9 @@ public abstract class RelationalBasePathWithDynamicSchema<T> extends RelationalP
 {
     public RelationalBasePathWithDynamicSchema(
             final Class<? extends T> type,
-            final String variable,
-            final String table)
+            final String tableName)
     {
-        super(type, variable, "", table);
+        super(type, tableName, "", tableName);
     }
 
     @Override
