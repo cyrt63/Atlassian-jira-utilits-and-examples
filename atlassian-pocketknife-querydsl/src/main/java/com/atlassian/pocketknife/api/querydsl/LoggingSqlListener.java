@@ -3,6 +3,7 @@ package com.atlassian.pocketknife.api.querydsl;
 import com.atlassian.annotations.PublicApi;
 import com.mysema.commons.lang.Pair;
 import com.mysema.query.QueryMetadata;
+import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLListener;
 import com.mysema.query.sql.SQLSerializer;
@@ -25,18 +26,13 @@ import java.util.List;
 @PublicApi
 public class LoggingSqlListener implements SQLListener
 {
-    private final DialectProvider dialectProvider;
-    private final String loggerNameToUse;
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingSqlListener.class);
 
-    public LoggingSqlListener(final DialectProvider dialectProvider, String loggerNameToUse)
-    {
-        this.dialectProvider = dialectProvider;
-        this.loggerNameToUse = loggerNameToUse;
-    }
+    private final Configuration configuration;
 
-    private Logger log()
+    public LoggingSqlListener(Configuration configuration)
     {
-        return LoggerFactory.getLogger(loggerNameToUse);
+        this.configuration = configuration;
     }
 
     private void log(final RelationalPath<?> entity, final QueryMetadata md)
@@ -52,14 +48,15 @@ public class LoggingSqlListener implements SQLListener
         }
         if (md != null)
         {
-            SQLSerializer sqlSerializer = new SQLSerializer(dialectProvider.getDialectConfig().getConfiguration());
+            SQLSerializer sqlSerializer = new SQLSerializer(configuration);
+            sqlSerializer.setUseLiterals(true);
             sqlSerializer.serialize(md, false);
             String sql = sqlSerializer.toString();
             sb.append(sql);
         }
         if (sb.length() > 0)
         {
-            log().debug(sb.toString());
+            LOG.debug(sb.toString());
         }
     }
 
