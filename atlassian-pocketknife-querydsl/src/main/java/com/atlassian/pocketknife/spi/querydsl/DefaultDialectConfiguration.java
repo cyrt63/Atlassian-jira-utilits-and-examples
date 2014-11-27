@@ -3,6 +3,7 @@ package com.atlassian.pocketknife.spi.querydsl;
 import com.atlassian.annotations.PublicSpi;
 import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
+import com.atlassian.pocketknife.api.querydsl.LoggingSqlListener;
 import com.atlassian.util.concurrent.LazyReference;
 import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
@@ -66,6 +67,7 @@ public class DefaultDialectConfiguration implements DialectConfiguration
     {
         SQLTemplates sqlTemplates = buildTemplates(connection);
         Configuration configuration = enrich(new Configuration(sqlTemplates));
+        configuration.addListener(new LoggingSqlListener(configuration));
 
         Config config = new Config(sqlTemplates, configuration);
         return config;
