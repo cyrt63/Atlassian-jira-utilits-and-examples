@@ -1,7 +1,6 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.fugue.Function2;
-import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
 import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
@@ -98,17 +97,17 @@ public class QueryingConnectionTest
         Integer firstEmployeeId = firstTuple.get(employee.id);
         String firstEmployeeName = firstTuple.get(employee.firstname);
 
-        TestStreamyMapClosure closure = new TestStreamyMapClosure(firstEmployeeId);
-        List<String> result = queryFactory.streamyMap(closure);
+        TestHalfStreamyMapClosure closure = new TestHalfStreamyMapClosure(firstEmployeeId);
+        List<String> result = queryFactory.halfStreamyMap(closure);
         assertThat(result, Matchers.containsInAnyOrder(firstEmployeeName));
         assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
     }
 
-    private class TestStreamyMapClosure implements QueryFactory.StreamyMapClosure<String>
+    private class TestHalfStreamyMapClosure implements QueryFactory.HalfStreamyMapClosure<String>
     {
         private final Integer employeeId;
 
-        private TestStreamyMapClosure(final Integer employeeId) {this.employeeId = employeeId;}
+        private TestHalfStreamyMapClosure(final Integer employeeId) {this.employeeId = employeeId;}
 
         @Override
         public Function<SelectQuery, StreamyResult> getQuery()
@@ -144,7 +143,7 @@ public class QueryingConnectionTest
         SQLQuery countQuery = queryFactory.select(connection).from(employee);
         int numberOfEmployees = countQuery.list(employee.id).size();
 
-        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
+        TestHalfStreamyFoldClosure closure = new TestHalfStreamyFoldClosure();
 
         StreamyResult allEmployeesStreamy = queryFactory.select(closure.getQuery());
 
@@ -168,13 +167,13 @@ public class QueryingConnectionTest
         SQLQuery countQuery = queryFactory.select(connection).from(employee);
         int numberOfEmployees = countQuery.list(employee.id).size();
 
-        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
-        Integer result = queryFactory.streamyFold(0, closure);
+        TestHalfStreamyFoldClosure closure = new TestHalfStreamyFoldClosure();
+        Integer result = queryFactory.halfStreamyFold(0, closure);
         assertThat(result, equalTo(numberOfEmployees));
         assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
     }
 
-    private class TestStreamyFoldClosure implements QueryFactory.StreamyFoldClosure<Integer>
+    private class TestHalfStreamyFoldClosure implements QueryFactory.HalfStreamyFoldClosure<Integer>
     {
         @Override
         public Function<SelectQuery, StreamyResult> getQuery()

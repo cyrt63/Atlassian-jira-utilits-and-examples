@@ -99,7 +99,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     @Override
-    public <T> List<T> streamyMap(StreamyMapClosure<T> closure)
+    public <T> List<T> halfStreamyMap(HalfStreamyMapClosure<T> closure)
     {
         StreamyResult resultStream = select(closure.getQuery());
         CloseableIterable<T> iterable = resultStream.map(closure.getMapFunction());
@@ -114,7 +114,7 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     @Override
-    public <T> T streamyFold(T initial, StreamyFoldClosure<T> closure)
+    public <T> T halfStreamyFold(T initial, HalfStreamyFoldClosure<T> closure)
     {
         StreamyResult resultStream = select(closure.getQuery());
         return resultStream.foldLeft(initial, closure.getFoldFunction());
