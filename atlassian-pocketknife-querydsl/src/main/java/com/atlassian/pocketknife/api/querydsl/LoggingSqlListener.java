@@ -35,77 +35,105 @@ public class LoggingSqlListener implements SQLListener
         this.configuration = configuration;
     }
 
-    private void log(final RelationalPath<?> entity, final String sql)
-    {
-        StringBuilder sb = new StringBuilder();
-        if (entity != null && isNotBlank(entity.getTableName()) && isNotBlank(sql))
-        {
-            sb.append("Executing query on ").append(entity.getTableName()).append(" table: ");
-        }
-        if(isNotBlank(sql))
-        {
-            sb.append(sql);
-        }
-        if (sb.length() > 0)
-        {
-            log.debug(sb.toString());
-        }
-    }
-
     @Override
     public void notifyQuery(final QueryMetadata md)
     {
-        SQLSerializer serializer = newLiteralPrintingSerializer();
-        serializer.serialize(md, false);
-        log(null, serializer.toString());
+        if(weShouldLog())
+        {
+            log(getSelectSql(md));
+        }
     }
 
     @Override
     public void notifyDelete(final RelationalPath<?> entity, final QueryMetadata md)
     {
-        log(entity, getDeleteSql(entity, md));
+        if(weShouldLog())
+        {
+            log(getDeleteSql(entity, md));
+        }
     }
 
     @Override
     public void notifyDeletes(final RelationalPath<?> entity, final List<QueryMetadata> batches)
     {
-        log(entity, getBatchDeleteSql(entity, batches));
+        if(weShouldLog())
+        {
+            log(getBatchDeleteSql(entity, batches));
+        }
     }
 
     @Override
     public void notifyMerge(final RelationalPath<?> entity, final QueryMetadata md, final List<Path<?>> keys, final List<Path<?>> columns, final List<Expression<?>> values, final SubQueryExpression<?> subQuery)
     {
-        log(entity, getMergeSql(entity, md, keys, columns, values, subQuery));
+        if(weShouldLog())
+        {
+            log(getMergeSql(entity, md, keys, columns, values, subQuery));
+        }
     }
 
     @Override
     public void notifyMerges(final RelationalPath<?> entity, final QueryMetadata md, final List<SQLMergeBatch> batches)
     {
-        log(entity, getBatchMergeSql(entity, md, batches));
+        if(weShouldLog())
+        {
+            log(getBatchMergeSql(entity, md, batches));
+        }
     }
 
     @Override
     public void notifyInsert(final RelationalPath<?> entity, final QueryMetadata md, final List<Path<?>> columns, final List<Expression<?>> values, final SubQueryExpression<?> subQuery)
     {
-        log(entity, getInsertSql(entity, md, columns, values, subQuery));
+        if(weShouldLog())
+        {
+            log(getInsertSql(entity, md, columns, values, subQuery));
+        }
     }
 
     @Override
     public void notifyInserts(final RelationalPath<?> entity, final QueryMetadata md, final List<SQLInsertBatch> batches)
     {
-        log(entity, getBatchInsertSql(entity, md, batches));
+        if(weShouldLog())
+        {
+            log(getBatchInsertSql(entity, md, batches));
+        }
     }
 
     @Override
     public void notifyUpdate(final RelationalPath<?> entity, final QueryMetadata md, final List<Pair<Path<?>, Expression<?>>> updates)
     {
-        log(entity, getUpdateSql(entity, md, updates));
+        if(weShouldLog())
+        {
+            log(getUpdateSql(entity, md, updates));
+        }
     }
 
     @Override
     public void notifyUpdates(final RelationalPath<?> entity, final List<SQLUpdateBatch> batches)
     {
-        log(entity, getBatchUpdateSql(entity, batches));
+        if(weShouldLog())
+        {
+            log(getBatchUpdateSql(entity, batches));
+        }
+    }
+
+    private boolean weShouldLog()
+    {
+        return log.isDebugEnabled();
+    }
+
+    private void log(final String sql)
+    {
+        if(isNotBlank(sql))
+        {
+            log.debug(sql);
+        }
+    }
+
+    private String getSelectSql(final QueryMetadata queryMetadata)
+    {
+        SQLSerializer serializer = newLiteralPrintingSerializer();
+        serializer.serialize(queryMetadata, false);
+        return serializer.toString();
     }
 
     private String getDeleteSql(final RelationalPath<?> entity, final QueryMetadata queryMetadata)
