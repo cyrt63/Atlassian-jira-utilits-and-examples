@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.api.querydsl;
 
 import com.atlassian.fugue.Function2;
 import com.google.common.base.Function;
+import com.mysema.commons.lang.CloseableIterator;
 import com.mysema.query.Tuple;
 
 import java.io.Closeable;
@@ -15,6 +16,12 @@ import java.io.Closeable;
  */
 public interface StreamyResult extends Closeable
 {
+    /**
+     * Creates an Iterable of {@link com.mysema.query.Tuple} objects that are available for streaming
+     * @return an iterable of {@link com.mysema.query.Tuple}
+     */
+    CloseableIterator<Tuple> iterator();
+
     /**
      * This will map a fetch query of Tuple objects into an Iterable of domain object T
      *
