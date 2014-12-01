@@ -19,7 +19,7 @@ public class JiraConnectionProviderImpl extends AbstractConnectionProvider
         DefaultOfBizConnectionFactory instance = getDefaultOfBizConnectionFactory();
 
         log().debug("Getting a connection with auto-commit '" + autoCommit +
-                "' using a DefaultOfBizConnectionFactory for schema '" + instance.getDatasourceInfo().getSchemaName() + "'");
+                "' using a DefaultOfBizConnectionFactory");
 
         try
         {
