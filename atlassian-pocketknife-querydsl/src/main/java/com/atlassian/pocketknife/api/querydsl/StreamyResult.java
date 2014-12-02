@@ -17,8 +17,9 @@ import java.io.Closeable;
 public interface StreamyResult extends Closeable
 {
     /**
-     * Creates an Iterable of {@link com.mysema.query.Tuple} objects that are available for streaming
-     * @return an iterable of {@link com.mysema.query.Tuple}
+     * Creates a CloseableIterator of {@link com.mysema.query.Tuple} objects streamed one at a time.
+     * The underlying database resources must be closed in a finally block.
+     * @return a CloseableIterator of {@link com.mysema.query.Tuple} objects streamed one at a time.
      */
     CloseableIterator<Tuple> iterator();
 
