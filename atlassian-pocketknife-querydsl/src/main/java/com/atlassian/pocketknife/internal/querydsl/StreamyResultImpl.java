@@ -33,11 +33,7 @@ public class StreamyResultImpl implements StreamyResult
     @Override
     public CloseableIterable<Tuple> iterator()
     {
-        if (closePromise.isClosed())
-        {
-            throw new IllegalStateException("This streaming result has already been closed");
-        }
-        return Tuples.map(closeableIterator, Functions.<Tuple>identity(), closePromise);
+        return map(Functions.<Tuple>identity());
     }
 
     @Override
