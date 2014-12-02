@@ -6,6 +6,7 @@ import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
 import com.atlassian.pocketknife.api.querydsl.Tuples;
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.mysema.commons.lang.CloseableIterator;
 import com.mysema.query.Tuple;
 
@@ -30,13 +31,13 @@ public class StreamyResultImpl implements StreamyResult
     }
 
     @Override
-    public CloseableIterator<Tuple> iterator()
+    public CloseableIterable<Tuple> iterator()
     {
         if (closePromise.isClosed())
         {
             throw new IllegalStateException("This streaming result has already been closed");
         }
-        return closeableIterator;
+        return Tuples.map(closeableIterator, Functions.<Tuple>identity(), closePromise);
     }
 
     @Override
