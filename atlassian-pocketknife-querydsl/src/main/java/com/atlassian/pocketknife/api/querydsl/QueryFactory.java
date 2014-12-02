@@ -12,6 +12,7 @@ import com.mysema.query.sql.dml.SQLMergeClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * QueryFactory gives of QueryDSL objects, connected to database {@link java.sql.Connection}s
@@ -55,15 +56,36 @@ public interface QueryFactory
     StreamyResult select(Function<SelectQuery, StreamyResult> function);
 
     /**
-     * Run the supplied closure with a streamy query then fold over the result and return it
+     * Run the supplied closure with a streamy query then map over the result and return it, this function is not
+     * lazy and will execute the method immediately and close the created StreamyResult which means that it will
+     * pull all the transformed results into memory.
+     *
+     * @param closure The closure that will be executed
+     * @param <T> The type of List that will be returned
+     * @return The result of running the query specified by
+     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyFoldClosure#getQuery()}
+     * then running the map from
+     * {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyMapClosure#getMapFunction()}
+     *
+     * This is called 'halfStreamy' because it uses the stream construct underneath but will pull all result into
+     * memory before it returns.
+     */
+    <T> List<T> halfStreamyMap(HalfStreamyMapClosure<T> closure);
+
+    /**
+     * Run the supplied closure with a streamy query then fold over the result and return it, note that due to the way
+     * this function is used this is going to pull all the results back into memory.
      *
      * @param initial The initial value to pass to the closure
      * @param closure The closure that will be executed
      * @param <T> The type that is returned by the fold function
-     * @return The result of running the query specified by {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#query()}
-     * then running the fold from {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure#getFoldFunction()}
+     * @return The result of running the query specified by {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyFoldClosure#getQuery()}
+     * then running the fold from {@link com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyFoldClosure#getFoldFunction()}
+     *
+     * This is called 'halfStreamy' because it uses the stream construct underneath but will pull all result into
+     * memory before it returns.
      */
-    <T> T streamyFold(T initial, StreamyFoldClosure<T> closure);
+    <T> T halfStreamyFold(T initial, HalfStreamyFoldClosure<T> closure);
 
     /**
      * Returns a INSERT query given the connection and table. Use this when you want to manage the connection yourself.
@@ -160,9 +182,9 @@ public interface QueryFactory
      * When running a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult} style query you will often end up
      * needing a closure as the mapping files need to be shared between the query block and the processing function.
      * This interface formalises this closure so that the pattern can be easily applied also see
-     * {@link #streamyFold(Object, com.atlassian.pocketknife.api.querydsl.QueryFactory.StreamyFoldClosure)}
+     * {@link #halfStreamyFold(Object, com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyFoldClosure)}
      */
-    static interface StreamyFoldClosure<T>
+    static interface HalfStreamyFoldClosure<T>
     {
         /**
          * Returns the query for this closure, typically this will be passed into
@@ -170,7 +192,7 @@ public interface QueryFactory
          *
          * @return A function that can be passed into select to create a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
          */
-        Function<SelectQuery, StreamyResult> query();
+        Function<SelectQuery, StreamyResult> getQuery();
 
         /**
          * Returns the function that will be folded through the query
@@ -179,5 +201,29 @@ public interface QueryFactory
          * {@link com.atlassian.pocketknife.api.querydsl.StreamyResult#foldLeft(Object, com.atlassian.fugue.Function2)}
          */
         Function2<T, Tuple, T> getFoldFunction();
+    }
+
+    /**
+     * When running a {@link com.atlassian.pocketknife.api.querydsl.StreamyResult} style query you will often end up
+     * needing a closure as the mapping files need to be shared between the query block and the processing function.
+     * This interface formalises this closure for map so that the pattern can be easily applied also see
+     * @{{@link QueryFactory#halfStreamyMap(com.atlassian.pocketknife.api.querydsl.QueryFactory.HalfStreamyMapClosure)}}
+     */
+    static interface HalfStreamyMapClosure<T>
+    {
+        /**
+         * Returns the query that will be run, this result of this function is typically used to create the 
+         * @{@link com.atlassian.pocketknife.api.querydsl.StreamyResult}
+         * via a call to {@link #select(com.google.common.base.Function)}
+         * @return
+         */
+        Function<SelectQuery, StreamyResult> getQuery();
+
+        /**
+         * The function that will be passed to
+         * {@link com.atlassian.pocketknife.api.querydsl.StreamyResult#map(com.google.common.base.Function)}
+         * @return
+         */
+        Function<Tuple, T> getMapFunction();
     }
 }

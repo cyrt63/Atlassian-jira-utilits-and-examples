@@ -1,12 +1,14 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.pocketknife.api.querydsl.ClosePromise;
+import com.atlassian.pocketknife.api.querydsl.CloseableIterable;
 import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.api.querydsl.QueryFactory;
 import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * A factory to give off connected Query objects
@@ -96,9 +99,24 @@ public class QueryFactoryImpl implements QueryFactory
     }
 
     @Override
-    public <T> T streamyFold(T initial, StreamyFoldClosure<T> closure)
+    public <T> List<T> halfStreamyMap(HalfStreamyMapClosure<T> closure)
     {
-        StreamyResult resultStream = select(closure.query());
+        StreamyResult resultStream = select(closure.getQuery());
+        CloseableIterable<T> iterable = resultStream.map(closure.getMapFunction());
+        try
+        {
+            return ImmutableList.copyOf(iterable);
+        }
+        finally
+        {
+            iterable.close();
+        }
+    }
+
+    @Override
+    public <T> T halfStreamyFold(T initial, HalfStreamyFoldClosure<T> closure)
+    {
+        StreamyResult resultStream = select(closure.getQuery());
         return resultStream.foldLeft(initial, closure.getFoldFunction());
     }
 

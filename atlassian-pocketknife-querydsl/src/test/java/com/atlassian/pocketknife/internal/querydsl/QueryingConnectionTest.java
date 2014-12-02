@@ -20,7 +20,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import static com.atlassian.pocketknife.internal.querydsl.tables.domain.QEmployee.employee;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -52,7 +55,7 @@ public class QueryingConnectionTest
         }
         countingConnectionProvider.returnConnection(connection);
 
-        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
 
     }
 
@@ -80,7 +83,56 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
+        }
+    }
+
+    @Test
+    public void testStreamyMap() throws Exception
+    {
+        Connection connection = countingConnectionProvider.borrowConnection();
+        SQLQuery query = queryFactory.select(connection).from(employee);
+        final List<Tuple> queryResult = query.list(employee.id, employee.firstname);
+        final Tuple firstTuple = queryResult.get(0);
+        Integer firstEmployeeId = firstTuple.get(employee.id);
+        String firstEmployeeName = firstTuple.get(employee.firstname);
+
+        TestHalfStreamyMapClosure closure = new TestHalfStreamyMapClosure(firstEmployeeId);
+        List<String> result = queryFactory.halfStreamyMap(closure);
+        assertThat(result, Matchers.containsInAnyOrder(firstEmployeeName));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
+    }
+
+    private class TestHalfStreamyMapClosure implements QueryFactory.HalfStreamyMapClosure<String>
+    {
+        private final Integer employeeId;
+
+        private TestHalfStreamyMapClosure(final Integer employeeId) {this.employeeId = employeeId;}
+
+        @Override
+        public Function<SelectQuery, StreamyResult> getQuery()
+        {
+            return new Function<SelectQuery, StreamyResult>()
+            {
+                @Override
+                public StreamyResult apply(final SelectQuery input)
+                {
+                    return input.from(employee).where(employee.id.eq(employeeId)).stream(employee.firstname);
+                }
+            };
+        }
+
+        @Override
+        public Function<Tuple, String> getMapFunction()
+        {
+            return new Function<Tuple, String>()
+            {
+                @Override
+                public String apply(@Nullable final Tuple input)
+                {
+                    return input.get(employee.firstname);
+                }
+            };
         }
     }
 
@@ -91,20 +143,20 @@ public class QueryingConnectionTest
         SQLQuery countQuery = queryFactory.select(connection).from(employee);
         int numberOfEmployees = countQuery.list(employee.id).size();
 
-        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
+        TestHalfStreamyFoldClosure closure = new TestHalfStreamyFoldClosure();
 
-        StreamyResult allEmployeesStreamy = queryFactory.select(closure.query());
+        StreamyResult allEmployeesStreamy = queryFactory.select(closure.getQuery());
 
         try
         {
             Integer streamyCount = allEmployeesStreamy.foldLeft(0, closure.getFoldFunction());
 
-            assertThat(streamyCount, Matchers.equalTo(numberOfEmployees));
+            assertThat(streamyCount, equalTo(numberOfEmployees));
         }
         finally
         {
             allEmployeesStreamy.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
         }
     }
 
@@ -115,17 +167,16 @@ public class QueryingConnectionTest
         SQLQuery countQuery = queryFactory.select(connection).from(employee);
         int numberOfEmployees = countQuery.list(employee.id).size();
 
-        TestStreamyFoldClosure closure = new TestStreamyFoldClosure();
-        Integer result = queryFactory.streamyFold(0, closure);
-        assertThat(result, Matchers.equalTo(numberOfEmployees));
-        assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(1));
+        TestHalfStreamyFoldClosure closure = new TestHalfStreamyFoldClosure();
+        Integer result = queryFactory.halfStreamyFold(0, closure);
+        assertThat(result, equalTo(numberOfEmployees));
+        assertThat(countingConnectionProvider.getBorrowCount(), equalTo(1));
     }
 
-    private class TestStreamyFoldClosure implements QueryFactory.StreamyFoldClosure<Integer>
+    private class TestHalfStreamyFoldClosure implements QueryFactory.HalfStreamyFoldClosure<Integer>
     {
-
         @Override
-        public Function<SelectQuery, StreamyResult> query()
+        public Function<SelectQuery, StreamyResult> getQuery()
         {
             return new Function<SelectQuery, StreamyResult>()
             {
@@ -180,7 +231,7 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
         }
     }
 
@@ -214,7 +265,7 @@ public class QueryingConnectionTest
         finally
         {
             streamyResult.close();
-            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+            assertThat(countingConnectionProvider.getBorrowCount(), equalTo(0));
         }
     }
 
