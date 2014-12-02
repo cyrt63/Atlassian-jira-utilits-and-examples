@@ -21,7 +21,7 @@ public interface StreamyResult extends Closeable
      * The underlying database resources must be closed in a finally block.
      * @return a CloseableIterator of {@link com.mysema.query.Tuple} objects streamed one at a time.
      */
-    CloseableIterator<Tuple> iterator();
+    CloseableIterable<Tuple> iterator();
 
     /**
      * This will map a fetch query of Tuple objects into an Iterable of domain object T

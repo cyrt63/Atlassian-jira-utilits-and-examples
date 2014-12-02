@@ -218,6 +218,30 @@ public class QueryingConnectionTest
         }
     }
 
+    @Test
+    public void testSelectIsClosedWhenIteratorIsHalfUsed() throws Exception
+    {
+        StreamyResult streamyResult = createStreamyQuery();
+        try
+        {
+            int i = 0;
+            for (Tuple t : streamyResult.iterator())
+            {
+                System.out.println(String.format("Tuple %s %s %s", t.get(employee.id), t.get(employee.firstname), t.get(employee.lastname)));
+                i++;
+                if (i > 0)
+                {
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            streamyResult.close();
+            assertThat(countingConnectionProvider.getBorrowCount(), Matchers.equalTo(0));
+        }
+    }
+
     private StreamyResult createStreamyQuery()
     {
         return queryFactory.select(new Function<SelectQuery, StreamyResult>()
