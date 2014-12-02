@@ -28,9 +28,7 @@ public class ConnectionsTest
         Connections.close(connection);
         Mockito.verify(connection).close();
 
-        Connections.close(null); // no problem
-        Mockito.verify(connection).close();
-
+        Connections.close((Connection) null); // no problem
     }
 
     @Test

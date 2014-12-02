@@ -6,7 +6,6 @@ import com.atlassian.pocketknife.api.querydsl.SelectQuery;
 import com.atlassian.pocketknife.api.querydsl.StreamyResult;
 import com.atlassian.pocketknife.internal.querydsl.tables.Connections;
 import com.atlassian.pocketknife.internal.querydsl.tables.domain.Employee;
-import com.atlassian.pocketknife.spi.querydsl.AbstractConnectionProvider;
 import com.atlassian.pocketknife.spi.querydsl.DefaultDialectConfiguration;
 import com.google.common.base.Function;
 import com.mysema.query.Tuple;
@@ -17,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import static com.atlassian.pocketknife.internal.querydsl.tables.domain.QEmployee.employee;
@@ -232,37 +230,5 @@ public class QueryingConnectionTest
         });
     }
 
-    static class CountingConnectionProvider extends AbstractConnectionProvider
-    {
-        int borrowCount = 0;
-
-        public int getBorrowCount()
-        {
-            return borrowCount;
-        }
-
-        @Override
-        protected Connection getConnectionImpl(boolean autoCommit)
-        {
-            Connection connection = Connections.getConnection();
-            try
-            {
-                connection.setAutoCommit(autoCommit);
-            }
-            catch (SQLException e)
-            {
-                throw new RuntimeException(e);
-            }
-            borrowCount++;
-            return connection;
-        }
-
-        @Override
-        public void returnConnection(Connection connection)
-        {
-            // we dont close our connections.  We are not pooling
-            borrowCount--;
-        }
-    }
 }
 
