@@ -30,6 +30,16 @@ public class StreamyResultImpl implements StreamyResult
     }
 
     @Override
+    public CloseableIterator<Tuple> iterator()
+    {
+        if (closePromise.isClosed())
+        {
+            throw new IllegalStateException("This streaming result has already been closed");
+        }
+        return closeableIterator;
+    }
+
+    @Override
     public <D> CloseableIterable<D> map(final Function<Tuple, D> mapper)
     {
         if (closePromise.isClosed())
