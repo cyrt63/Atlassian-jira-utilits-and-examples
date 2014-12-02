@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.spi.querydsl;
 
 import com.atlassian.pocketknife.internal.querydsl.SchemaProviderAccessor;
 import com.mysema.query.sql.ColumnMetadata;
+import com.mysema.query.sql.PrimaryKey;
 import com.mysema.query.sql.RelationalPathBase;
 import com.mysema.query.sql.SchemaAndTable;
 import com.mysema.query.types.Path;
@@ -22,6 +23,11 @@ import com.mysema.query.types.path.SimplePath;
 import com.mysema.query.types.path.StringPath;
 import com.mysema.query.types.path.TimePath;
 
+import java.util.List;
+
+import static com.google.common.collect.Iterables.toArray;
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Enhances {@link RelationalPathBase} with additional functionality designed to make writing and executing queries
  * using table entities that extend this class easier.
@@ -37,6 +43,10 @@ import com.mysema.query.types.path.TimePath;
  *         Implicitly adding any columns defined by a call to the create methods to the metadata for table entity. This
  *         allows calls to methods like {@link com.mysema.query.sql.RelationalPathBase#getColumns()} to actually work
  *         correctly.
+ *     </li>
+ *     <li>
+ *         Adds convenience methods like {@link #createNumberAndSetAsPrimaryKey(String, Class)} and
+ *         {@link #getColumnsWithoutPrimaryKey()}.
  *     </li>
  * </ul>
  */
@@ -61,6 +71,19 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
         NumberPath<A> createdColumn = createNumber(property, type);
         createPrimaryKey(createdColumn);
         return createdColumn;
+    }
+
+    public Path<?>[] getColumnsWithoutPrimaryKey()
+    {
+        PrimaryKey<T> primaryKey = getPrimaryKey();
+        if(primaryKey == null)
+        {
+            throw new IllegalStateException("Unable to get columns without primary key. No primary key was set.");
+        }
+
+        List<Path<?>> columnsWithoutPrimaryKey = newArrayList(getColumns());
+        columnsWithoutPrimaryKey.removeAll(primaryKey.getLocalColumns());
+        return toArray(columnsWithoutPrimaryKey, Path.class);
     }
 
     @Override
