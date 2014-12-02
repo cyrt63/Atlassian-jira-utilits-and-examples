@@ -49,6 +49,20 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
         super(type, tableName, "", tableName);
     }
 
+    /**
+     * Creates a new number path (column), and then marks this column as the primary key.
+     * <p/>
+     * Knowing which column is the primary key helps QueryDSL to optimize the SQL queries it generates.
+     *
+     * @return the newly created number path
+     */
+    protected <A extends Number & Comparable<?>> NumberPath<A> createNumberAndSetAsPrimaryKey(final String property, final Class<? super A> type)
+    {
+        NumberPath<A> createdColumn = createNumber(property, type);
+        createPrimaryKey(createdColumn);
+        return createdColumn;
+    }
+
     @Override
     public SchemaAndTable getSchemaAndTable()
     {
