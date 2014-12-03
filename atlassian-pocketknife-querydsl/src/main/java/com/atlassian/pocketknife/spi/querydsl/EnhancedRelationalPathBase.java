@@ -104,119 +104,117 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
     @Override
     protected <A extends Comparable> TimePath<A> createTime(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createTime(property, type),
-                property);
+        TimePath<A> created = super.createTime(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
-    @SuppressWarnings("unchecked") // We know for sure that super.createArray() returns an ArrayPath<A, E>
     protected <A, E> ArrayPath<A, E> createArray(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                (ArrayPath<A, E>) super.createArray(property, type),
-                property);
+        ArrayPath<A, E> created = super.createArray(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected BooleanPath createBoolean(final String property)
     {
-        return addToMetadataAndReturn(
-                super.createBoolean(property),
-                property);
+        BooleanPath created = super.createBoolean(property);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A, Q extends SimpleExpression<? super A>> CollectionPath<A, Q> createCollection(final String property, final Class<? super A> type, final Class<? super Q> queryType, final PathInits inits)
     {
-        return addToMetadataAndReturn(
-                super.createCollection(property, type, queryType, inits),
-                property);
+        CollectionPath<A, Q> created = super.createCollection(property, type, queryType, inits);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A extends Comparable> ComparablePath<A> createComparable(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createComparable(property, type),
-                property);
+        ComparablePath<A> created = super.createComparable(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A extends Enum<A>> EnumPath<A> createEnum(final String property, final Class<A> type)
     {
-        return addToMetadataAndReturn(
-                super.createEnum(property, type),
-                property);
+        EnumPath<A> created = super.createEnum(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A extends Comparable> DatePath<A> createDate(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createDate(property, type),
-                property);
+        DatePath<A> created = super.createDate(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A extends Comparable> DateTimePath<A> createDateTime(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createDateTime(property, type),
-                property);
+        DateTimePath<A> created = super.createDateTime(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A, E extends SimpleExpression<? super A>> ListPath<A, E> createList(final String property, final Class<? super A> type, final Class<? super E> queryType, final PathInits inits)
     {
-        return addToMetadataAndReturn(
-                super.createList(property, type, queryType, inits),
-                property);
+        ListPath<A, E> created = super.createList(property, type, queryType, inits);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <K, V, E extends SimpleExpression<? super V>> MapPath<K, V, E> createMap(final String property, final Class<? super K> key, final Class<? super V> value, final Class<? super E> queryType)
     {
-        return addToMetadataAndReturn(
-                super.createMap(property, key, value, queryType),
-                property);
+        MapPath<K, V, E> created = super.createMap(property, key, value, queryType);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A extends Number & Comparable<?>> NumberPath<A> createNumber(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createNumber(property, type),
-                property);
+        NumberPath<A> created = super.createNumber(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A, E extends SimpleExpression<? super A>> SetPath<A, E> createSet(final String property, final Class<? super A> type, final Class<? super E> queryType, final PathInits inits)
     {
-        return addToMetadataAndReturn(
-                super.createSet(property, type, queryType, inits),
-                property);
+        SetPath<A, E> created = super.createSet(property, type, queryType, inits);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected <A> SimplePath<A> createSimple(final String property, final Class<? super A> type)
     {
-        return addToMetadataAndReturn(
-                super.createSimple(property, type),
-                property);
+        SimplePath<A> created = super.createSimple(property, type);
+        addToMetadata(created, property);
+        return created;
     }
 
     @Override
     protected StringPath createString(final String property)
     {
-        return addToMetadataAndReturn(
-                super.createString(property),
-                property);
+        StringPath created = super.createString(property);
+        addToMetadata(created, property);
+        return created;
     }
 
-    private <P extends Path> P addToMetadataAndReturn(final P path, String property)
+    private <P extends Path> void addToMetadata(final P path, String property)
     {
         addMetadata(path, ColumnMetadata.named(property));
-        return path;
     }
 }
