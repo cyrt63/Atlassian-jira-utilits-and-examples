@@ -30,7 +30,7 @@ public class DatabaseCompatibilityKitImpl implements DatabaseCompatibilityKit
         if (isHSQLBefore20())
         {
             long howMany = insertClause.execute();
-            if (howMany == 1)
+            if (howMany > 0)
             {
                 return callHsqlIdentity(connection);
             }
