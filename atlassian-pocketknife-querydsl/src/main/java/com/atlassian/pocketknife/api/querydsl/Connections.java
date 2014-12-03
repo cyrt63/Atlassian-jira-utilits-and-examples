@@ -17,7 +17,7 @@ public class Connections
     private static final Logger log = Logger.getLogger(Connections.class);
 
     /**
-     * Closes a connection with null checks and without throwing an exception of the is a problem
+     * Closes a connection with null checks without throwing an exception if there is a problem
      *
      * @param connection the connection in play
      */
@@ -42,7 +42,7 @@ public class Connections
 
 
     /**
-     * Closes a statement with null checks and without throwing an exception of the is a problem
+     * Closes a statement with null checks without throwing an exception if there is a problem
      *
      * @param statement the statement in play
      */
@@ -66,7 +66,7 @@ public class Connections
     }
 
     /**
-     * Closes a result set with null checks and without throwing an exception of the is a problem
+     * Closes a result set with null checks without throwing an exception if there is a problem
      *
      * @param resultSet the result set in play
      */

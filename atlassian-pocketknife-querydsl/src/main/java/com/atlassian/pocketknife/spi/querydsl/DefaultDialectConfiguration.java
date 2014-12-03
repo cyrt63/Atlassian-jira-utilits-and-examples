@@ -136,10 +136,9 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         try
         {
             DatabaseMetaData metaData = connection.getMetaData();
-            String databaseProductName = metaData.getDatabaseProductName();
 
             return new DatabaseInfo(supportedDatabase,
-                    databaseProductName,
+                    metaData.getDatabaseProductName(),
                     metaData.getDatabaseProductVersion(),
                     metaData.getDatabaseMajorVersion(),
                     metaData.getDatabaseMinorVersion(),
