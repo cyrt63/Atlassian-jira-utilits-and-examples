@@ -2,8 +2,6 @@ package com.atlassian.pocketknife.spi.querydsl;
 
 import com.atlassian.pocketknife.internal.querydsl.SchemaProviderAccessor;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.sql.PrimaryKey;
 import com.mysema.query.sql.RelationalPathBase;
@@ -24,16 +22,37 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * QueryDSL table classes that extend this class can be instantiated without specifying a schema.
+ * @formatter:off
+ *
+ * Enhances {@link RelationalPathBase} with additional functionality designed to make writing and executing queries
+ * using table entities that extend this class easier.
  * <p/>
- * This allows them to be declared as static variables and used at call sites and yet still have the capability of
- * knowing the underlying schema name which is not known until runtime.
- * <p/>
- * This base class also has extra "path definition" methods that allow for less boiler plate in entity definition
+ * This extra functionality includes:
+ * <ul>
+ *      <li>
+ *      Dynamic schema lookup: QueryDSL table classes that extend this class can be instantiated without specifying
+ *      a schema. This allows them to be declared as static variables and used at call sites and yet still have the
+ *      capability of knowing the underlying schema name which is not known until runtime.
+ * </li>
+ * <li>
+ *      Implicitly adding any columns defined by a call to the create methods to the metadata for table entity. This
+ *      allows calls to methods like {@link com.mysema.query.sql.RelationalPathBase#getColumns()} to actually work
+ *      correctly.
+ * </li>
+ * <li>
+ *      Adds column builder patterns to allow very specific column paths to be constructed.  This allows for not null
+ *      specification as well as primary key
+ * </li>
+ * <li>
+ *      Adds convenience methods like {@link #getAllNonPrimaryKeyColumns()}
+ * </li>
+ * </ul>
+ *
+ * @formatter:off
  */
-public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T>
+public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T>
 {
-    public ExtendedRelationalPathBase(
+    public EnhancedRelationalPathBase(
             final Class<? extends T> type,
             final String tableName)
     {
@@ -155,10 +174,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected ColumnMetadataBuilder<BooleanPath> createBooleanCol(final String columnName)
+    protected ColumnWithMetadataBuilder<BooleanPath> createBooleanCol(final String columnName)
     {
         BooleanPath path = super.createBoolean(columnName);
-        return new ColumnMetadataBuilder<BooleanPath>(path, ColumnMetadata.named(columnName).ofType(Types.BOOLEAN));
+        return new ColumnWithMetadataBuilder<BooleanPath>(path, ColumnMetadata.named(columnName).ofType(Types.BOOLEAN));
     }
 
     /**
@@ -167,10 +186,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected <A extends Comparable> ColumnMetadataBuilder<DatePath<A>> createDateCol(final String columnName, final Class<? super A> type)
+    protected <A extends Comparable> ColumnWithMetadataBuilder<DatePath<A>> createDateCol(final String columnName, final Class<? super A> type)
     {
         DatePath<A> path = super.createDate(columnName, type);
-        return new ColumnMetadataBuilder<DatePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.DATE));
+        return new ColumnWithMetadataBuilder<DatePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.DATE));
     }
 
     /**
@@ -179,10 +198,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected <A extends Comparable> ColumnMetadataBuilder<DateTimePath<A>> createDateTimeCol(final String columnName, final Class<? super A> type)
+    protected <A extends Comparable> ColumnWithMetadataBuilder<DateTimePath<A>> createDateTimeCol(final String columnName, final Class<? super A> type)
     {
         DateTimePath<A> path = super.createDateTime(columnName, type);
-        return new ColumnMetadataBuilder<DateTimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIMESTAMP));
+        return new ColumnWithMetadataBuilder<DateTimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIMESTAMP));
     }
 
     /**
@@ -191,10 +210,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected <A extends Number & Comparable<?>> ColumnMetadataBuilder<NumberPath<A>> createNumberCol(final String columnName, final Class<? super A> type)
+    protected <A extends Number & Comparable<?>> ColumnWithMetadataBuilder<NumberPath<A>> createNumberCol(final String columnName, final Class<? super A> type)
     {
         NumberPath<A> path = super.createNumber(columnName, type);
-        return new ColumnMetadataBuilder<NumberPath<A>>(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
+        return new ColumnWithMetadataBuilder<NumberPath<A>>(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
     }
 
     /**
@@ -203,10 +222,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected ColumnMetadataBuilder<StringPath> createStringCol(final String columnName)
+    protected ColumnWithMetadataBuilder<StringPath> createStringCol(final String columnName)
     {
         StringPath path = super.createString(columnName);
-        return new ColumnMetadataBuilder<StringPath>(path, ColumnMetadata.named(columnName).ofType(Types.VARCHAR));
+        return new ColumnWithMetadataBuilder<StringPath>(path, ColumnMetadata.named(columnName).ofType(Types.VARCHAR));
     }
 
     /**
@@ -215,10 +234,10 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param columnName the name of the column
      * @return the builder of column metadata
      */
-    protected <A extends Comparable> ColumnMetadataBuilder<TimePath<A>> createTimeCol(final String columnName, final Class<? super A> type)
+    protected <A extends Comparable> ColumnWithMetadataBuilder<TimePath<A>> createTimeCol(final String columnName, final Class<? super A> type)
     {
         TimePath<A> path = super.createTime(columnName, type);
-        return new ColumnMetadataBuilder<TimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIME));
+        return new ColumnWithMetadataBuilder<TimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIME));
     }
 
     /**
@@ -229,50 +248,50 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
      * @param <P> a {@link com.mysema.query.types.Path} type
      * @see com.mysema.query.sql.ColumnMetadata
      */
-    public class ColumnMetadataBuilder<P extends Path<?>>
+    public class ColumnWithMetadataBuilder<P extends Path<?>>
     {
         private final P path;
         private ColumnMetadata metadata;
         private boolean asPK = false;
 
-        public ColumnMetadataBuilder(final P path, final ColumnMetadata startingMetadata)
+        public ColumnWithMetadataBuilder(final P path, final ColumnMetadata startingMetadata)
         {
             this.path = path;
             this.metadata = startingMetadata;
         }
 
-        public ColumnMetadataBuilder<P> asPrimaryKey()
+        public ColumnWithMetadataBuilder<P> asPrimaryKey()
         {
             asPK = true;
             metadata = metadata.notNull(); // PK cant be null
             return this;
         }
 
-        public ColumnMetadataBuilder<P> notNull()
+        public ColumnWithMetadataBuilder<P> notNull()
         {
             metadata = metadata.notNull();
             return this;
         }
 
-        public ColumnMetadataBuilder<P> ofType(int jdbcType)
+        public ColumnWithMetadataBuilder<P> ofType(int jdbcType)
         {
             metadata = metadata.ofType(jdbcType);
             return this;
         }
 
-        public ColumnMetadataBuilder<P> withIndex(int index)
+        public ColumnWithMetadataBuilder<P> withIndex(int index)
         {
             metadata = metadata.withIndex(index);
             return this;
         }
 
-        public ColumnMetadataBuilder<P> withSize(int size)
+        public ColumnWithMetadataBuilder<P> withSize(int size)
         {
             metadata = metadata.withSize(size);
             return this;
         }
 
-        public ColumnMetadataBuilder<P> withDigits(int decimalDigits)
+        public ColumnWithMetadataBuilder<P> withDigits(int decimalDigits)
         {
             metadata = metadata.withDigits(decimalDigits);
             return this;
@@ -308,8 +327,9 @@ public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T
         final PrimaryKey<T> primaryKey = getPrimaryKey();
         // primaryKey can be null as can its local columns
         final List<? extends Path<?>> pkColumns = (primaryKey != null && primaryKey.getLocalColumns() != null)
-                ?  primaryKey.getLocalColumns()
-                : Collections.<Path<?>>emptyList();;
+                ? primaryKey.getLocalColumns()
+                : Collections.<Path<?>>emptyList();
+        ;
         List<Path<?>> columns = newArrayList(filter(getColumns(), new Predicate<Path<?>>()
         {
             @Override

@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-public class ExtendedRelationalPathBaseTest
+public class EnhancedRelationalPathBaseTest
 {
 
     public static final String QEMAIL_SETTINGS_TABLE_NAME = "QEMAILSETTINGS_TABLE";
@@ -35,7 +35,7 @@ public class ExtendedRelationalPathBaseTest
     /**
      * An example entity definition based on our extended base
      */
-    public static class QEmailSettings extends ExtendedRelationalPathBase<QEmailSettings>
+    public static class QEmailSettings extends EnhancedRelationalPathBase<QEmailSettings>
     {
         public final NumberPath<Integer> ID = createNumberCol("ID", Integer.class).asPrimaryKey().build();
 
