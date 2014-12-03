@@ -32,7 +32,9 @@ public class QueryFactoryImplTest
     public void setUp() throws Exception
     {
         SQLTemplates sqlTemplates = PostgresTemplates.builder().build();
-        DialectProvider.Config config = new DialectProvider.Config(sqlTemplates, new Configuration(sqlTemplates));
+        DialectProvider.DatabaseInfo databaseInfo = new DialectProvider.DatabaseInfo(DialectProvider.SupportedDatabase.HSQLDB,
+                "HSQL database","HSQL X",1,8,"HSQL Driver",1,8);
+        DialectProvider.Config config = new DialectProvider.Config(sqlTemplates, new Configuration(sqlTemplates),databaseInfo);
 
         dialectConfiguration = mock(DialectConfiguration.class);
         when(dialectConfiguration.getDialectConfig()).thenReturn(config);

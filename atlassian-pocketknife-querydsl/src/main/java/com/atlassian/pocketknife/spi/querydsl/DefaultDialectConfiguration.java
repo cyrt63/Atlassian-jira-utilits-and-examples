@@ -1,6 +1,7 @@
 package com.atlassian.pocketknife.spi.querydsl;
 
 import com.atlassian.annotations.PublicSpi;
+import com.atlassian.fugue.Pair;
 import com.atlassian.pocketknife.api.querydsl.ConnectionProvider;
 import com.atlassian.pocketknife.api.querydsl.DialectProvider;
 import com.atlassian.pocketknife.api.querydsl.LoggingSqlListener;
@@ -65,12 +66,12 @@ public class DefaultDialectConfiguration implements DialectConfiguration
 
     private Config detect(Connection connection)
     {
-        SQLTemplates sqlTemplates = buildTemplates(connection);
+        Pair<SQLTemplates, SupportedDatabase> pair = buildTemplates(connection);
+        SQLTemplates sqlTemplates = pair.left();
         Configuration configuration = enrich(new Configuration(sqlTemplates));
         configuration.addListener(new LoggingSqlListener(configuration));
 
-        Config config = new Config(sqlTemplates, configuration);
-        return config;
+        return new Config(sqlTemplates, configuration, buildDatabaseInfo(pair.right(), connection));
     }
 
     @Override
@@ -88,39 +89,40 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         return configuration;
     }
 
-    private static Map<String, SQLTemplates.Builder> support = new LinkedHashMap<String, SQLTemplates.Builder>();
+    private static Map<String, Pair<SQLTemplates.Builder, SupportedDatabase>> support = new LinkedHashMap<String, Pair<SQLTemplates.Builder, SupportedDatabase>>();
 
     static
     {
-        support.put(":postgresql:", PostgresTemplates.builder());
-        support.put(":oracle:", OracleTemplates.builder());
-        support.put(":hsqldb:", HSQLDBTemplates.builder());
-        support.put(":sqlserver:", SQLServerTemplates.builder().printSchema());
-        support.put(":mysql:", MySQLTemplates.builder());
+        support.put(":postgresql:", Pair.pair(PostgresTemplates.builder(), SupportedDatabase.POSTGRESSQL));
+        support.put(":oracle:", Pair.pair(OracleTemplates.builder(), SupportedDatabase.ORACLE));
+        support.put(":hsqldb:", Pair.pair(HSQLDBTemplates.builder(), SupportedDatabase.HSQLDB));
+        support.put(":sqlserver:", Pair.pair(SQLServerTemplates.builder().printSchema(), SupportedDatabase.SQLSERVER));
+        support.put(":mysql:", Pair.pair(MySQLTemplates.builder(), SupportedDatabase.MYSQL));
     }
 
-    private SQLTemplates buildTemplates(final Connection connection)
+    private Pair<SQLTemplates, SupportedDatabase> buildTemplates(final Connection connection)
     {
         try
         {
             DatabaseMetaData metaData = connection.getMetaData();
             String connStr = metaData.getURL();
-            SQLTemplates.Builder builder = null;
+            Pair<SQLTemplates.Builder, SupportedDatabase> pair = null;
 
             // which databases do we support
             for (String db : support.keySet())
             {
                 if (connStr.contains(db))
                 {
-                    builder = support.get(db);
+                    pair = support.get(db);
                     break;
                 }
             }
-            if (builder == null)
+            if (pair == null)
             {
                 throw new UnsupportedOperationException(String.format("Unable to detect QueryDSL template support for database %s", connStr));
             }
-            return enrich(builder).build();
+            SQLTemplates templates = enrich(pair.left()).build();
+            return Pair.pair(templates, pair.right());
 
         }
         catch (SQLException e)
@@ -128,4 +130,26 @@ public class DefaultDialectConfiguration implements DialectConfiguration
             throw new RuntimeException("Unable to enquire on JDBC metadata to configure QueryDSL", e);
         }
     }
+
+    private DatabaseInfo buildDatabaseInfo(final SupportedDatabase supportedDatabase, final Connection connection)
+    {
+        try
+        {
+            DatabaseMetaData metaData = connection.getMetaData();
+
+            return new DatabaseInfo(supportedDatabase,
+                    metaData.getDatabaseProductName(),
+                    metaData.getDatabaseProductVersion(),
+                    metaData.getDatabaseMajorVersion(),
+                    metaData.getDatabaseMinorVersion(),
+                    metaData.getDriverName(),
+                    metaData.getDriverMajorVersion(),
+                    metaData.getDriverMinorVersion());
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException("Unable to enquire on JDBC metadata to determine DatabaseInfo", e);
+        }
+    }
+
 }
