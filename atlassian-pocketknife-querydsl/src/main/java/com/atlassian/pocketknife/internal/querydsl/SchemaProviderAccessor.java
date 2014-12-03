@@ -1,7 +1,6 @@
 package com.atlassian.pocketknife.internal.querydsl;
 
 import com.atlassian.pocketknife.api.querydsl.SchemaProvider;
-import com.atlassian.pocketknife.spi.querydsl.RelationalBasePathWithDynamicSchema;
 import com.google.common.annotations.VisibleForTesting;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;

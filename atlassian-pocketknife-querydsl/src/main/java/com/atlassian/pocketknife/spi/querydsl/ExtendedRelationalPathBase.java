@@ -1,0 +1,355 @@
+package com.atlassian.pocketknife.spi.querydsl;
+
+import com.atlassian.pocketknife.internal.querydsl.SchemaProviderAccessor;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.mysema.query.sql.ColumnMetadata;
+import com.mysema.query.sql.PrimaryKey;
+import com.mysema.query.sql.RelationalPathBase;
+import com.mysema.query.sql.SchemaAndTable;
+import com.mysema.query.types.Path;
+import com.mysema.query.types.path.BooleanPath;
+import com.mysema.query.types.path.DatePath;
+import com.mysema.query.types.path.DateTimePath;
+import com.mysema.query.types.path.NumberPath;
+import com.mysema.query.types.path.StringPath;
+import com.mysema.query.types.path.TimePath;
+
+import java.sql.Types;
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newArrayList;
+
+/**
+ * QueryDSL table classes that extend this class can be instantiated without specifying a schema.
+ * <p/>
+ * This allows them to be declared as static variables and used at call sites and yet still have the capability of
+ * knowing the underlying schema name which is not known until runtime.
+ * <p/>
+ * This base class also has extra "path definition" methods that allow for less boiler plate in entity definition
+ */
+public abstract class ExtendedRelationalPathBase<T> extends RelationalPathBase<T>
+{
+    public ExtendedRelationalPathBase(
+            final Class<? extends T> type,
+            final String tableName)
+    {
+        super(type, tableName, "", tableName);
+    }
+
+    @Override
+    public SchemaAndTable getSchemaAndTable()
+    {
+        return new SchemaAndTable(
+                getSchemaName(),
+                getTableName()
+        );
+    }
+
+    @Override
+    public String getSchemaName()
+    {
+        return SchemaProviderAccessor.getSchemaProvider().getSchema(getTableName());
+    }
+
+
+    //
+    // the following override the base path construction methods so that metadata is added at the same time
+    // as the path creation
+    //
+
+    /**
+     * Creates a boolean column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected BooleanPath createBoolean(final String columnName)
+    {
+        BooleanPath path = super.createBoolean(columnName);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.BOOLEAN));
+        return path;
+    }
+
+    /**
+     * Creates a date column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected <A extends Comparable> DatePath<A> createDate(final String columnName, final Class<? super A> type)
+    {
+        DatePath<A> path = super.createDate(columnName, type);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.DATE));
+        return path;
+    }
+
+    /**
+     * Creates a datetime column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected <A extends Comparable> DateTimePath<A> createDateTime(final String columnName, final Class<? super A> type)
+    {
+        DateTimePath<A> path = super.createDateTime(columnName, type);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.TIMESTAMP));
+        return path;
+    }
+
+    /**
+     * Creates a number column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected <A extends Number & Comparable<?>> NumberPath<A> createNumber(final String columnName, final Class<? super A> type)
+    {
+        NumberPath<A> path = super.createNumber(columnName, type);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
+        return path;
+    }
+
+    /**
+     * Creates a string column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected StringPath createString(final String columnName)
+    {
+        StringPath path = super.createString(columnName);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.VARCHAR));
+        return path;
+    }
+
+    /**
+     * Creates a time column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    @Override
+    protected <A extends Comparable> TimePath<A> createTime(final String columnName, final Class<? super A> type)
+    {
+        TimePath<A> path = super.createTime(columnName, type);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.TIME));
+        return path;
+    }
+
+    //
+    // the following are the builder style column creation methods that allow full metadata creation
+    //
+
+    /**
+     * Creates a boolean column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnMetadataBuilder<BooleanPath> createBooleanCol(final String columnName)
+    {
+        BooleanPath path = super.createBoolean(columnName);
+        return new ColumnMetadataBuilder<BooleanPath>(path, ColumnMetadata.named(columnName).ofType(Types.BOOLEAN));
+    }
+
+    /**
+     * Creates a date column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected <A extends Comparable> ColumnMetadataBuilder<DatePath<A>> createDateCol(final String columnName, final Class<? super A> type)
+    {
+        DatePath<A> path = super.createDate(columnName, type);
+        return new ColumnMetadataBuilder<DatePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.DATE));
+    }
+
+    /**
+     * Creates a date time column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected <A extends Comparable> ColumnMetadataBuilder<DateTimePath<A>> createDateTimeCol(final String columnName, final Class<? super A> type)
+    {
+        DateTimePath<A> path = super.createDateTime(columnName, type);
+        return new ColumnMetadataBuilder<DateTimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIMESTAMP));
+    }
+
+    /**
+     * Creates a number column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected <A extends Number & Comparable<?>> ColumnMetadataBuilder<NumberPath<A>> createNumberCol(final String columnName, final Class<? super A> type)
+    {
+        NumberPath<A> path = super.createNumber(columnName, type);
+        return new ColumnMetadataBuilder<NumberPath<A>>(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
+    }
+
+    /**
+     * Creates a string column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnMetadataBuilder<StringPath> createStringCol(final String columnName)
+    {
+        StringPath path = super.createString(columnName);
+        return new ColumnMetadataBuilder<StringPath>(path, ColumnMetadata.named(columnName).ofType(Types.VARCHAR));
+    }
+
+    /**
+     * Creates a time column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected <A extends Comparable> ColumnMetadataBuilder<TimePath<A>> createTimeCol(final String columnName, final Class<? super A> type)
+    {
+        TimePath<A> path = super.createTime(columnName, type);
+        return new ColumnMetadataBuilder<TimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIME));
+    }
+
+    /**
+     * This allows a path to be build up in a builder style at the entity declaration point
+     * <p/>
+     * StringPath sCol = createStringCol("COL_NAME").withIndex(1).ofType(Types.VARCHAR).notNull().asPrimaryKey().build();
+     *
+     * @param <P> a {@link com.mysema.query.types.Path} type
+     * @see com.mysema.query.sql.ColumnMetadata
+     */
+    public class ColumnMetadataBuilder<P extends Path<?>>
+    {
+        private final P path;
+        private ColumnMetadata metadata;
+        private boolean asPK = false;
+
+        public ColumnMetadataBuilder(final P path, final ColumnMetadata startingMetadata)
+        {
+            this.path = path;
+            this.metadata = startingMetadata;
+        }
+
+        public ColumnMetadataBuilder<P> asPrimaryKey()
+        {
+            asPK = true;
+            metadata = metadata.notNull(); // PK cant be null
+            return this;
+        }
+
+        public ColumnMetadataBuilder<P> notNull()
+        {
+            metadata = metadata.notNull();
+            return this;
+        }
+
+        public ColumnMetadataBuilder<P> ofType(int jdbcType)
+        {
+            metadata = metadata.ofType(jdbcType);
+            return this;
+        }
+
+        public ColumnMetadataBuilder<P> withIndex(int index)
+        {
+            metadata = metadata.withIndex(index);
+            return this;
+        }
+
+        public ColumnMetadataBuilder<P> withSize(int size)
+        {
+            metadata = metadata.withSize(size);
+            return this;
+        }
+
+        public ColumnMetadataBuilder<P> withDigits(int decimalDigits)
+        {
+            metadata = metadata.withDigits(decimalDigits);
+            return this;
+        }
+
+        /**
+         * Builds the column path and metadata in one step
+         *
+         * @return the new path
+         */
+        public P build()
+        {
+            addMetadata(path, metadata);
+            if (asPK)
+            {
+                PrimaryKey<T> currentPK = getPrimaryKey();
+                if (currentPK != null)
+                {
+                    throw new IllegalStateException("You have already set a primary key.  I am not sure you know what you are doing");
+                }
+                createPrimaryKey(path);
+            }
+            return path;
+        }
+    }
+
+    /**
+     * @return an array of all the paths that are not primary keys.  Useful for inserts.
+     * @see #getColumns()
+     */
+    public Path<?>[] getAllNonPrimaryKeyColumns()
+    {
+        final PrimaryKey<T> primaryKey = getPrimaryKey();
+        // primaryKey can be null as can its local columns
+        final List<? extends Path<?>> pkColumns = (primaryKey != null && primaryKey.getLocalColumns() != null)
+                ?  primaryKey.getLocalColumns()
+                : Collections.<Path<?>>emptyList();;
+        List<Path<?>> columns = newArrayList(filter(getColumns(), new Predicate<Path<?>>()
+        {
+            @Override
+            public boolean apply(final Path<?> input)
+            {
+                for (Path<?> pkColumn : pkColumns)
+                {
+                    if (pkColumn.equals(input))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }));
+
+        return newArrayList(columns).toArray(new Path[columns.size()]);
+    }
+
+    private <A extends Number & Comparable<?>> int mapJavaNumberType(final Class<? super A> javaType)
+    {
+        if (javaType.equals(Integer.class))
+        {
+            return Types.INTEGER;
+        }
+        else if (javaType.equals(Long.class))
+        {
+            return Types.BIGINT;
+        }
+        else if (javaType.equals(Double.class))
+        {
+            return Types.DOUBLE;
+        }
+        else if (javaType.equals(Float.class))
+        {
+            return Types.DECIMAL;
+        }
+        else
+        {
+            throw new UnsupportedOperationException("Unable to map number class " + javaType + " to JDBC type");
+        }
+    }
+}
