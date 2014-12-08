@@ -123,9 +123,14 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
     }
 
     /**
-     * Creates a number column with sensible default metadata
+     * Creates a number column with sensible default metadata.
+     * <p/>
+     * <em>Note:</em> this method should only be called when the number type is not known at compile time. Typically,
+     * this type is known, in which case the appropriate method for that type should be called instead
+     * (e.g. {@link #createInteger(java.lang.String}).
      *
      * @param columnName the name of the column
+     * @param the type of the column
      * @return the new path
      */
     @Override
@@ -133,6 +138,58 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
     {
         NumberPath<A> path = super.createNumber(columnName, type);
         addMetadata(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
+        return path;
+    }
+
+    /**
+     * Creates an integer column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    protected NumberPath<Integer> createInteger(final String columnName)
+    {
+        NumberPath<Integer> path = super.createNumber(columnName, Integer.class);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.INTEGER));
+        return path;
+    }
+
+    /**
+     * Creates a long column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    protected NumberPath<Long> createLong(final String columnName)
+    {
+        NumberPath<Long> path = super.createNumber(columnName, Long.class);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.BIGINT));
+        return path;
+    }
+
+    /**
+     * Creates a double column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    protected NumberPath<Double> createDouble(final String columnName)
+    {
+        NumberPath<Double> path = super.createNumber(columnName, Double.class);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.DOUBLE));
+        return path;
+    }
+
+    /**
+     * Creates a float column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    protected NumberPath<Float> createFloat(final String columnName)
+    {
+        NumberPath<Float> path = super.createNumber(columnName, Float.class);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.DECIMAL));
         return path;
     }
 

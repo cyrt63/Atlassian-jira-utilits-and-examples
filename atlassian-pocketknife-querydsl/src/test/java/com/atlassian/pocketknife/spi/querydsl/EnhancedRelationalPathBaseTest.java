@@ -47,15 +47,15 @@ public class EnhancedRelationalPathBaseTest
 
         public final BooleanPath ENABLED = createBoolean("ENABLED");
 
-        public final NumberPath<Long> JIRA_MAIL_SERVER_ID = createNumber("JIRA_MAIL_SERVER_ID", Long.class);
+        public final NumberPath<Long> JIRA_MAIL_SERVER_ID = createLong("JIRA_MAIL_SERVER_ID");
 
-        public final NumberPath<Long> LAST_PROCEEDED_TIME = createNumber("LAST_PROCEEDED_TIME", Long.class);
+        public final NumberPath<Long> LAST_PROCEEDED_TIME = createLong("LAST_PROCEEDED_TIME");
 
         public final BooleanPath ON_DEMAND = createBooleanCol("ON_DEMAND").notNull().build();
 
-        public final NumberPath<Integer> REQUEST_TYPE_ID = createNumber("REQUEST_TYPE_ID", Integer.class);
+        public final NumberPath<Integer> REQUEST_TYPE_ID = createInteger("REQUEST_TYPE_ID");
 
-        public final NumberPath<Integer> SERVICE_DESK_ID = createNumber("SERVICE_DESK_ID", Integer.class);
+        public final NumberPath<Integer> SERVICE_DESK_ID = createInteger("SERVICE_DESK_ID");
 
         public final DatePath UPDATED_DATE = createDateCol("UPDATED_DATE", Date.class).notNull().build();
 
