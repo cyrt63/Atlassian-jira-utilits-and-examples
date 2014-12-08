@@ -204,16 +204,64 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
         return new ColumnWithMetadataBuilder<DateTimePath<A>>(path, ColumnMetadata.named(columnName).ofType(Types.TIMESTAMP));
     }
 
-    /**
-     * Creates a number column with sensible default metadata that you can add to
-     *
-     * @param columnName the name of the column
-     * @return the builder of column metadata
-     */
+
+    // The method below does not compile with Java 6 due to a bug in the Java 6 JDK: http://bugs.java.com/view_bug.do?bug_id=6302954
+    // This bug has been fixed in Java 7, so when we only support that, this method can be restored. For now, it has been
+    // replaced with Number subclass specific versions.
+    /*
     protected <A extends Number & Comparable<?>> ColumnWithMetadataBuilder<NumberPath<A>> createNumberCol(final String columnName, final Class<? super A> type)
     {
         NumberPath<A> path = super.createNumber(columnName, type);
         return new ColumnWithMetadataBuilder<NumberPath<A>>(path, ColumnMetadata.named(columnName).ofType(mapJavaNumberType(type)));
+    }
+    */
+
+    /**
+     * Creates an integer column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnWithMetadataBuilder<NumberPath<Integer>> createIntegerCol(final String columnName)
+    {
+        NumberPath<Integer> path = super.createNumber(columnName, Integer.class);
+        return new ColumnWithMetadataBuilder<NumberPath<Integer>>(path, ColumnMetadata.named(columnName).ofType(Types.INTEGER));
+    }
+
+    /**
+     * Creates a long column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnWithMetadataBuilder<NumberPath<Long>> createLongCol(final String columnName)
+    {
+        NumberPath<Long> path = super.createNumber(columnName, Long.class);
+        return new ColumnWithMetadataBuilder<NumberPath<Long>>(path, ColumnMetadata.named(columnName).ofType(Types.BIGINT));
+    }
+
+    /**
+     * Creates a double column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnWithMetadataBuilder<NumberPath<Double>> createDoubleCol(final String columnName)
+    {
+        NumberPath<Double> path = super.createNumber(columnName, Double.class);
+        return new ColumnWithMetadataBuilder<NumberPath<Double>>(path, ColumnMetadata.named(columnName).ofType(Types.DOUBLE));
+    }
+
+    /**
+     * Creates a float column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnWithMetadataBuilder<NumberPath<Float>> createFloatCol(final String columnName)
+    {
+        NumberPath<Float> path = super.createNumber(columnName, Float.class);
+        return new ColumnWithMetadataBuilder<NumberPath<Float>>(path, ColumnMetadata.named(columnName).ofType(Types.DECIMAL));
     }
 
     /**
@@ -349,7 +397,7 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
         return newArrayList(columns).toArray(new Path[columns.size()]);
     }
 
-    private <A extends Number & Comparable<?>> int mapJavaNumberType(final Class<? super A> javaType)
+    private int mapJavaNumberType(final Class<?> javaType)
     {
         if (javaType.equals(Integer.class))
         {

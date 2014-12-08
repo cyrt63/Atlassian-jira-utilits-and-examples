@@ -37,7 +37,7 @@ public class EnhancedRelationalPathBaseTest
      */
     public static class QEmailSettings extends EnhancedRelationalPathBase<QEmailSettings>
     {
-        public final NumberPath<Integer> ID = createNumberCol("ID", Integer.class).asPrimaryKey().build();
+        public final NumberPath<Integer> ID = createIntegerCol("ID").asPrimaryKey().build();
 
         public final DateTimePath CREATED = createDateTimeCol("CREATED", Timestamp.class).notNull().build();
 
