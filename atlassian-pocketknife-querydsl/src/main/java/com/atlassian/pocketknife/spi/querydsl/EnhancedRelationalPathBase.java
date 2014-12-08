@@ -14,6 +14,7 @@ import com.mysema.query.types.path.NumberPath;
 import com.mysema.query.types.path.StringPath;
 import com.mysema.query.types.path.TimePath;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
@@ -181,6 +182,19 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
     }
 
     /**
+     * Creates a big decimal column with sensible default metadata
+     *
+     * @param columnName the name of the column
+     * @return the new path
+     */
+    protected NumberPath<BigDecimal> createBigDecimal(final String columnName)
+    {
+        NumberPath<BigDecimal> path = super.createNumber(columnName, BigDecimal.class);
+        addMetadata(path, ColumnMetadata.named(columnName).ofType(Types.DECIMAL));
+        return path;
+    }
+
+    /**
      * Creates a float column with sensible default metadata
      *
      * @param columnName the name of the column
@@ -307,6 +321,18 @@ public abstract class EnhancedRelationalPathBase<T> extends RelationalPathBase<T
     {
         NumberPath<Double> path = super.createNumber(columnName, Double.class);
         return new ColumnWithMetadataBuilder<NumberPath<Double>>(path, ColumnMetadata.named(columnName).ofType(Types.DOUBLE));
+    }
+
+    /**
+     * Creates a big decimal column with sensible default metadata that you can add to
+     *
+     * @param columnName the name of the column
+     * @return the builder of column metadata
+     */
+    protected ColumnWithMetadataBuilder<NumberPath<BigDecimal>> createBigDecimalCol(final String columnName)
+    {
+        NumberPath<BigDecimal> path = super.createNumber(columnName, BigDecimal.class);
+        return new ColumnWithMetadataBuilder<NumberPath<BigDecimal>>(path, ColumnMetadata.named(columnName).ofType(Types.DECIMAL));
     }
 
     /**
