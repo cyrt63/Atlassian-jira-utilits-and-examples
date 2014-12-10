@@ -14,14 +14,21 @@ import com.mysema.query.sql.OracleTemplates;
 import com.mysema.query.sql.PostgresTemplates;
 import com.mysema.query.sql.SQLServerTemplates;
 import com.mysema.query.sql.SQLTemplates;
+import com.mysema.query.sql.types.AbstractType;
+import com.mysema.query.sql.types.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang.ArrayUtils.isNotEmpty;
 
 /**
  * This is a dialect configuration that you can use to detect and build the QueryDSL dialect config.
@@ -70,6 +77,9 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         SQLTemplates sqlTemplates = pair.left();
         Configuration configuration = enrich(new Configuration(sqlTemplates));
         configuration.addListener(new LoggingSqlListener(configuration));
+
+        // Should be removed when https://github.com/querydsl/querydsl/issues/1079 is fixed
+        configuration.register(new NullType());
 
         return new Config(sqlTemplates, configuration, buildDatabaseInfo(pair.right(), connection));
     }
@@ -149,6 +159,45 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         catch (SQLException e)
         {
             throw new RuntimeException("Unable to enquire on JDBC metadata to determine DatabaseInfo", e);
+        }
+    }
+
+    // Workaround allowing us to log SQL with null in it (e.g. update table_x set col_1 to null)
+    // Should be removed when https://github.com/querydsl/querydsl/issues/1079 is fixed
+    private static class NullType extends AbstractType<Null>
+    {
+        public NullType() {
+            super(Types.NULL);
+        }
+
+        @Override
+        public Null getValue(ResultSet rs, int startIndex) throws SQLException {
+            return Null.DEFAULT;
+        }
+
+        @Override
+        public Class<Null> getReturnedClass() {
+            return Null.class;
+        }
+
+        @Override
+        public void setValue(PreparedStatement st, int startIndex, Null value)
+                throws SQLException {
+
+            if(isNotEmpty(getSQLTypes()))
+            {
+                st.setNull(startIndex, getSQLTypes()[0]);
+            }
+            else
+            {
+                throw new RuntimeException("Unable to set database column to null");
+            }
+        }
+
+        @Override
+        public String getLiteral(final Null value)
+        {
+            return "null";
         }
     }
 
