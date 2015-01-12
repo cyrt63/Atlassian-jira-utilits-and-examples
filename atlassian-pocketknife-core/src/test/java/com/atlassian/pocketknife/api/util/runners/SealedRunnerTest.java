@@ -79,6 +79,23 @@ public class SealedRunnerTest {
         assertFalse(seal.isSealBroken());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void test_repair_throws_exception_if_run() throws Exception
+    {
+        final Seal seal = new Seal("for runnable");
+        SealedRunner runner = new SealedRunner(Lists.newArrayList("first.key", "second.key"), new Runnable() {
+            @Override
+            public void run() {
+                seal.breakSeal();
+            }
+        });
+        runner.breakSeal("first.key");
+        runner.breakSeal("second.key");
+        assertTrue(runner.hasRun());
+
+        runner.repairSeal("first.key");
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyRunner() throws Exception {
         final Seal seal = new Seal("for runnable");
@@ -136,8 +153,6 @@ public class SealedRunnerTest {
         runner.breakSeal("first.key");
         runner.breakSeal("second.key");
         assertEquals(seal.getTimesBroken(), 1);
-        runner.repairSeal("first.key");
-        runner.repairSeal("second.key");
         runner.breakSeal("first.key");
         runner.breakSeal("second.key");
         assertEquals(seal.getTimesBroken(), 1);
