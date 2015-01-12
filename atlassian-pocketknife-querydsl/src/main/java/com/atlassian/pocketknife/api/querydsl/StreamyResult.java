@@ -2,10 +2,7 @@ package com.atlassian.pocketknife.api.querydsl;
 
 import com.atlassian.fugue.Function2;
 import com.google.common.base.Function;
-import com.mysema.commons.lang.CloseableIterator;
 import com.mysema.query.Tuple;
-
-import java.io.Closeable;
 
 /**
  * A StreamedResult is one that does NOT load all the SQL data into memory but rather lazily maps from database result
@@ -13,15 +10,12 @@ import java.io.Closeable;
  * <p/>
  * Its uber important that you close this object (either via the mapped iterable or directly on this object) to ensure
  * that connections and result sets are properly closed.
+ *
+ * By default the streamy result is a closeable iterator of Tuples.  You can turn it into other things by using the
+ * map and other methods.
  */
-public interface StreamyResult extends Closeable
+public interface StreamyResult extends CloseableIterable<Tuple>
 {
-    /**
-     * Creates a CloseableIterator of {@link com.mysema.query.Tuple} objects streamed one at a time.
-     * The underlying database resources must be closed in a finally block.
-     * @return a CloseableIterator of {@link com.mysema.query.Tuple} objects streamed one at a time.
-     */
-    CloseableIterable<Tuple> iterator();
 
     /**
      * This will map a fetch query of Tuple objects into an Iterable of domain object T
