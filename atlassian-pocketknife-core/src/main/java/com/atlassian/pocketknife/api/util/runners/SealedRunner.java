@@ -1,13 +1,12 @@
 package com.atlassian.pocketknife.api.util.runners;
 
+import com.atlassian.util.concurrent.Assertions;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.atlassian.util.concurrent.Assertions;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
@@ -64,17 +63,30 @@ public class SealedRunner {
     }
 
     /**
-     * Repair a seal based on the key. An unbroken seal can be repaired safely.
+     * Repair a seal based on the key. An unbroken seal can be repaired safely.  Its illegal to repair a seal that has been run.
      *
      * @param key - corresponding to a seal
      * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
+     * @throws java.lang.IllegalStateException if the seal runner has already run.
      */
     public void repairSeal(final String key) {
         if (key != null && seals.containsKey(key)) {
+            if (hasRun())
+            {
+                throw new IllegalStateException("The seal has already been run");
+            }
             seals.put(key, false);
         } else {
             throw new IllegalArgumentException("The key you have provided does not conform to a valid seal!");
         }
+    }
+
+    /**
+     * @return true all the seals have been broken and the callback has been run
+     */
+    public boolean hasRun()
+    {
+        return hasRun.get();
     }
 
     /**
