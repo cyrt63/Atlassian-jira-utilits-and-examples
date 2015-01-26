@@ -21,7 +21,7 @@ public abstract class AoStreamingMigrator<E extends Entity>
     private long written;
 
     /**
-     * Usage: Create a new AoStreaemingMigrator anonymous class, implement required methods and call
+     * Usage: Create a new AoStreamingMigrator anonymous class, implement required methods and call
      * migrate(ao) on it.
      */
     public AoStreamingMigrator(Class<E> classOfEntity)
