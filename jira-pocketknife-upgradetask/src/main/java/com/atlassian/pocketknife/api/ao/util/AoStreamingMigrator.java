@@ -14,21 +14,25 @@ import net.java.ao.Query;
 public abstract class AoStreamingMigrator<E extends Entity>
 {
     private final Class<E> classOfEntity;
-    private final ActiveObjects ao;
 
+    private ActiveObjects ao;
+    private Query query;
     private long read;
     private long written;
 
-    public AoStreamingMigrator(Class<E> classOfEntity, ActiveObjects ao)
-    {
-        this(classOfEntity, Query.select("*"), ao);
-    }
-
-    public AoStreamingMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao)
+    /**
+     * Usage: Create a new AoStreamingMigrator anonymous class, implement required methods and call
+     * migrate(ao) on it.
+     */
+    public AoStreamingMigrator(Class<E> classOfEntity)
     {
         this.classOfEntity = classOfEntity;
+    }
+
+    public final void migrate(ActiveObjects ao) {
         this.ao = ao;
 
+        Query query = buildQuery();
         ao.stream(classOfEntity, query, new EntityStreamCallback<E, Integer>()
         {
             @Override
@@ -38,8 +42,9 @@ public abstract class AoStreamingMigrator<E extends Entity>
             }
         });
         onEnd();
-    }
 
+        this.ao = null;
+    }
 
     /**
      * Gets a writeable version of the read only entity by re-reading it off the database
@@ -70,6 +75,15 @@ public abstract class AoStreamingMigrator<E extends Entity>
      * @param readOnlyE a streamed READ ONLY version of the entity.  You MUST get a writeable
      */
     protected abstract void onRowRead(E readOnlyE);
+
+    /**
+     * You need to implement this method
+     *
+     * @return the query to run. Originally this defaulted to Query.select("*"), but this isn't supported anymore,
+     *         so you will have to spell out each individual field you want to query. For more infos see
+     *         https://ecosystem.atlassian.net/browse/AO-552
+     */
+    protected abstract Query buildQuery();
 
     /**
      * A template method allowing you to do something once all rows have been migrated
