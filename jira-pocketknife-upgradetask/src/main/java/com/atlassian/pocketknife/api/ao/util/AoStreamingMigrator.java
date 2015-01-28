@@ -21,7 +21,18 @@ public abstract class AoStreamingMigrator<E extends Entity>
 
     public AoStreamingMigrator(Class<E> classOfEntity, ActiveObjects ao)
     {
-        this(classOfEntity, Query.select("*"), ao);
+        this.classOfEntity = classOfEntity;
+        this.ao = ao;
+
+        ao.stream(classOfEntity, new EntityStreamCallback<E, Integer>()
+        {
+            @Override
+            public void onRowRead(E readOnlyE)
+            {
+                onRowReadImpl(readOnlyE);
+            }
+        });
+        onEnd();
     }
 
     public AoStreamingMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao)
