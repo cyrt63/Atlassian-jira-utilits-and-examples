@@ -2,16 +2,17 @@ package com.atlassian.pocketknife.api.ao.util;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import net.java.ao.Entity;
-import net.java.ao.EntityStreamCallback;
 import net.java.ao.Query;
 
 /**
- * A helper class for common migration techniques.  It uses the {@link com.atlassian.activeobjects.external.ActiveObjects#stream(Class, net.java.ao.Query, net.java.ao.EntityStreamCallback)} mechanism to
- * read all the rows in the query and return them to you one at a time so you can decide on how you want to change them.
+ * A helper class for common migration techniques.
+ *
+ * It reads all the rows in the query and returns them to you one at a time so you can decide on how you want to change them.
  * <p/>
- * Remember each returned entity is READ ONLY and you need to make a call to {@link #getWriteableEntity(net.java.ao.Entity)} to get one that can be written to
+ * Contrary to AoStreamingMigrator it does not rely on {@link com.atlassian.activeobjects.external.ActiveObjects#stream(Class, net.java.ao.Query, net.java.ao.EntityStreamCallback)} to
+ * load the rows, so the entity you get is a fully writable AO object.
  */
-public abstract class AoStreamingMigrator<E extends Entity>
+public abstract class AoFindMigrator<E extends Entity>
 {
     private final Class<E> classOfEntity;
     private final ActiveObjects ao;
@@ -19,19 +20,29 @@ public abstract class AoStreamingMigrator<E extends Entity>
     private long read;
     private long written;
 
-    public AoStreamingMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao)
+    public AoFindMigrator(Class<E> classOfEntity, ActiveObjects ao)
+    {
+        this.classOfEntity = classOfEntity;
+        this.ao = ao;
+        
+        final E[] entities = ao.find(classOfEntity);
+        for (E entity: entities)
+        {
+            onRowReadImpl(entity);
+        }
+        onEnd();
+    }
+
+    public AoFindMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao)
     {
         this.classOfEntity = classOfEntity;
         this.ao = ao;
 
-        ao.stream(classOfEntity, query, new EntityStreamCallback<E, Integer>()
+        final E[] entities = ao.find(classOfEntity, query);
+        for (E entity: entities)
         {
-            @Override
-            public void onRowRead(E readOnlyE)
-            {
-                onRowReadImpl(readOnlyE);
-            }
-        });
+            onRowReadImpl(entity);
+        }
         onEnd();
     }
 
@@ -62,7 +73,7 @@ public abstract class AoStreamingMigrator<E extends Entity>
     /**
      * You need to implement this template method
      *
-     * @param readOnlyE a streamed READ ONLY version of the entity.  You MUST get a writeable
+     * @param readOnlyE a WRITABLE version of the entity.
      */
     protected abstract void onRowRead(E readOnlyE);
 
