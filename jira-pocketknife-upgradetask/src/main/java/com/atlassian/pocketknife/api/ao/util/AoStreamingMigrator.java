@@ -5,12 +5,19 @@ import net.java.ao.Entity;
 import net.java.ao.EntityStreamCallback;
 import net.java.ao.Query;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * A helper class for common migration techniques.  It uses the {@link com.atlassian.activeobjects.external.ActiveObjects#stream(Class, net.java.ao.Query, net.java.ao.EntityStreamCallback)} mechanism to
  * read all the rows in the query and return them to you one at a time so you can decide on how you want to change them.
  * <p/>
  * Remember each returned entity is READ ONLY and you need to make a call to {@link #getWriteableEntity(net.java.ao.Entity)} to get one that can be written to
+ * <p/>
+ * Note: Do not use the read-only object to fetch foreign objects (methods returning another AO object). In practice this
+ * currently works if you properly specify the XXX_ID column, but you really shouldn't rely on this as it isn't intended behaviour.
+ * Use AoFindMigrator if you need to fetch linked objects, or load a writable object beforehand.
  */
+@NotThreadSafe
 public abstract class AoStreamingMigrator<E extends Entity>
 {
     private final Class<E> classOfEntity;
