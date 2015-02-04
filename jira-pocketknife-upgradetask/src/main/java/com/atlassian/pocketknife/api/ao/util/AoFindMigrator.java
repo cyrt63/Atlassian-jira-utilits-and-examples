@@ -34,17 +34,17 @@ public abstract class AoFindMigrator<E extends Entity>
     
     private void iterate(E[] entities)
     {
-        for (E entity: entities)
+        for (E writableE: entities)
         {
-            onRowReadImpl(entity);
+            onRowReadImpl(writableE);
         }
         onEnd();
     }
 
-    private void onRowReadImpl(E readOnlyE)
+    private void onRowReadImpl(E writableE)
     {
         read++;
-        onRowRead(readOnlyE);
+        onRowRead(writableE);
     }
 
     /**
