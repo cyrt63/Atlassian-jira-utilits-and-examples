@@ -31,9 +31,10 @@ public class StreamyResultImpl implements StreamyResult
     }
 
     @Override
-    public CloseableIterable<Tuple> iterator()
+    public CloseableIterator<Tuple> iterator()
     {
-        return map(Functions.<Tuple>identity());
+        CloseableIterable<Tuple> iterable = map(Functions.<Tuple>identity());
+        return iterable.iterator();
     }
 
     @Override

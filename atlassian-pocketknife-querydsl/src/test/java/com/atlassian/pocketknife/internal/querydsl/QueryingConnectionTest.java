@@ -10,14 +10,12 @@ import com.atlassian.pocketknife.spi.querydsl.DefaultDialectConfiguration;
 import com.google.common.base.Function;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
-
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.List;
-
 import javax.annotation.Nullable;
 
 import static com.atlassian.pocketknife.internal.querydsl.tables.domain.QEmployee.employee;
@@ -274,7 +272,7 @@ public class QueryingConnectionTest
         try
         {
             int i = 0;
-            for (Tuple t : streamyResult.iterator())
+            for (Tuple t : streamyResult)
             {
                 System.out.println(String.format("Tuple %s %s %s", t.get(employee.id), t.get(employee.firstname), t.get(employee.lastname)));
                 i++;
