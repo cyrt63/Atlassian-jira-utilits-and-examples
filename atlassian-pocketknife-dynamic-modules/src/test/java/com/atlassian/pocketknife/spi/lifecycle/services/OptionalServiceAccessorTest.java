@@ -128,16 +128,33 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testIsReleased() throws Exception
+    public void testIsClosed() throws Exception
     {
         // assemble
         assembleMocks();
 
         // act
         OptionalService<SomeServiceToCall> reference = serviceAccessor.obtain();
-        reference.release();
+        reference.close();
 
         // assert
+        Mockito.verify(bundleContext,Mockito.times(3)).ungetService(Mockito.any(ServiceReference.class));
+    }
+
+    @Test
+    public void testIsClosedIsIdempotent() throws Exception
+    {
+        // assemble
+        assembleMocks();
+
+        // act
+        OptionalService<SomeServiceToCall> reference = serviceAccessor.obtain();
+        reference.close();
+        reference.close();
+        reference.close();
+
+        // assert
+        assertThat(reference.isAvailable(),equalTo(false));
         Mockito.verify(bundleContext,Mockito.times(3)).ungetService(Mockito.any(ServiceReference.class));
     }
 

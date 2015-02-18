@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.api.lifecycle.services;
 
+import java.io.Closeable;
 import java.util.List;
 
 /**
@@ -8,10 +9,10 @@ import java.util.List;
  *
  * @since v0.x
  */
-public interface OptionalService<T>
+public interface OptionalService<T> extends Closeable
 {
     /**
-     * @return true if the service or services where available when this service reference was obtained
+     * @return true if the service or services were available when this service reference was obtained
      */
     boolean isAvailable();
 
@@ -30,9 +31,16 @@ public interface OptionalService<T>
     List<T> getAll();
 
     /**
-     * Returns services.  This is safe to call even if the services are not available in which case its an no-op.
+     * Un-registers services.  This is safe to call even if the services are not available in which case its an no-op.
      *
-     * @return true if the services are able to be released.  In general you should not have to worry about this return value.
+     * In general you should not have to worry about state exceptions, unless something pretty dramatic
+     * is happening within your bundle
+     *
+     * @throws IllegalStateException If this BundleContext is no
+     *         longer valid.
+     * @throws IllegalArgumentException If the underlying
+     *         <code>ServiceReference</code> was not created by the same
+     *         framework instance as the underlying <code>BundleContext</code>.
      */
-    boolean release();
+    void close();
 }

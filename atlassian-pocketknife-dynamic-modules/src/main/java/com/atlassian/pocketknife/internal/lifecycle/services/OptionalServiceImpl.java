@@ -7,15 +7,21 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class OptionalServiceImpl<T> implements OptionalService<T>
 {
+    private static final Logger log = getLogger(OptionalServiceImpl.class);
 
     private final BundleContext bundleContext;
     private final ServiceReference[] serviceReferences;
     private final String serviceName;
+    private final AtomicBoolean closed;
 
     public OptionalServiceImpl(BundleContext bundleContext, String serviceName, Filter filter)
     {
@@ -27,7 +33,8 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
         try
         {
             String filterString = filter != null ? filter.toString() : null;
-            return bundleContext.getServiceReferences(serviceName, filterString);
+            ServiceReference[] serviceRefs = bundleContext.getServiceReferences(serviceName, filterString);
+            return serviceRefs == null ? new ServiceReference[0] : serviceRefs;
         }
         catch (InvalidSyntaxException e)
         {
@@ -41,12 +48,13 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
         this.bundleContext = bundleContext;
         this.serviceName = serviceName;
         this.serviceReferences = serviceReferences;
+        this.closed = new AtomicBoolean(false);
     }
 
     @Override
     public boolean isAvailable()
     {
-        return serviceReferences != null && serviceReferences.length > 0;
+        return !closed.get() && serviceReferences.length > 0;
     }
 
     @Override
@@ -81,17 +89,33 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
     }
 
     @Override
-    public boolean release()
+    public void close()
     {
-        boolean flag = true;
-        if (serviceReferences != null)
+        if (closed.compareAndSet(false, true))
         {
+            RuntimeException firstRTE = null;
             for (ServiceReference serviceReference : serviceReferences)
             {
-                flag = flag && bundleContext.ungetService(serviceReference);
+                // we try to release all references even if some of them fail.
+                // we will throw the
+                try
+                {
+                    bundleContext.ungetService(serviceReference);
+                }
+                catch (RuntimeException rte)
+                {
+                    if (firstRTE == null)
+                    {
+                        firstRTE = rte;
+                    }
+                    log.debug("Unable to unregister OSGi service reference ", rte);
+                }
+            }
+            if (firstRTE != null)
+            {
+                throw firstRTE;
             }
         }
-        return flag;
     }
 
     @Override
