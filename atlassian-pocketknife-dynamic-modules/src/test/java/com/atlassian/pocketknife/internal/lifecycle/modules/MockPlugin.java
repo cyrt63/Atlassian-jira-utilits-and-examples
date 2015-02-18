@@ -24,8 +24,8 @@ import java.util.Set;
  */
 public class MockPlugin implements Plugin
 {
-    Map<String, Element> elements = new HashMap<String, Element>();
-    List<ModuleDescriptor<?>> moduleDescriptors = new ArrayList<ModuleDescriptor<?>>();
+    Map<String, Element> elements = new HashMap<>();
+    List<ModuleDescriptor<?>> moduleDescriptors = new ArrayList<>();
 
     public MockPlugin(final Map<String, Element> elements)
     {
