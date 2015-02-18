@@ -67,7 +67,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testNotAvailable() throws Exception
+    public void service_not_available() throws Exception
     {
         // assemble
         when(bundleContext.getServiceReferences(SERVICE_NAME, null)).thenReturn(null);
@@ -80,7 +80,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testIsAvailable() throws Exception
+    public void service_is_available() throws Exception
     {
         // assemble
         assembleMocks();
@@ -94,7 +94,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testMultipleAvailable() throws Exception
+    public void multiple_services_are_available() throws Exception
     {
         // assemble
         assembleMocks();
@@ -111,7 +111,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testMultipleAvailableWithFilter() throws Exception
+    public void multiple_services_with_filter() throws Exception
     {
         // assemble
         assembleMocks(FILTER_STRING);
@@ -128,7 +128,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testIsClosed() throws Exception
+    public void closed_works() throws Exception
     {
         // assemble
         assembleMocks();
@@ -142,7 +142,7 @@ public class OptionalServiceAccessorTest
     }
 
     @Test
-    public void testIsClosedIsIdempotent() throws Exception
+    public void close_is_idempotent() throws Exception
     {
         // assemble
         assembleMocks();
@@ -156,6 +156,28 @@ public class OptionalServiceAccessorTest
         // assert
         assertThat(reference.isAvailable(),equalTo(false));
         Mockito.verify(bundleContext,Mockito.times(3)).ungetService(Mockito.any(ServiceReference.class));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void close_catches_exceptions() throws Exception
+    {
+        // assemble
+        when(bundleContext.getServiceReferences(SERVICE_NAME, null)).thenReturn(serviceReferences);
+
+        when(bundleContext.ungetService(serviceReferences[0])).thenThrow(new IllegalStateException("testing testing"));
+        when(bundleContext.ungetService(serviceReferences[1])).thenReturn(true);
+        when(bundleContext.ungetService(serviceReferences[2])).thenThrow(new IllegalStateException("testing testing"));
+
+        // act
+        OptionalService<SomeServiceToCall> reference = serviceAccessor.obtain();
+        try
+        {
+            reference.close();
+        }
+        finally
+        {
+            Mockito.verify(bundleContext, Mockito.times(3)).ungetService(Mockito.any(ServiceReference.class));
+        }
     }
 
     private void assembleMocks() throws InvalidSyntaxException

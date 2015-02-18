@@ -108,6 +108,10 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
                     {
                         firstRTE = rte;
                     }
+                    else
+                    {
+                        firstRTE.addSuppressed(rte);
+                    }
                     log.debug("Unable to unregister OSGi service reference ", rte);
                 }
             }
