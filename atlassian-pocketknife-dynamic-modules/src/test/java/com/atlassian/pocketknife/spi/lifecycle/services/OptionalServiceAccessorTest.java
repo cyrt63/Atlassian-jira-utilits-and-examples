@@ -158,7 +158,7 @@ public class OptionalServiceAccessorTest
         Mockito.verify(bundleContext,Mockito.times(3)).ungetService(Mockito.any(ServiceReference.class));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = RuntimeException.class)
     public void close_catches_exceptions() throws Exception
     {
         // assemble

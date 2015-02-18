@@ -93,7 +93,7 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
     {
         if (closed.compareAndSet(false, true))
         {
-            RuntimeException firstRTE = null;
+            Throwable t = null;
             for (ServiceReference serviceReference : serviceReferences)
             {
                 // we try to release all references even if some of them fail.
@@ -104,20 +104,19 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
                 }
                 catch (RuntimeException rte)
                 {
-                    if (firstRTE == null)
+                    if (t == null)
                     {
-                        firstRTE = rte;
+                        t = rte;
                     }
                     else
                     {
-                        firstRTE.addSuppressed(rte);
+                        t.addSuppressed(rte);
                     }
-                    log.debug("Unable to unregister OSGi service reference ", rte);
                 }
             }
-            if (firstRTE != null)
+            if (t != null)
             {
-                throw firstRTE;
+                throw new RuntimeException("Unable to unregister OSGi service references",t);
             }
         }
     }
