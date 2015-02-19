@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.internal.lifecycle.services;
 
 import com.atlassian.pocketknife.api.lifecycle.services.OptionalService;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -116,6 +117,7 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
             }
             if (t != null)
             {
+                Throwables.propagateIfPossible(t);
                 throw new RuntimeException("Unable to unregister OSGi service references",t);
             }
         }
