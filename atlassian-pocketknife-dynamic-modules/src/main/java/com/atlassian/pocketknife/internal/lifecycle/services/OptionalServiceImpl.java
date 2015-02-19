@@ -102,15 +102,15 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
                 {
                     bundleContext.ungetService(serviceReference);
                 }
-                catch (RuntimeException rte)
+                catch (Throwable thrown)
                 {
                     if (t == null)
                     {
-                        t = rte;
+                        t = thrown;
                     }
                     else
                     {
-                        t.addSuppressed(rte);
+                        t.addSuppressed(thrown);
                     }
                 }
             }
