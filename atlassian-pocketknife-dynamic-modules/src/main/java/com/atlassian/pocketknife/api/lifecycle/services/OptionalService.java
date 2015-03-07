@@ -7,6 +7,9 @@ import java.util.List;
  * This represents optional references to one or more underlying services.  You can tell if they are  present or
  * not and take action appropriately.
  *
+ * NOTE : This optional service pattern has a lifecycle.  You MUST close the object when you are done with it.
+ * Its a {@link java.io.Closeable} so you can use it in a try() statement in Java 1.7 and above.
+ *
  * @since v0.x
  */
 public interface OptionalService<T> extends Closeable
