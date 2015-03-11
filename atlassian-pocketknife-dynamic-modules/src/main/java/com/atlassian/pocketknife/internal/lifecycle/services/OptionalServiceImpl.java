@@ -12,15 +12,16 @@ import org.osgi.framework.ServiceReference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.concurrent.ThreadSafe;
 
+@ThreadSafe
 public class OptionalServiceImpl<T> implements OptionalService<T>
 {
     private final BundleContext bundleContext;
     private final List<ServiceReference> serviceReferences;
     private final List<T> services;
     private final String serviceName;
-    private final AtomicBoolean closed;
+    private boolean closed;
 
     public OptionalServiceImpl(BundleContext bundleContext, String serviceName, Filter filter)
     {
@@ -48,7 +49,7 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
         this.bundleContext = bundleContext;
         this.serviceName = serviceName;
         this.serviceReferences = Lists.newArrayList(serviceReferences);
-        this.closed = new AtomicBoolean(false);
+        this.closed = false;
         // ok now obtain the underlying services now, since this pattern has lifecycle and that way the service
         // will be know to be available and avoid concurrency problems if we use a lazy pattern
         this.services = new ArrayList<T>(this.serviceReferences.size());
@@ -74,30 +75,31 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
     }
 
     @Override
-    public boolean isAvailable()
+    public synchronized boolean isAvailable()
     {
-        return !closed.get() && !services.isEmpty();
+        return !closed && !services.isEmpty();
     }
 
     @Override
-    public T get()
+    public synchronized T get()
     {
         stateCheck();
         return services.get(0);
     }
 
     @Override
-    public List<T> getAll()
+    public synchronized List<T> getAll()
     {
         stateCheck();
         return ImmutableList.copyOf(services);
     }
 
     @Override
-    public void close()
+    public synchronized void close()
     {
-        if (closed.compareAndSet(false, true))
+        if (!closed)
         {
+            closed = true;
             // null out of service list just for form
             this.services.clear();
             Throwable t = null;

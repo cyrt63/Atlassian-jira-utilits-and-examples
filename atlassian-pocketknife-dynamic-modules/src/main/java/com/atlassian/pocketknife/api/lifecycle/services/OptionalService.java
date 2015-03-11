@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.api.lifecycle.services;
 
 import java.io.Closeable;
 import java.util.List;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * This represents optional references to one or more underlying services.  You can tell if they are  present or
@@ -10,8 +11,12 @@ import java.util.List;
  * NOTE : This optional service pattern has a lifecycle.  You MUST close the object when you are done with it.
  * Its a {@link java.io.Closeable} so you can use it in a try() statement in Java 1.7 and above.
  *
+ * Although the class is ThreadSafe is not really recommended to use across Threads.  Because this would imply it has a lifecycle
+ * that has hard to manage.
+ *
  * @since v0.x
  */
+@ThreadSafe
 public interface OptionalService<T> extends Closeable
 {
     /**
