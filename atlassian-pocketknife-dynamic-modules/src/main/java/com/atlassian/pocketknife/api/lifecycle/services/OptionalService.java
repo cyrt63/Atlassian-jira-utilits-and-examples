@@ -11,6 +11,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * NOTE : This optional service pattern has a lifecycle.  You MUST close the object when you are done with it.
  * Its a {@link java.io.Closeable} so you can use it in a try() statement in Java 1.7 and above.
  *
+ * In general you should obtain an OptionalService use it and then close it.  The are not particularity expensive to obtain
+ * and use.
+ *
  * Although the class is ThreadSafe is not really recommended to use across Threads.  Because this would imply it has a lifecycle
  * that has hard to manage.
  *
