@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This service wraps the JIRA PropertySetManager as well as provides automatic serialization for a map of data
+ * This service wraps the JiraPropertySetFactory as well as provides automatic serialization for a map of data
  */
 public interface PropertySetService
 {
