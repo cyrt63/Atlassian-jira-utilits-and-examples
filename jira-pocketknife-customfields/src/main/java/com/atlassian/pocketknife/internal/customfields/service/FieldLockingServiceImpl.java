@@ -33,24 +33,34 @@ public class FieldLockingServiceImpl implements FieldLockingService
     {
         logger.info("Configuration locked for field {}", field.getFieldName());
 
-        ManagedConfigurationItem managedConfigurationItem = managedConfigurationItemService.getManagedCustomField(field);
-        if (managedConfigurationItem.getConfigurationItemAccessLevel() == ConfigurationItemAccessLevel.LOCKED)
+        final ManagedConfigurationItem managedConfigurationItem = managedConfigurationItemService.getManagedCustomField(field);
+        if (isLocked(managedConfigurationItem))
         {
             return new SimpleErrorCollection();
         }
 
         String pluginKey = pocketKnifeIntegration.getPluginKey();
 
-        managedConfigurationItem = managedConfigurationItem.newBuilder()
+        final ManagedConfigurationItem updatedManagedConfigurationItem = managedConfigurationItem.newBuilder()
                 .setManaged(true)
                 .setConfigurationItemAccessLevel(ConfigurationItemAccessLevel.LOCKED)
                 .setSource(pluginKey + ":field-locking-service")
                 .setDescriptionI18nKey(descI18nKey)
                 .build();
 
-        ServiceOutcome<ManagedConfigurationItem> resultOutcome = managedConfigurationItemService.updateManagedConfigurationItem(managedConfigurationItem);
+        ServiceOutcome<ManagedConfigurationItem> resultOutcome = managedConfigurationItemService.updateManagedConfigurationItem(updatedManagedConfigurationItem);
         logger.info("Configuration locked for field {} with {} ", field.getFieldName(), resultOutcome.isValid());
 
         return resultOutcome.getErrorCollection();
     }
+
+    @Override
+    public boolean isFieldLocked(CustomField field) {
+        return isLocked(managedConfigurationItemService.getManagedCustomField(field));
+    }
+
+    private boolean isLocked(ManagedConfigurationItem managedConfigurationItem) {
+        return managedConfigurationItem.isManaged() && managedConfigurationItem.getConfigurationItemAccessLevel() == ConfigurationItemAccessLevel.LOCKED;
+    }
+
 }
