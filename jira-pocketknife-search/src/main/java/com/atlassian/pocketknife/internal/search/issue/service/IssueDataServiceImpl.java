@@ -1,5 +1,7 @@
 package com.atlassian.pocketknife.internal.search.issue.service;
 
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
 import com.atlassian.pocketknife.api.search.issue.service.IssueDataService;
 import org.apache.lucene.search.IndexSearcher;
@@ -39,12 +41,26 @@ public class IssueDataServiceImpl implements IssueDataService
     @NotNull
     public <T extends DataCallback> boolean find(User user, Query query, T callback)
     {
+        return findImpl(ApplicationUsers.from(user), query, callback, null, false, null);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean find(ApplicationUser user, Query query, T callback)
+    {
         return findImpl(user, query, callback, null, false, null);
     }
 
     @Override
     @NotNull
     public <T extends DataCallback> boolean find(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
+    {
+        return findImpl(ApplicationUsers.from(user), query, callback, null, false, andQuery);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean find(ApplicationUser user, Query query, T callback, org.apache.lucene.search.Query andQuery)
     {
         return findImpl(user, query, callback, null, false, andQuery);
     }
@@ -53,12 +69,26 @@ public class IssueDataServiceImpl implements IssueDataService
     @NotNull
     public <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback, org.apache.lucene.search.Query andQuery)
     {
+        return findImpl(ApplicationUsers.from(user), query, callback, null, true, andQuery);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean findOverrideSecurity(ApplicationUser user, Query query, T callback, org.apache.lucene.search.Query andQuery)
+    {
         return findImpl(user, query, callback, null, true, andQuery);
     }
 
     @Override
     @NotNull
     public <T extends DataCallback> boolean findAndSort(User user, Query query, T callback, PagerFilter<?> pager)
+    {
+        return findImpl(ApplicationUsers.from(user), query, callback, pager, false, null);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean findAndSort(ApplicationUser user, Query query, T callback, PagerFilter<?> pager)
     {
         return findImpl(user, query, callback, pager, false, null);
     }
@@ -67,6 +97,13 @@ public class IssueDataServiceImpl implements IssueDataService
     @NotNull
     public <T extends DataCallback> boolean findOverrideSecurity(User user, Query query, T callback)
     {
+        return findImpl(ApplicationUsers.from(user), query, callback, null, true, null);
+    }
+
+    @Override
+    @NotNull
+    public <T extends DataCallback> boolean findOverrideSecurity(ApplicationUser user, Query query, T callback)
+    {
         return findImpl(user, query, callback, null, true, null);
     }
 
@@ -74,7 +111,7 @@ public class IssueDataServiceImpl implements IssueDataService
      * Performs the find
      * Note: pager is ignored if overwriteSecurity is true
      */
-    private <T extends DataCallback> boolean findImpl(User user, Query query, T callback, PagerFilter<?> pager, boolean overwriteSecurity, org.apache.lucene.search.Query andQuery)
+    private <T extends DataCallback> boolean findImpl(ApplicationUser user, Query query, T callback, PagerFilter<?> pager, boolean overwriteSecurity, org.apache.lucene.search.Query andQuery)
     {
         if (andQuery != null && pager != null)
         {

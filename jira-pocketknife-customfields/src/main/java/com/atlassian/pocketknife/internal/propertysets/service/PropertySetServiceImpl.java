@@ -14,6 +14,7 @@ import com.atlassian.jira.propertyset.JiraPropertySetFactory;
 import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.pocketknife.api.propertysets.service.PropertySetService;
 
 import com.opensymphony.module.propertyset.PropertyException;
@@ -38,7 +39,7 @@ public class PropertySetServiceImpl implements PropertySetService
     private final JiraPropertySetFactory propertySetFactory;
 
     @Autowired
-    public PropertySetServiceImpl(JiraPropertySetFactory propertySetFactory)
+    public PropertySetServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory)
     {
         this.propertySetFactory = propertySetFactory;
     }
