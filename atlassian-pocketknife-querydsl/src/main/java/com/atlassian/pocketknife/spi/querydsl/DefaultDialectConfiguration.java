@@ -8,6 +8,7 @@ import com.atlassian.pocketknife.api.querydsl.LoggingSqlListener;
 import com.atlassian.util.concurrent.LazyReference;
 import com.google.common.base.Function;
 import com.mysema.query.sql.Configuration;
+import com.mysema.query.sql.H2Templates;
 import com.mysema.query.sql.HSQLDBTemplates;
 import com.mysema.query.sql.MySQLTemplates;
 import com.mysema.query.sql.OracleTemplates;
@@ -108,6 +109,7 @@ public class DefaultDialectConfiguration implements DialectConfiguration
         support.put(":hsqldb:", Pair.pair(HSQLDBTemplates.builder(), SupportedDatabase.HSQLDB));
         support.put(":sqlserver:", Pair.pair(SQLServerTemplates.builder().printSchema(), SupportedDatabase.SQLSERVER));
         support.put(":mysql:", Pair.pair(MySQLTemplates.builder(), SupportedDatabase.MYSQL));
+        support.put(":h2:", Pair.pair(H2Templates.builder(), SupportedDatabase.H2));
     }
 
     private Pair<SQLTemplates, SupportedDatabase> buildTemplates(final Connection connection)

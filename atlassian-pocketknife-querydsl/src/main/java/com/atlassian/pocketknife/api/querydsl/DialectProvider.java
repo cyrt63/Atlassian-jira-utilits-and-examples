@@ -16,7 +16,7 @@ public interface DialectProvider
      */
     enum SupportedDatabase
     {
-        POSTGRESSQL, ORACLE, MYSQL, SQLSERVER, HSQLDB
+        POSTGRESSQL, ORACLE, MYSQL, SQLSERVER, HSQLDB, H2
     }
 
     /**
