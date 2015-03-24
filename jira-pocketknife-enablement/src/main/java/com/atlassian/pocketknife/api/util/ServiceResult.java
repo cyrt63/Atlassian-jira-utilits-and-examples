@@ -20,7 +20,7 @@ public class ServiceResult
     {
         com.atlassian.jira.util.I18nHelper.BeanFactory helper = ComponentAccessor.getI18nHelperFactory();
         JiraAuthenticationContext jiraAuthenticationContext = ComponentAccessor.getJiraAuthenticationContext();
-        return helper.getInstance(jiraAuthenticationContext.getLoggedInUser()).getText(key, params);
+        return helper.getInstance(jiraAuthenticationContext.getUser()).getText(key, params);
     }
 
     /**
