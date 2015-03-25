@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.api.search.issue.service;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.search.SearchException;
+import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.query.Query;
 import org.apache.lucene.search.Collector;
 
@@ -20,6 +21,8 @@ public interface ExtendedSearchService
      */
     public long searchCountOverrideSecurity(Query query, User searcher, org.apache.lucene.search.Query andQuery) throws SearchException;
 
+    public long searchCountOverrideSecurity(Query query, ApplicationUser searcher, org.apache.lucene.search.Query andQuery) throws SearchException;
+
     /**
      * Run a search based on the provided search criteria and, for each match, call Collector.collect() not taking
      * into account any security constraints.
@@ -31,4 +34,6 @@ public interface ExtendedSearchService
      * @param andQuery optional lucene query to and with the lucene query
      */
     public void searchOverrideSecurity(Query query, User searcher, Collector collector, org.apache.lucene.search.Query andQuery) throws SearchException;
+
+    public void searchOverrideSecurity(Query query, ApplicationUser searcher, Collector collector, org.apache.lucene.search.Query andQuery) throws SearchException;
 }

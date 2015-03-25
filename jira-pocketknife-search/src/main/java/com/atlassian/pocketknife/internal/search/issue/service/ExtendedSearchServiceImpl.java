@@ -6,6 +6,8 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchProviderFactory;
 import com.atlassian.jira.issue.search.providers.LuceneSearchProvider;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.util.NotNull;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
@@ -35,17 +37,23 @@ public class ExtendedSearchServiceImpl implements ExtendedSearchService
     @NotNull
     public long searchCountOverrideSecurity(Query query, User searcher, org.apache.lucene.search.Query luceneQuery) throws SearchException
     {
+        return searchCountOverrideSecurity(query, ApplicationUsers.from(searcher), luceneQuery);
+    }
+
+    @NotNull
+    public long searchCountOverrideSecurity(Query query, ApplicationUser searcher, org.apache.lucene.search.Query luceneQuery) throws SearchException
+    {
         try
         {
             // Fetch the (lucene)searchprovider directly from Spring to avoid getting a proxy
             SearchProvider searchProvider = ComponentAccessor.getComponentOfType(SearchProvider.class);
             final IndexSearcher issueSearcher = searchProviderFactory.getSearcher(SearchProviderFactory.ISSUE_INDEX);
             // private long getHitCount(
-            //         final Query searchQuery, final User searchUser, final SortField[] sortField,
+            //         final Query searchQuery, final ApplicationUser searchUser, final SortField[] sortField,
             //         final org.apache.lucene.search.Query andQuery, boolean overrideSecurity, IndexSearcher issueSearcher,
             //         final PagerFilter pager
             // ) throws SearchException
-            Method getHitCount = LuceneSearchProvider.class.getDeclaredMethod("getHitCount", Query.class, User.class, SortField[].class,
+            Method getHitCount = LuceneSearchProvider.class.getDeclaredMethod("getHitCount", Query.class, ApplicationUser.class, SortField[].class,
                     org.apache.lucene.search.Query.class, Boolean.TYPE, IndexSearcher.class, PagerFilter.class);
             getHitCount.setAccessible(true);
             Long result = (Long) getHitCount.invoke(searchProvider, query, searcher, null, luceneQuery, true, issueSearcher, null);
@@ -71,11 +79,13 @@ public class ExtendedSearchServiceImpl implements ExtendedSearchService
         }
     }
 
-
     public void searchOverrideSecurity(Query query, User searcher, Collector collector, org.apache.lucene.search.Query andQuery) throws SearchException
     {
+        searchOverrideSecurity(query, ApplicationUsers.from(searcher), collector, andQuery);
+    }
 
-
+    public void searchOverrideSecurity(Query query, ApplicationUser searcher, Collector collector, org.apache.lucene.search.Query andQuery) throws SearchException
+    {
         try
         {
             // Fetch the (lucene)searchprovider directly from Spring to avoid getting a proxy
@@ -83,12 +93,12 @@ public class ExtendedSearchServiceImpl implements ExtendedSearchService
             final IndexSearcher issueSearcher = searchProviderFactory.getSearcher(SearchProviderFactory.ISSUE_INDEX);
             // private void search(
             //         final Query searchQuery,
-            //         final User user,
+            //         final ApplicationUser user,
             //         final Collector collector,
             //         org.apache.lucene.search.Query andQuery,
             //         boolean overrideSecurity
             // ) throws SearchException
-            Method search = LuceneSearchProvider.class.getDeclaredMethod("search", Query.class, User.class, Collector.class,
+            Method search = LuceneSearchProvider.class.getDeclaredMethod("search", Query.class, ApplicationUser.class, Collector.class,
                     org.apache.lucene.search.Query.class, Boolean.TYPE);
             search.setAccessible(true);
             search.invoke(searchProvider, query, searcher, collector, andQuery, true);

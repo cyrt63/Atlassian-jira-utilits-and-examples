@@ -5,6 +5,8 @@ import com.atlassian.jira.issue.customfields.searchers.transformer.AbstractSingl
 import com.atlassian.jira.issue.customfields.searchers.transformer.CustomFieldInputHelper;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchContext;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.query.Query;
 
 /**
@@ -19,8 +21,12 @@ public class NoSimpleSearchInputTransformer extends AbstractSingleValueCustomFie
         super(field, field.getClauseNames(), "", customFieldInputHelper);
     }
 
-    @Override
     public boolean doRelevantClausesFitFilterForm(User searcher, Query query, SearchContext searchContext)
+    {
+        return doRelevantClausesFitFilterForm(ApplicationUsers.from(searcher), query, searchContext);
+    }
+
+    public boolean doRelevantClausesFitFilterForm(ApplicationUser searcher, Query query, SearchContext searchContext)
     {
         return false;
     }
