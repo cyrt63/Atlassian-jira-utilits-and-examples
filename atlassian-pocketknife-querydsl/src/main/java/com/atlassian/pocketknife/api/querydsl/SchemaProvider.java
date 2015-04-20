@@ -32,7 +32,7 @@ public interface SchemaProvider
     /**
      * Retrieve the case-sensitive column name of the column in the given table (if it exists)
      *
-     * @param tableName The table to for columns in
+     * @param tableName The table to look for columns in
      * @param columnName The column to lookup
      *
      * @return The actual (case-sensitive) column name for the column in the given table,
