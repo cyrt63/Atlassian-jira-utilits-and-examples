@@ -29,7 +29,7 @@ public class DefaultSchemaProvider implements SchemaProvider
 
     private final ConnectionProvider connectionProvider;
     private final Supplier<Map<String, String>> tableToSchema;
-    private volatile Supplier<Map<NameKey, String>> tableColumnNames;
+    private final Supplier<Map<NameKey, String>> tableColumnNames;
 
     @Autowired
     public DefaultSchemaProvider(final ConnectionProvider connectionProvider)
