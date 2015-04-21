@@ -82,6 +82,18 @@ public class EnhancedRelationalPathBaseTest
             {
                 return SCHEMA_X;
             }
+
+            @Override
+            public String getTableName(final String tableName)
+            {
+                return tableName;
+            }
+
+            @Override
+            public String getColumnName(final String tableName, final String columnName)
+            {
+                return columnName;
+            }
         });
 
     }
