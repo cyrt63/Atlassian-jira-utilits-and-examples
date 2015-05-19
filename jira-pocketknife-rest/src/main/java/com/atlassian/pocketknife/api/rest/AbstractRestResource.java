@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.api.rest;
 
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
 import org.apache.log4j.Logger;
 
 import javax.ws.rs.core.CacheControl;
@@ -46,7 +47,15 @@ public class AbstractRestResource
      */
     protected boolean isAnonymousUser()
     {
-        return jiraAuthenticationContext.getLoggedInUser() == null;
+        return getUser() == null;
+    }
+
+    /**
+     * @return the currently logged in user or null if they are anonymous
+     */
+    protected ApplicationUser getUser()
+    {
+        return jiraAuthenticationContext.getUser();
     }
 
     /**

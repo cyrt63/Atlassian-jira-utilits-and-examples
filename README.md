@@ -11,4 +11,4 @@ We don't want any individual library to become a ghetto of code not do we want c
 
 # Contribution #
 
-All pull requests are expected to have a green branch build in the [Pocketknife](https://servicedesk-bamboo.internal.atlassian.com/browse/PK-PKSTABLE) plan. Once the pull request is merged to master, it will automatically create a new release in the [Pocketknife Release](https://servicedesk-bamboo.internal.atlassian.com/browse/PK-PKRELEASE) plan.
+All pull requests are expected to have a green branch build in the [Pocketknife](https://servicedesk-bamboo.internal.atlassian.com/browse/PK-PK) plan. Once the pull request is merged to master, you can manually release a version using the [Pocketknife Release](https://servicedesk-bamboo.internal.atlassian.com/browse/PK-PKRLS) plan.

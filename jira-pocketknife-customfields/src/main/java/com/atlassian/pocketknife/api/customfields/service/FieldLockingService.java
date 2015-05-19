@@ -9,4 +9,6 @@ import com.atlassian.jira.util.ErrorCollection;
 public interface FieldLockingService
 {
     ErrorCollection lockField(CustomField field, String descI18nKey);
+
+    boolean isFieldLocked(CustomField field);
 }

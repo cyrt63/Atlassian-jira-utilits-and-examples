@@ -1,13 +1,14 @@
 package com.atlassian.pocketknife.internal.persistence;
 
+import com.atlassian.jira.propertyset.JiraPropertySetFactory;
 import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
 import com.atlassian.pocketknife.api.persistence.PersistenceService;
 import com.opensymphony.module.propertyset.PropertyException;
 import com.opensymphony.module.propertyset.PropertySet;
-import com.opensymphony.module.propertyset.PropertySetManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,14 +26,22 @@ import static org.apache.commons.lang.Validate.notNull;
 /**
  * Implementation of the PersistenceService interface
  * <p/>
- * Wraps PropertySetManager for persistence.
+ * Wraps JiraPropertySetFactory for persistence.
  */
 @Service
 public class PersistenceServiceImpl implements PersistenceService
 {
     private final Logger log = Logger.getLogger(getClass());
 
-    private void assertPreconditions(String entityName, Long entityId, String key)
+    private JiraPropertySetFactory propertySetFactory;
+
+    @Autowired
+    public PersistenceServiceImpl(JiraPropertySetFactory propertySetFactory)
+    {
+        this.propertySetFactory = propertySetFactory;
+    }
+
+    private static void assertPreconditions(String entityName, Long entityId, String key)
     {
         notNull(entityName);
         notNull(entityId);
@@ -303,12 +312,7 @@ public class PersistenceServiceImpl implements PersistenceService
     {
         notNull(entityName);
         notNull(entityId);
-        PropertySet ofbizPs = PropertySetManager.getInstance("ofbiz", buildPropertySet(entityName, entityId));
-
-        HashMap args = new HashMap();
-        args.put("PropertySet", ofbizPs);
-        args.put("bulkload", Boolean.FALSE);
-        return PropertySetManager.getInstance("cached", args);
+        return propertySetFactory.buildCachingPropertySet(entityName, entityId, false);
     }
 
     /**
@@ -327,19 +331,6 @@ public class PersistenceServiceImpl implements PersistenceService
         {
             log.warn(e, e);
         }
-    }
-
-    /**
-     * Builds the property set arguments required by PropertySetManager.getInstance()
-     */
-    private static Map<Object, Object> buildPropertySet(String entityName, Long entityId)
-    {
-        HashMap<Object, Object> ofbizArgs = new HashMap<Object, Object>();
-        ofbizArgs.put("delegator.name", "default");
-        ofbizArgs.put("entityName", entityName);
-        ofbizArgs.put("entityId", entityId);
-
-        return ofbizArgs;
     }
 
 }

@@ -3,26 +3,25 @@ package com.atlassian.pocketknife.internal.lifecycle.services;
 import com.atlassian.pocketknife.api.lifecycle.services.OptionalService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.concurrent.ThreadSafe;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+@ThreadSafe
 public class OptionalServiceImpl<T> implements OptionalService<T>
 {
-    private static final Logger log = getLogger(OptionalServiceImpl.class);
-
     private final BundleContext bundleContext;
-    private final ServiceReference[] serviceReferences;
+    private final List<ServiceReference> serviceReferences;
+    private final List<T> services;
     private final String serviceName;
-    private final AtomicBoolean closed;
+    private boolean closed;
 
     public OptionalServiceImpl(BundleContext bundleContext, String serviceName, Filter filter)
     {
@@ -43,75 +42,89 @@ public class OptionalServiceImpl<T> implements OptionalService<T>
         }
     }
 
+    @SuppressWarnings ("unchecked")
     @VisibleForTesting
     OptionalServiceImpl(BundleContext bundleContext, String serviceName, ServiceReference[] serviceReferences)
     {
         this.bundleContext = bundleContext;
         this.serviceName = serviceName;
-        this.serviceReferences = serviceReferences;
-        this.closed = new AtomicBoolean(false);
-    }
-
-    @Override
-    public boolean isAvailable()
-    {
-        return !closed.get() && serviceReferences.length > 0;
-    }
-
-    @Override
-    public T get()
-    {
-        if (!isAvailable())
-        {
-            throw new IllegalStateException("You have called on get() without checking that the service is in fact available!");
-        }
-        //noinspection unchecked
-        return (T) bundleContext.getService(serviceReferences[0]);
-    }
-
-    @Override
-    public List<T> getAll()
-    {
-        if (!isAvailable())
-        {
-            throw new IllegalStateException("You have called on get() without checking that the service is in fact available!");
-        }
-        List<T> services = Lists.newArrayList();
+        this.serviceReferences = Lists.newArrayList(serviceReferences);
+        this.closed = false;
+        // ok now obtain the underlying services now, since this pattern has lifecycle and that way the service
+        // will be know to be available and avoid concurrency problems if we use a lazy pattern
+        this.services = new ArrayList<T>(this.serviceReferences.size());
         for (ServiceReference serviceReference : serviceReferences)
         {
-            //noinspection unchecked
-            T service = (T) bundleContext.getService(serviceReference);
-            if (service != null)
+            if (serviceReference != null)
             {
-                services.add(service);
+                T service = (T) bundleContext.getService(serviceReference);
+                if (service != null)
+                {
+                    services.add(service);
+                }
             }
         }
-        return services;
+    }
+
+    private void stateCheck()
+    {
+        if (!isAvailable())
+        {
+            throw new IllegalStateException("You have called on get() without checking that the service is in fact available!");
+        }
     }
 
     @Override
-    public void close()
+    public synchronized boolean isAvailable()
     {
-        if (closed.compareAndSet(false, true))
+        return !closed && !services.isEmpty();
+    }
+
+    @Override
+    public synchronized T get()
+    {
+        stateCheck();
+        return services.get(0);
+    }
+
+    @Override
+    public synchronized List<T> getAll()
+    {
+        stateCheck();
+        return ImmutableList.copyOf(services);
+    }
+
+    @Override
+    public synchronized void close()
+    {
+        if (!closed)
         {
+            closed = true;
+            // null out of service list just for form
+            this.services.clear();
             Throwable t = null;
+            //
+            // now try to release the service references themselves
             for (ServiceReference serviceReference : serviceReferences)
             {
                 // we try to release all references even if some of them fail.
                 // we will throw the
                 try
                 {
-                    bundleContext.ungetService(serviceReference);
+                    if (serviceReference != null)
+                    {
+                        bundleContext.ungetService(serviceReference);
+                    }
                 }
                 catch (Throwable thrown)
                 {
                     if (t == null)
                     {
-                        t = thrown;
+                        t = thrown; // our first exception
                     }
                     else
                     {
-                        t.addSuppressed(thrown);
+                        t.addSuppressed(thrown); // and splat the next one into te previous one
                     }
                 }
             }

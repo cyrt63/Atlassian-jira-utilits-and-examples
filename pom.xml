@@ -2,7 +2,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
     <modules>
         <module>jira-pocketknife-enablement</module>
         <module>jira-pocketknife-search</module>
@@ -21,10 +21,10 @@
         <version>3.0.86</version>
     </parent>
 
-	<groupId>com.atlassian.pocketknife</groupId>
-	<artifactId>atlassian-pocketknife-parent-pom</artifactId>
-	<version>0.64-SNAPSHOT</version>
-	<packaging>pom</packaging>
+    <groupId>com.atlassian.pocketknife</groupId>
+    <artifactId>atlassian-pocketknife-parent-pom</artifactId>
+    <version>0.71.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>Atlassian PocketKnife Parent POM</name>
 
@@ -36,15 +36,15 @@
         </license>
     </licenses>
 
-	<scm>
-	    <connection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</connection>
-	    <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</developerConnection>
-	    <url>ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</url>
-	  <tag>HEAD</tag>
+    <scm>
+        <connection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</connection>
+        <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</developerConnection>
+        <url>ssh://git@bitbucket.org/atlassian/atlassian-pocketknife.git</url>
+      <tag>HEAD</tag>
   </scm>
 
 
-	<properties>
+    <properties>
         <amps.version>3.9.1</amps.version>
         <ao.version>0.19.7</ao.version>
         <applinks.version>2.5.8</applinks.version>

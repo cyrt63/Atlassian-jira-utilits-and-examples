@@ -1,7 +1,5 @@
 package com.atlassian.pocketknife.internal.propertysets.service;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,26 +10,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.atlassian.pocketknife.api.propertysets.service.PropertySetService;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
-
+import com.atlassian.jira.propertyset.JiraPropertySetFactory;
 import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.pocketknife.api.propertysets.service.PropertySetService;
+
 import com.opensymphony.module.propertyset.PropertyException;
 import com.opensymphony.module.propertyset.PropertySet;
-import com.opensymphony.module.propertyset.PropertySetManager;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static org.apache.commons.lang.Validate.notNull;
 
 /**
  * Implementation of the PersistenceService interface
  * <p/>
- * Wraps PropertySetManager for persistence.
+ * Wraps JiraPropertySetFactory for persistence.
  */
 @Service(PropertySetService.SERVICE)
 public class PropertySetServiceImpl implements PropertySetService
 {
     private final Logger log = Logger.getLogger(getClass());
+
+    private final JiraPropertySetFactory propertySetFactory;
+
+    @Autowired
+    public PropertySetServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory)
+    {
+        this.propertySetFactory = propertySetFactory;
+    }
 
     /**
      * Set a Long property.
@@ -223,8 +234,8 @@ public class PropertySetServiceImpl implements PropertySetService
     /**
      * Get all keys defined for an entity name / entity id couple
      */
-    @Override
     @SuppressWarnings("rawtypes")
+    @Override
     public Set<String> getKeys(String entityName, Long entityId)
     {
         notNull(entityName);
@@ -293,17 +304,9 @@ public class PropertySetServiceImpl implements PropertySetService
      *
      * @return a PropertySet for the given entityName and entityId.
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private PropertySet getPropertySet(String entityName, Long entityId)
     {
-        notNull(entityName);
-        notNull(entityId);
-        PropertySet ofbizPs = PropertySetManager.getInstance("ofbiz", buildPropertySet(entityName, entityId));
-
-        HashMap args = new HashMap();
-        args.put("PropertySet", ofbizPs);
-        args.put("bulkload", Boolean.FALSE);
-        return PropertySetManager.getInstance("cached", args);
+        return propertySetFactory.buildCachingPropertySet(entityName, entityId, false);
     }
 
     /**
@@ -322,19 +325,6 @@ public class PropertySetServiceImpl implements PropertySetService
         {
             log.warn(e, e);
         }
-    }
-
-    /**
-     * Builds the property set arguments required by PropertySetManager.getInstance()
-     */
-    private static Map<Object, Object> buildPropertySet(String entityName, Long entityId)
-    {
-        HashMap<Object, Object> ofbizArgs = new HashMap<Object, Object>();
-        ofbizArgs.put("delegator.name", "default");
-        ofbizArgs.put("entityName", entityName);
-        ofbizArgs.put("entityId", entityId);
-
-        return ofbizArgs;
     }
 
 }

@@ -2,6 +2,8 @@ package com.atlassian.pocketknife.api.customfields.searchers.renderer;
 
 import java.util.Map;
 
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.ApplicationUsers;
 import webwork.action.Action;
 
 import com.atlassian.crowd.embedded.api.User;
@@ -23,28 +25,46 @@ public class EmptySearchRenderer extends CustomFieldRenderer
         super(clauseNames, customFieldSearcherModuleDescriptor, field, customFieldValueProvider, fieldVisibilityManager);
     }
 
-    @Override
     public String getEditHtml(User searcher, SearchContext searchContext, FieldValuesHolder fieldValuesHolder, Map<?, ?> displayParameters,
             Action action)
     {
-        return "";
+        return getEditHtml(ApplicationUsers.from(searcher), searchContext, fieldValuesHolder, displayParameters, action);
     }
 
-    @Override
-    public String getViewHtml(User searcher, SearchContext searchContext, FieldValuesHolder fieldValuesHolder, Map<?, ?> displayParameters,
-            Action action)
+    public String getEditHtml(ApplicationUser searcher, SearchContext searchContext, FieldValuesHolder fieldValuesHolder, Map<?, ?> displayParameters,
+                              Action action)
     {
         return "";
     }
 
-    @Override
+    public String getViewHtml(User searcher, SearchContext searchContext, FieldValuesHolder fieldValuesHolder, Map<?, ?> displayParameters,
+            Action action)
+    {
+        return getViewHtml(ApplicationUsers.from(searcher), searchContext, fieldValuesHolder, displayParameters, action);
+    }
+
+    public String getViewHtml(ApplicationUser searcher, SearchContext searchContext, FieldValuesHolder fieldValuesHolder, Map<?, ?> displayParameters,
+                              Action action)
+    {
+        return "";
+    }
+
     public boolean isRelevantForQuery(User searcher, Query query)
+    {
+        return isRelevantForQuery(ApplicationUsers.from(searcher), query);
+    }
+
+    public boolean isRelevantForQuery(ApplicationUser searcher, Query query)
     {
         return false;
     }
 
-    @Override
     public boolean isShown(User searcher, SearchContext searchContext)
+    {
+        return isShown(ApplicationUsers.from(searcher), searchContext);
+    }
+
+    public boolean isShown(ApplicationUser searcher, SearchContext searchContext)
     {
         return false;
     }
