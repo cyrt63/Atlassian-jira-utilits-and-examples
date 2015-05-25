@@ -23,7 +23,6 @@ import java.util.List;
 import static com.atlassian.pocketknife.internal.lifecycle.modules.Kit.getModuleIdentifier;
 import static com.atlassian.pocketknife.internal.lifecycle.modules.Kit.pluginIdentifier;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
 
 /**
  * Helper component that registers dynamic module descriptors into OSGI land and hence as services of a specific
@@ -61,12 +60,14 @@ public class DynamicModuleRegistration
         for (ModuleDescriptor descriptor : descriptors)
         {
             String moduleIdentifier = getModuleIdentifier(descriptor);
-            log.info(format("Registering module '%s' of type '%s' into plugin '%s'", moduleIdentifier, descriptor.getClass().getSimpleName(), pluginId));
+            log.debug("Registering module '{}' of type '{}' into plugin '{}'",
+                    new Object[] { moduleIdentifier, descriptor.getClass().getSimpleName(), pluginId });
 
             ModuleDescriptor<?> existingDescriptor = plugin.getModuleDescriptor(descriptor.getKey());
             if (existingDescriptor != null)
             {
-                log.error(format("Duplicate key '%s' detected in plugin '%s', disabling previous instance", moduleIdentifier, pluginId));
+                log.error("Duplicate key '{}' detected in plugin '{}'; disabling previous instance",
+                        moduleIdentifier, pluginId);
                 ((StateAware) existingDescriptor).disabled();
             }
 
@@ -78,7 +79,7 @@ public class DynamicModuleRegistration
         return new ModuleRegistrationHandleImpl(registrations);
     }
 
-    private ServiceRegistration registerModule(BundleContext targetBundleContext, ModuleDescriptor descriptor)
+    private ServiceRegistration registerModule(BundleContext targetBundleContext, ModuleDescriptor<?> descriptor)
     {
         return targetBundleContext.registerService(ModuleDescriptor.class.getName(), descriptor, null);
     }
@@ -87,11 +88,11 @@ public class DynamicModuleRegistration
     {
 
         private final ServiceRegistration serviceRegistration;
-        private final ModuleDescriptor moduleDescriptor;
+        private final ModuleDescriptor<?> moduleDescriptor;
         private final ModuleCompleteKey moduleCompleteKey;
 
 
-        TrackedDynamicModule(ServiceRegistration serviceRegistration, ModuleDescriptor moduleDescriptor)
+        TrackedDynamicModule(ServiceRegistration serviceRegistration, ModuleDescriptor<?> moduleDescriptor)
         {
             this.serviceRegistration = serviceRegistration;
             this.moduleDescriptor = moduleDescriptor;
@@ -103,7 +104,8 @@ public class DynamicModuleRegistration
             try
             {
                 String moduleIdentifier = getModuleIdentifier(moduleDescriptor);
-                log.info(format("Un-registering module '%s' of type '%s' ", moduleIdentifier, moduleDescriptor.getClass().getSimpleName()));
+                log.debug("Un-registering module '{}' of type '{}' ", moduleIdentifier,
+                        moduleDescriptor.getClass().getSimpleName());
                 serviceRegistration.unregister();
             }
             catch (IllegalStateException ignored)

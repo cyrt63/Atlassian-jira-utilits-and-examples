@@ -18,14 +18,14 @@ public class Kit
         return mkId(element.attributeValue("key"), element.attributeValue("name"));
     }
 
-    static String getModuleIdentifier(final ModuleDescriptor descriptor)
+    static String getModuleIdentifier(final ModuleDescriptor<?> descriptor)
     {
-        return mkId(descriptor.getKey(), descriptor.getName());
+        return descriptor.getCompleteKey();
     }
 
     static String pluginIdentifier(final Plugin plugin)
     {
-        return plugin.getKey() + " -  " + plugin.getName();
+        return plugin.getKey();
     }
 
     private static String mkId(final String key, final String name)
