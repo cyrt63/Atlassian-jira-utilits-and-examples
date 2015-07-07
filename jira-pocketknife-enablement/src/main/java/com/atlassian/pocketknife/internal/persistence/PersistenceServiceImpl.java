@@ -4,6 +4,7 @@ import com.atlassian.jira.propertyset.JiraPropertySetFactory;
 import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.pocketknife.api.persistence.PersistenceService;
 import com.opensymphony.module.propertyset.PropertyException;
 import com.opensymphony.module.propertyset.PropertySet;
@@ -36,7 +37,7 @@ public class PersistenceServiceImpl implements PersistenceService
     private JiraPropertySetFactory propertySetFactory;
 
     @Autowired
-    public PersistenceServiceImpl(JiraPropertySetFactory propertySetFactory)
+    public PersistenceServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory)
     {
         this.propertySetFactory = propertySetFactory;
     }
