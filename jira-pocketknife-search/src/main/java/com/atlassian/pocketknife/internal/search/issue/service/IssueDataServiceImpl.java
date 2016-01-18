@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.internal.search.issue.service;
 
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.ApplicationUsers;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
 import com.atlassian.pocketknife.api.search.issue.service.IssueDataService;
 import org.apache.lucene.search.IndexSearcher;
@@ -28,14 +29,16 @@ import com.atlassian.query.Query;
 @Service
 public class IssueDataServiceImpl implements IssueDataService
 {
-    @Autowired
-    private SearchProviderFactory searchProviderFactory;
+    private final SearchProviderFactory searchProviderFactory;
+    private final SearchProvider searchProvider;
+    private final ExtendedSearchService extendedSearchService;
 
     @Autowired
-    private SearchProvider searchProvider;
-
-    @Autowired
-    private ExtendedSearchService extendedSearchService;
+    public IssueDataServiceImpl(@ComponentImport SearchProviderFactory searchProviderFactory, @ComponentImport SearchProvider searchProvider, ExtendedSearchService extendedSearchService) {
+        this.searchProviderFactory = searchProviderFactory;
+        this.searchProvider = searchProvider;
+        this.extendedSearchService = extendedSearchService;
+    }
 
     @Override
     @NotNull
