@@ -118,7 +118,7 @@
                 <groupId>com.atlassian.plugin</groupId>
                 <artifactId>atlassian-spring-scanner-annotation</artifactId>
                 <version>${atlassian.spring.scanner.version}</version>
-                <scope>compile</scope>
+                <scope>provided</scope>
             </dependency>
 
 
