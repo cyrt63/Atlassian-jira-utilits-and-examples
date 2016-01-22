@@ -8,41 +8,35 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * A helper class for common migration techniques.
- *
+ * <p>
  * It reads all the rows in the query and returns them to you one at a time so you can decide on how you want to change them.
- * <p/>
+ * <p>
  * Contrary to AoStreamingMigrator this class does not rely on {@link com.atlassian.activeobjects.external.ActiveObjects#stream(Class, net.java.ao.Query, net.java.ao.EntityStreamCallback)} to
  * load the rows, so the entity you get is a fully writable AO object with all its whistles and bells.
  */
 @NotThreadSafe
-public abstract class AoFindMigrator<E extends Entity>
-{
+public abstract class AoFindMigrator<E extends Entity> {
 
     private long read;
 
-    public AoFindMigrator(Class<E> classOfEntity, ActiveObjects ao)
-    {
+    public AoFindMigrator(Class<E> classOfEntity, ActiveObjects ao) {
         final E[] entities = ao.find(classOfEntity);
         iterate(entities);
     }
 
-    public AoFindMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao)
-    {
+    public AoFindMigrator(Class<E> classOfEntity, Query query, ActiveObjects ao) {
         final E[] entities = ao.find(classOfEntity, query);
         iterate(entities);
     }
-    
-    private void iterate(E[] entities)
-    {
-        for (E writableE: entities)
-        {
+
+    private void iterate(E[] entities) {
+        for (E writableE : entities) {
             onRowReadImpl(writableE);
         }
         onEnd();
     }
 
-    private void onRowReadImpl(E writableE)
-    {
+    private void onRowReadImpl(E writableE) {
         read++;
         onRowRead(writableE);
     }
@@ -57,15 +51,13 @@ public abstract class AoFindMigrator<E extends Entity>
     /**
      * A template method allowing you to do something once all rows have been migrated
      */
-    protected void onEnd()
-    {
+    protected void onEnd() {
     }
 
     /**
      * @return how many times {@link #onRowRead(net.java.ao.Entity)} has been called
      */
-    public long getRead()
-    {
+    public long getRead() {
         return read;
     }
 }

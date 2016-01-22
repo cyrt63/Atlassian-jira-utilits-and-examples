@@ -8,8 +8,7 @@ import java.util.List;
 /**
  * Service for encapsulating custom field logic, especially the rather complex JIRA logic behind creating and working with these things.
  */
-public interface CustomFieldService
-{
+public interface CustomFieldService {
     /**
      * Create a new custom field in JIRA with the given configuration
      */

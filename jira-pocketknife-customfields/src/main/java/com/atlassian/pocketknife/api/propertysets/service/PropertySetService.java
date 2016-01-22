@@ -7,9 +7,10 @@ import java.util.Set;
 /**
  * This service wraps the JiraPropertySetFactory as well as provides automatic serialization for a map of data
  */
-public interface PropertySetService
-{
-    /** Service identifier to be used for dependency injection. */
+public interface PropertySetService {
+    /**
+     * Service identifier to be used for dependency injection.
+     */
     public static final String SERVICE = "pk-persistenceService";
 
     /**
@@ -41,20 +42,20 @@ public interface PropertySetService
      * Get a property value of type Double. If there is no data, null is returned.
      */
     public Double getDouble(String entityName, Long entityId, String key);
-    
+
     /**
-     * Set a property value of type Boolean. 
+     * Set a property value of type Boolean.
      */
     public void setBoolean(String entityName, Long entityId, String key, Boolean value);
-    
+
     /**
-     * Get a property value of type Boolean. If there is no data, null is returned. 
+     * Get a property value of type Boolean. If there is no data, null is returned.
      */
     public Boolean getBoolean(String entityName, Long entityId, String key);
-    
+
     /**
      * Get a map data property for a given entity name, entity id and property key
-     * 
+     *
      * @return deserialised data or null if no record exists
      */
     public Map<String, Object> getData(String entityName, Long entityId, String key);
@@ -63,10 +64,10 @@ public interface PropertySetService
      * Set a map data property. The map is serialized using xstream and stored in JIRA as a text property.
      */
     public void setData(String entityName, Long entityId, String key, Map<String, Object> data);
- 
+
     /**
      * Get a list data property for a given entity name, entity id and property key
-     * 
+     *
      * @return deserialised data or null if no record exists
      */
     public List<Object> getListData(String entityName, Long entityId, String key);
@@ -75,7 +76,7 @@ public interface PropertySetService
      * Set a list data property. The list is serialised using xstream and stored in JIRA as a text property.
      */
     public void setListData(String entityName, Long entityId, String key, List<Object> data);
-    
+
     /**
      * @return all keys for a given entity name and entity id, or an empty set if there are none
      */
@@ -83,7 +84,7 @@ public interface PropertySetService
 
     /**
      * Exists a property for a given entity name and id
-     * 
+     *
      * @return true if the property exists, false otherwise
      */
     public boolean exists(String entityName, Long entityId, String key);

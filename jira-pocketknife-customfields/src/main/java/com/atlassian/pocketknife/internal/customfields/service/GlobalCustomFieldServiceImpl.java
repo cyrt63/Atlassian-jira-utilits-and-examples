@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
  * Implementation for global custom field service
  */
 @Component
-public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
-{
+public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService {
     private final Logger logger = LoggerFactory.getLogger(GlobalCustomFieldServiceImpl.class);
 
     @Autowired
@@ -36,28 +35,21 @@ public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
      * Delegate custom field creation to {@link com.atlassian.pocketknife.api.customfields.service.CustomFieldService}
      */
     @Override
-    public CustomField getGlobalCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException
-    {
+    public CustomField getGlobalCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException {
         logger.info("Retrieve or create custom field {}", fieldMetadata);
 
-        try
-        {
+        try {
             CustomField field = getDefaultFieldOrNull(fieldMetadata);
-            if (field == null)
-            {
-                synchronized (this)
-                {
+            if (field == null) {
+                synchronized (this) {
                     field = getDefaultFieldOrNull(fieldMetadata);
-                    if (field == null)
-                    {
+                    if (field == null) {
                         field = createGlobalCustomField(fieldMetadata);
                     }
                 }
             }
             return field;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Failed to get or create custom field", e);
             throw new CustomFieldException(e);
         }
@@ -71,19 +63,15 @@ public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
      * @param fieldMetadata
      * @return
      */
-    private CustomField getDefaultFieldOrNull(CustomFieldMetadata fieldMetadata)
-    {
+    private CustomField getDefaultFieldOrNull(CustomFieldMetadata fieldMetadata) {
         Long id = globalPropertyDao.getLongProperty(fieldMetadata.getFieldType());
-        if (id != null)
-        {
+        if (id != null) {
             CustomField field = customFieldService.getCustomField(id);
-            if (field != null)
-            {
+            if (field != null) {
                 return field;
             }
             // check in DB if the custom field really doesn't exist
-            if (verifyCustomFieldExistsInDB(id))
-            {
+            if (verifyCustomFieldExistsInDB(id)) {
                 throw new RuntimeException(String.format("Custom field '%s' with ID '%d' exists in DB, but was not returned by the custom field service.", fieldMetadata.getFieldName(), id));
             }
         }
@@ -94,8 +82,7 @@ public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
      * A wrapped implementation to support creation of custom field
      * Delegate custom field creation to {@link com.atlassian.pocketknife.api.customfields.service.CustomFieldService}
      */
-    private CustomField createGlobalCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException
-    {
+    private CustomField createGlobalCustomField(CustomFieldMetadata fieldMetadata) throws CustomFieldException {
         CustomField field = customFieldService.createCustomField(fieldMetadata);
 
         globalPropertyDao.setLongProperty(fieldMetadata.getFieldType(), field.getIdAsLong());
@@ -103,8 +90,7 @@ public class GlobalCustomFieldServiceImpl implements GlobalCustomFieldService
         return field;
     }
 
-    private boolean verifyCustomFieldExistsInDB(final Long customFieldId)
-    {
+    private boolean verifyCustomFieldExistsInDB(final Long customFieldId) {
         GenericValue customField = ofBizDelegator.findById("CustomField", customFieldId);
         return customField != null;
     }

@@ -8,23 +8,20 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 
-public class VersionKitTest
-{
+public class VersionKitTest {
     SoftwareVersion noQualifier;
     SoftwareVersion withQualifier;
     SoftwareVersion qualifierNoBug;
 
     @Before
-    public void setUp() throws Exception
-    {
-        noQualifier = new SoftwareVersion(5,2,1);
-        withQualifier = new SoftwareVersion(5,2,1,"OD-3");
-        qualifierNoBug = new SoftwareVersion(5,2,"OD-3");
+    public void setUp() throws Exception {
+        noQualifier = new SoftwareVersion(5, 2, 1);
+        withQualifier = new SoftwareVersion(5, 2, 1, "OD-3");
+        qualifierNoBug = new SoftwareVersion(5, 2, "OD-3");
     }
 
     @Test
-    public void testParseMajorLesser() throws Exception
-    {
+    public void testParseMajorLesser() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.0");
         assertThat(test, lessThan(noQualifier));
         assertThat(test, lessThan(withQualifier));
@@ -32,8 +29,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testParseMajorGreater() throws Exception
-    {
+    public void testParseMajorGreater() throws Exception {
         SoftwareVersion test = VersionKit.parse("6.0");
         assertThat(test, greaterThan(noQualifier));
         assertThat(test, greaterThan(withQualifier));
@@ -41,8 +37,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testParseMinorLesser() throws Exception
-    {
+    public void testParseMinorLesser() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.1");
         assertThat(test, lessThan(noQualifier));
         assertThat(test, lessThan(withQualifier));
@@ -50,8 +45,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testParseMinorGreater() throws Exception
-    {
+    public void testParseMinorGreater() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.3");
         assertThat(test, greaterThan(noQualifier));
         assertThat(test, greaterThan(withQualifier));
@@ -59,8 +53,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testParseBugGreater() throws Exception
-    {
+    public void testParseBugGreater() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.2.2");
         assertThat(test, greaterThan(noQualifier));
         assertThat(test, greaterThan(withQualifier));
@@ -68,8 +61,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testParseBugLesser() throws Exception
-    {
+    public void testParseBugLesser() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.2.0");
         assertThat(test, lessThan(noQualifier));
         assertThat(test, lessThan(withQualifier));
@@ -77,8 +69,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testQualifierLesser() throws Exception
-    {
+    public void testQualifierLesser() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.2-OD-3");
         assertThat(test, lessThan(noQualifier));
         assertThat(test, lessThan(withQualifier));
@@ -86,8 +77,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testQualifierGreater() throws Exception
-    {
+    public void testQualifierGreater() throws Exception {
         SoftwareVersion test = VersionKit.parse("5.3.1-OD-3");
         assertThat(test, greaterThan(noQualifier));
         assertThat(test, greaterThan(withQualifier));
@@ -95,8 +85,7 @@ public class VersionKitTest
     }
 
     @Test
-    public void testQualifierOnlyComparisons() throws Exception
-    {
+    public void testQualifierOnlyComparisons() throws Exception {
         SoftwareVersion smaller = VersionKit.parse("5.2.1-OD-2");
         assertThat(smaller, lessThan(withQualifier));
         SoftwareVersion greater = VersionKit.parse("5.2.1-OD-4");

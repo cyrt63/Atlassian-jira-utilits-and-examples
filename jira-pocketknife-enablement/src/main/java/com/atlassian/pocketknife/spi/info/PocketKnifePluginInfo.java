@@ -5,8 +5,7 @@ import org.joda.time.DateTime;
 /**
  * Identify yourself!
  */
-public interface PocketKnifePluginInfo
-{
+public interface PocketKnifePluginInfo {
 
     /**
      * @return the plugin key

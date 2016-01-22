@@ -3,8 +3,7 @@ package com.atlassian.pocketknife.api.autowire;
 /**
  * A simple class that can auto-wire components for this plugin
  */
-public interface PluginAutowirer
-{
+public interface PluginAutowirer {
     /**
      * Auto wires a component of the specified class
      *

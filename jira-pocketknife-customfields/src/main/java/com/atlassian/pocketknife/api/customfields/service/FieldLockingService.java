@@ -6,8 +6,7 @@ import com.atlassian.jira.util.ErrorCollection;
 /**
  * The ability to lock a custom field configuration
  */
-public interface FieldLockingService
-{
+public interface FieldLockingService {
     ErrorCollection lockField(CustomField field, String descI18nKey);
 
     boolean isFieldLocked(CustomField field);

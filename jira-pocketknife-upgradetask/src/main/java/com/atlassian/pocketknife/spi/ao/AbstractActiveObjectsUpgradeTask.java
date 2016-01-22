@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * A base class for AO upgrade tasks to make them that much easier and better documented
  */
-public abstract class AbstractActiveObjectsUpgradeTask implements ActiveObjectsUpgradeTask
-{
+public abstract class AbstractActiveObjectsUpgradeTask implements ActiveObjectsUpgradeTask {
     @Autowired
     private UpgradeVersionServiceImpl upgradeVersionService;
 
@@ -31,8 +30,7 @@ public abstract class AbstractActiveObjectsUpgradeTask implements ActiveObjectsU
 
 
     @Override
-    public ModelVersion getModelVersion()
-    {
+    public ModelVersion getModelVersion() {
         // why AO would you choose string when you mean int?
         return ModelVersion.valueOf(String.valueOf(modelVersion()));
     }
@@ -41,21 +39,18 @@ public abstract class AbstractActiveObjectsUpgradeTask implements ActiveObjectsU
      * This is the template method you are expected to implement
      *
      * @param currentVersion the current version you are coming from
-     *
-     * @param ao the fresh clean AO object that needs to be migrated to
+     * @param ao             the fresh clean AO object that needs to be migrated to
      */
     abstract protected void doUpgrade(final ModelVersion currentVersion, final ActiveObjects ao);
 
     @Override
-    public void upgrade(ModelVersion currentVersion, ActiveObjects ao)
-    {
+    public void upgrade(ModelVersion currentVersion, ActiveObjects ao) {
         // keep current log level
         Level level = log.getLevel();
 
         // make sure everything is logged as info
         log.setLevel(Level.INFO);
-        try
-        {
+        try {
             String buildNumber = makeAoBuildNumber();
 
             upgradeVersionService.recordUpgradeTaskStarted(buildNumber);
@@ -65,36 +60,30 @@ public abstract class AbstractActiveObjectsUpgradeTask implements ActiveObjectsU
             long then = System.currentTimeMillis();
 
             // do things
-            doUpgrade(currentVersion,ao);
+            doUpgrade(currentVersion, ao);
 
             long timeTaken = System.currentTimeMillis() - then;
 
             upgradeVersionService.recordUpgradeTaskEnded(buildNumber, timeTaken);
 
             logUpgradeTaskEnd();
-        }
-        finally
-        {
+        } finally {
             // restore previous log level
             log.setLevel(level);
         }
     }
 
 
-
-    private String makeAoBuildNumber()
-    {
+    private String makeAoBuildNumber() {
         return "AO-" + this.modelVersion();
     }
 
-    private void logUpgradeTaskStart()
-    {
+    private void logUpgradeTaskStart() {
         log.info("=========================================");
         log.info("Starting Active Objects upgrade task (modelVersion=" + this.modelVersion() + ") : \n\t" + this.getShortDescription());
     }
 
-    private void logUpgradeTaskEnd()
-    {
+    private void logUpgradeTaskEnd() {
         log.info("Active Objects upgrade task finished (modelVersion=" + this.modelVersion() + ")");
         log.info("=========================================");
     }

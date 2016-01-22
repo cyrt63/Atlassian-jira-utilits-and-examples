@@ -15,8 +15,7 @@ import static java.lang.String.valueOf;
 /**
  * What was run and when?
  */
-public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInfo>
-{
+public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInfo> {
     static final String DD_MMM_YYYY_HH_MM = "dd MMM yyyy hh:mm";
 
     private final String currentVersion;
@@ -32,8 +31,7 @@ public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInf
     private final boolean downgrade;
 
 
-    public PluginRunInfoImpl(final DateTime previousRanOn, final Long latestUpgradeTaskRun, final PocketKnifePluginInfo pocketKnifePluginInfo)
-    {
+    public PluginRunInfoImpl(final DateTime previousRanOn, final Long latestUpgradeTaskRun, final PocketKnifePluginInfo pocketKnifePluginInfo) {
         this(previousRanOn,
                 latestUpgradeTaskRun,
                 pocketKnifePluginInfo.getVersion(),
@@ -42,8 +40,7 @@ public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInf
                 pocketKnifePluginInfo);
     }
 
-    public PluginRunInfoImpl(final Map<String, Object> data, final PocketKnifePluginInfo pocketKnifePluginInfo)
-    {
+    public PluginRunInfoImpl(final Map<String, Object> data, final PocketKnifePluginInfo pocketKnifePluginInfo) {
         this(parseIsoDate(valueOf(data.get("ranOn"))),
                 Long.valueOf(valueOf(data.get("latestUpgradeTaskRun"))),
                 valueOf(data.get("pluginVersion")),
@@ -52,8 +49,7 @@ public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInf
                 pocketKnifePluginInfo);
     }
 
-    public PluginRunInfoImpl(final DateTime previousRanOn, final Long latestUpgradeTaskRun, final String previousVersion, final DateTime previousBuildDate, final String previousChangeSet, final PocketKnifePluginInfo pocketKnifePluginInfo)
-    {
+    public PluginRunInfoImpl(final DateTime previousRanOn, final Long latestUpgradeTaskRun, final String previousVersion, final DateTime previousBuildDate, final String previousChangeSet, final PocketKnifePluginInfo pocketKnifePluginInfo) {
         this.previousRanOn = previousRanOn;
         this.previousVersion = previousVersion;
         this.previousBuildDate = previousBuildDate;
@@ -66,8 +62,7 @@ public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInf
         this.downgrade = currentBuildDate.isBefore(previousBuildDate);
     }
 
-    public Map<String, Object> toPersistenceMap()
-    {
+    public Map<String, Object> toPersistenceMap() {
         HashMap<String, Object> map = Maps.newHashMap();
         map.put("pluginVersion", currentVersion);
         map.put("buildDate", toIsoDateStr(currentBuildDate));
@@ -78,91 +73,76 @@ public class PluginRunInfoImpl implements PluginRunInfo, Comparable<PluginRunInf
     }
 
     @Override
-    public int compareTo(final PluginRunInfo that)
-    {
+    public int compareTo(final PluginRunInfo that) {
         return previousRanOn.compareTo(that.getPreviousRanOn());
     }
 
     @Override
-    public String getCurrentVersion()
-    {
+    public String getCurrentVersion() {
         return currentVersion;
     }
 
     @Override
-    public DateTime getCurrentBuildDate()
-    {
+    public DateTime getCurrentBuildDate() {
         return currentBuildDate;
     }
 
     @Override
-    public String getCurrentChangeSet()
-    {
+    public String getCurrentChangeSet() {
         return currentChangeSet;
     }
 
     @Override
-    public DateTime getCurrentRanOn()
-    {
+    public DateTime getCurrentRanOn() {
         return currentRanOn;
     }
 
     @Override
-    public Long getLatestUpgradeTaskRun()
-    {
+    public Long getLatestUpgradeTaskRun() {
         return latestUpgradeTaskRun;
     }
 
     @Override
-    public String getPreviousVersion()
-    {
+    public String getPreviousVersion() {
         return previousVersion;
     }
 
     @Override
-    public DateTime getPreviousBuildDate()
-    {
+    public DateTime getPreviousBuildDate() {
         return previousBuildDate;
     }
 
     @Override
-    public String getPreviousChangeSet()
-    {
+    public String getPreviousChangeSet() {
         return previousChangeSet;
     }
 
 
     @Override
-    public DateTime getPreviousRanOn()
-    {
+    public DateTime getPreviousRanOn() {
         return previousRanOn;
     }
 
     @Override
-    public String getRanOnStr()
-    {
+    public String getRanOnStr() {
         return previousRanOn.toString(DateTimeFormat.forPattern(DD_MMM_YYYY_HH_MM));
     }
 
     @Override
-    public boolean isDowngrade()
-    {
+    public boolean isDowngrade() {
         return downgrade;
     }
 
     @Override
-    public boolean isDifferentPlugin()
-    {
+    public boolean isDifferentPlugin() {
         return !previousChangeSet.equals(currentChangeSet);
     }
 
-    static String toIsoDateStr(final DateTime dateTime)
-    {
+    static String toIsoDateStr(final DateTime dateTime) {
         return dateTime.toString(ISODateTimeFormat.dateTime());
     }
 
-    static DateTime parseIsoDate(final String isoDTStr)
-    {
+    static DateTime parseIsoDate(final String isoDTStr) {
         return ISODateTimeFormat.dateTime().parseDateTime(isoDTStr);
     }
 }

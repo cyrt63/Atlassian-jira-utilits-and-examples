@@ -2,9 +2,10 @@ package com.atlassian.pocketknife.api.util.runners;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SealedRunnerTest {
     @Test
@@ -80,8 +81,7 @@ public class SealedRunnerTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void test_repair_throws_exception_if_run() throws Exception
-    {
+    public void test_repair_throws_exception_if_run() throws Exception {
         final Seal seal = new Seal("for runnable");
         SealedRunner runner = new SealedRunner(Lists.newArrayList("first.key", "second.key"), new Runnable() {
             @Override

@@ -11,24 +11,20 @@ import java.util.Map;
 /**
  * Abstract condition class, encapsulates the configuration and jira version extraction.
  */
-public abstract class AbstractJiraVersionCondition implements Condition
-{
+public abstract class AbstractJiraVersionCondition implements Condition {
     protected final SoftwareVersion jiraVersion;
     protected SoftwareVersion version;
 
-    public AbstractJiraVersionCondition(BuildUtilsInfo buildUtilsInfo)
-    {
+    public AbstractJiraVersionCondition(BuildUtilsInfo buildUtilsInfo) {
         String versionString = buildUtilsInfo.getVersion();
         jiraVersion = VersionKit.parse(versionString);
     }
 
-    public void init(final Map<String, String> paramMap) throws PluginParseException
-    {
+    public void init(final Map<String, String> paramMap) throws PluginParseException {
         version = VersionKit.version(toInt(paramMap, "majorVersion"), toInt(paramMap, "minorVersion"));
     }
 
-    private int toInt(Map<String, String> paramMap, final String paramName)
-    {
+    private int toInt(Map<String, String> paramMap, final String paramName) {
         return Integer.decode(paramMap.get(paramName)).intValue();
     }
 

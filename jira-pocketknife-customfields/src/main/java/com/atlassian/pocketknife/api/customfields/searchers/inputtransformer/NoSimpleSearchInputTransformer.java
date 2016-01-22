@@ -10,24 +10,18 @@ import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.query.Query;
 
 /**
- * 
  * Transforms between advance and simple search. In this case we want to deny that transformation if our clause exists. Adapted from GreenHopper code
- * 
  */
-public class NoSimpleSearchInputTransformer extends AbstractSingleValueCustomFieldSearchInputTransformer
-{
-    public NoSimpleSearchInputTransformer(CustomField field, CustomFieldInputHelper customFieldInputHelper)
-    {
+public class NoSimpleSearchInputTransformer extends AbstractSingleValueCustomFieldSearchInputTransformer {
+    public NoSimpleSearchInputTransformer(CustomField field, CustomFieldInputHelper customFieldInputHelper) {
         super(field, field.getClauseNames(), "", customFieldInputHelper);
     }
 
-    public boolean doRelevantClausesFitFilterForm(User searcher, Query query, SearchContext searchContext)
-    {
+    public boolean doRelevantClausesFitFilterForm(User searcher, Query query, SearchContext searchContext) {
         return doRelevantClausesFitFilterForm(ApplicationUsers.from(searcher), query, searchContext);
     }
 
-    public boolean doRelevantClausesFitFilterForm(ApplicationUser searcher, Query query, SearchContext searchContext)
-    {
+    public boolean doRelevantClausesFitFilterForm(ApplicationUser searcher, Query query, SearchContext searchContext) {
         return false;
     }
 }

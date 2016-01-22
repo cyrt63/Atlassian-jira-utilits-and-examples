@@ -45,8 +45,7 @@ import java.util.Set;
 import static org.apache.commons.lang.Validate.notNull;
 
 @Component
-public class CustomFieldServiceImpl implements CustomFieldService
-{
+public class CustomFieldServiceImpl implements CustomFieldService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomFieldServiceImpl.class);
 
@@ -74,13 +73,11 @@ public class CustomFieldServiceImpl implements CustomFieldService
     private FieldLockingService fieldLockingService;
 
     @Override
-    public CustomField createCustomField(CustomFieldMetadata fieldMetadata)
-    {
+    public CustomField createCustomField(CustomFieldMetadata fieldMetadata) {
         logger.info("Create custom field {}", fieldMetadata);
 
         CustomField customField = null;
-        try
-        {
+        try {
             I18nHelper i18n = i18nFactoryService.getInstance(applicationProperties.getDefaultLocale());
             String name = i18n.getText(fieldMetadata.getFieldName());
             String desc = i18n.getText(fieldMetadata.getFieldDescription());
@@ -96,40 +93,30 @@ public class CustomFieldServiceImpl implements CustomFieldService
             customField = customFieldManager.createCustomField(name, desc, type.get(), searcher.getOrNull(), contexts, genericIssueTypeValues);
 
             // add options
-            if (!fieldMetadata.getOptionNames().isEmpty())
-            {
-                for (String issueTypeId : issueTypeIds)
-                {
+            if (!fieldMetadata.getOptionNames().isEmpty()) {
+                for (String issueTypeId : issueTypeIds) {
                     com.atlassian.fugue.Option<FieldConfig> fieldConfig = CustomFieldUtil.getRelevantConfig(customField, new IssueContextImpl(null, issueTypeId));
                     addOptionsToCustomField(customField, fieldConfig, fieldMetadata.getOptionNames(), fieldMetadata.getDefaultOptionName());
                 }
                 setOptionsOrderFromMetadata(customField, fieldMetadata, issueTypeIds);
             }
 
-            if (fieldMetadata.isRequireField())
-            {
+            if (fieldMetadata.isRequireField()) {
                 makeFieldRequired(customField);
             }
 
-            if (fieldMetadata.isLockField())
-            {
+            if (fieldMetadata.isLockField()) {
                 fieldLockingService.lockField(customField, fieldMetadata.getLockFieldDescription());
             }
 
             return customField;
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.error("Failed to create custom field {} ", fieldMetadata, ex);
 
-            if (customField != null)
-            {
-                try
-                {
+            if (customField != null) {
+                try {
                     customFieldManager.removeCustomField(customField);
-                }
-                catch (Exception ignore)
-                {
+                } catch (Exception ignore) {
                     logger.warn("Exception when attempting to cleanup custom field {} ", customField, ignore);
                 }
             }
@@ -144,20 +131,16 @@ public class CustomFieldServiceImpl implements CustomFieldService
      * @param issueTypeProvider
      * @return
      */
-    private Set<String> getIssueTypeIds(Option<IssueTypeProvider> issueTypeProvider)
-    {
+    private Set<String> getIssueTypeIds(Option<IssueTypeProvider> issueTypeProvider) {
         Set<String> issueTypeIds = new HashSet<String>();
-        if (issueTypeProvider.isDefined())
-        {
-            for (IssueType issueType : issueTypeProvider.get().getIssueTypes())
-            {
+        if (issueTypeProvider.isDefined()) {
+            for (IssueType issueType : issueTypeProvider.get().getIssueTypes()) {
                 issueTypeIds.add(issueType.getId());
             }
         }
 
         // list of 1 element of special IssueType ID indicates a Global IssueType context
-        if (issueTypeIds.isEmpty())
-        {
+        if (issueTypeIds.isEmpty()) {
             issueTypeIds.add(GLOBAL_ISSUETYPE);
         }
 
@@ -170,8 +153,7 @@ public class CustomFieldServiceImpl implements CustomFieldService
      * @param issueTypeIds
      * @return
      */
-    private List<GenericValue> convert(Set<String> issueTypeIds)
-    {
+    private List<GenericValue> convert(Set<String> issueTypeIds) {
         Set<String> ids = new HashSet<String>();
         ids.addAll(issueTypeIds);
 
@@ -184,19 +166,16 @@ public class CustomFieldServiceImpl implements CustomFieldService
      *
      * @return
      */
-    private JiraContextTreeManager getContextTreeManager()
-    {
+    private JiraContextTreeManager getContextTreeManager() {
         return ComponentAccessor.getComponent(JiraContextTreeManager.class);
     }
 
-    private void addOptionsToCustomField(CustomField customField, com.atlassian.fugue.Option<FieldConfig> fieldConfigOption, List<String> optionNames, String defaultOptionName)
-    {
+    private void addOptionsToCustomField(CustomField customField, com.atlassian.fugue.Option<FieldConfig> fieldConfigOption, List<String> optionNames, String defaultOptionName) {
         // option names will be translated into default locale
         I18nHelper i18n = i18nFactoryService.getInstance(applicationProperties.getDefaultLocale());
 
         com.atlassian.fugue.Option<Options> options = CustomFieldUtil.getCustomFieldOptions(customField, fieldConfigOption);
-        if (options.isEmpty())
-        {
+        if (options.isEmpty()) {
             return;
         }
 
@@ -204,28 +183,23 @@ public class CustomFieldServiceImpl implements CustomFieldService
         final FieldConfig fieldConfig = fieldConfigOption.get();
 
         // Add options first, we set their order after the fact in #setOptionsOrderFromMetadata(CustomField customField, CustomFieldMetadata fieldMetadata)
-        for (String optionName : optionNames)
-        {
+        for (String optionName : optionNames) {
             String translatedOption = i18n.getText(optionName);
             com.atlassian.jira.issue.customfields.option.Option option = options.get().addOption(null, translatedOption);
-            if (optionName.equals(defaultOptionName))
-            {
+            if (optionName.equals(defaultOptionName)) {
                 // set default option
                 customField.getCustomFieldType().setDefaultValue(fieldConfig, option);
             }
         }
     }
 
-    private void setOptionsOrderFromMetadata(CustomField customField, CustomFieldMetadata fieldMetadata, Set<String> issueTypeIds)
-    {
+    private void setOptionsOrderFromMetadata(CustomField customField, CustomFieldMetadata fieldMetadata, Set<String> issueTypeIds) {
         List<String> optionValues = getOptionValuesFromNames(fieldMetadata.getOptionNames());
 
-        for (String issueTypeId : issueTypeIds)
-        {
+        for (String issueTypeId : issueTypeIds) {
             com.atlassian.fugue.Option<FieldConfig> fieldConfig = CustomFieldUtil.getRelevantConfig(customField, new IssueContextImpl(null, issueTypeId));
 
-            if (fieldConfig.isEmpty())
-            {
+            if (fieldConfig.isEmpty()) {
                 // GHS-6912 - if the customer has tampered with the Custom Field Contexts of the Epic Status field, this
                 // lookup will return null. We want to fail silently here so that they can continue to upgrade/use GH.
                 logger.warn("Could not find a Custom Field Configuration for field {}, all projects and issue type {} -- therefore cannot find the Options for the field.",
@@ -233,8 +207,7 @@ public class CustomFieldServiceImpl implements CustomFieldService
                 continue;
             }
             com.atlassian.fugue.Option<Options> optionsResult = CustomFieldUtil.getCustomFieldOptions(customField, fieldConfig);
-            if (optionsResult.isEmpty())
-            {
+            if (optionsResult.isEmpty()) {
                 continue;
             }
             Options options = optionsResult.get();
@@ -242,15 +215,12 @@ public class CustomFieldServiceImpl implements CustomFieldService
             Map<Integer, com.atlassian.jira.issue.customfields.option.Option> optionToPositionMap = new HashMap<Integer, com.atlassian.jira.issue.customfields.option.Option>(options.size());
             List<com.atlassian.jira.issue.customfields.option.Option> rootOptions = options.getRootOptions();
 
-            if (optionValues.size() != options.size())
-            {
+            if (optionValues.size() != options.size()) {
                 throw new CustomFieldException("When setting custom field options order, available options must match initially created options");
             }
 
-            for (com.atlassian.jira.issue.customfields.option.Option option : rootOptions)
-            {
-                if (!optionValues.contains(option.getValue()))
-                {
+            for (com.atlassian.jira.issue.customfields.option.Option option : rootOptions) {
+                if (!optionValues.contains(option.getValue())) {
                     throw new CustomFieldException("When setting custom field options order, available options must match initially created options");
                 }
                 optionToPositionMap.put(optionValues.indexOf(option.getValue()), option);
@@ -260,35 +230,26 @@ public class CustomFieldServiceImpl implements CustomFieldService
         }
     }
 
-    private List<String> getOptionValuesFromNames(final List<String> optionNames)
-    {
+    private List<String> getOptionValuesFromNames(final List<String> optionNames) {
         final I18nHelper i18n = i18nFactoryService.getInstance(applicationProperties.getDefaultLocale());
 
-        return Lists.transform(optionNames, new Function<String, String>()
-        {
+        return Lists.transform(optionNames, new Function<String, String>() {
             @Override
-            public String apply(@Nullable final String optionName)
-            {
+            public String apply(@Nullable final String optionName) {
                 return i18n.getText(optionName);
             }
         });
     }
 
-    private void makeFieldRequired(final CustomField field)
-    {
+    private void makeFieldRequired(final CustomField field) {
         List<EditableFieldLayout> layouts = fieldLayoutManager.getEditableFieldLayouts();
-        for (EditableFieldLayout layout : layouts)
-        {
+        for (EditableFieldLayout layout : layouts) {
             FieldLayoutItem fieldLayoutItem = layout.getFieldLayoutItem(field.getId());
-            if (fieldLayoutItem != null)
-            {
+            if (fieldLayoutItem != null) {
                 layout.makeRequired(fieldLayoutItem);
-                if (layout.isDefault())
-                {
+                if (layout.isDefault()) {
                     fieldLayoutManager.storeEditableDefaultFieldLayout((EditableDefaultFieldLayout) layout);
-                }
-                else
-                {
+                } else {
                     fieldLayoutManager.storeEditableFieldLayout(layout);
                 }
             }
@@ -296,46 +257,38 @@ public class CustomFieldServiceImpl implements CustomFieldService
     }
 
     @Override
-    public CustomField getCustomField(Long id)
-    {
+    public CustomField getCustomField(Long id) {
         logger.info("Retrieve custom field {}", id);
         return customFieldManager.getCustomFieldObject(id);
     }
 
     @Override
-    public CustomField getCustomField(String id)
-    {
+    public CustomField getCustomField(String id) {
         logger.info("Retrieve custom field {}", id);
         return customFieldManager.getCustomFieldObject(id);
     }
 
     @Override
-    public void removeCustomField(CustomField customField)
-    {
+    public void removeCustomField(CustomField customField) {
         logger.info("Remove custom field {}", customField);
 
-        try
-        {
+        try {
             customFieldManager.removeCustomField(customField);
-        }
-        catch (RemoveException e)
-        {
+        } catch (RemoveException e) {
             logger.info("Remove custom field {}", customField, e);
             throw new CustomFieldException(e);
         }
     }
 
     @Override
-    public <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type)
-    {
+    public <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type) {
         logger.info("Retrieve custom field {}", type);
 
         return getCustomFields(type, true);
     }
 
     @Override
-    public <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type, boolean strict)
-    {
+    public <T extends CustomFieldType> List<CustomField> getCustomFields(Class<T> type, boolean strict) {
         logger.info("Retrieve custom field {}", type);
 
         notNull(type, "The Class for the CustomFieldType cannot be null");
@@ -343,14 +296,10 @@ public class CustomFieldServiceImpl implements CustomFieldService
         List<CustomField> fields = new ArrayList<CustomField>();
 
         // JIRA provides no lookup by CFT
-        for (CustomField customField : customFieldManager.getCustomFieldObjects())
-        {
-            if (strict && customField.getCustomFieldType().getClass().equals(type))
-            {
+        for (CustomField customField : customFieldManager.getCustomFieldObjects()) {
+            if (strict && customField.getCustomFieldType().getClass().equals(type)) {
                 fields.add(customField);
-            }
-            else if (!strict && type.isAssignableFrom(customField.getCustomFieldType().getClass()))
-            {
+            } else if (!strict && type.isAssignableFrom(customField.getCustomFieldType().getClass())) {
                 fields.add(customField);
             }
         }
