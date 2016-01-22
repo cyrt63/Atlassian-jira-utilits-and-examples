@@ -3,22 +3,22 @@ package com.atlassian.pocketknife.api.util.runners;
 import com.atlassian.util.concurrent.Assertions;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
  * stones at the end of "The Fifth Element". Once they are all activated, something happens. Same concept behind this
  * class.
- * <p/>
+ * <p>
  * On construction, you will need to give this class a list of keys and a {@link java.lang.Runnable}. The keys will serve
  * as the seals that need to be broken before the runnable will run.
- * <p/>
+ * <p>
  * Once all the seals have been broken, the runnable will run once and never again. If there are no seals provided,
  * then the Runnable will never run.
- * <p/>
+ * <p>
  */
 @ThreadSafe
 public class SealedRunner {
@@ -29,7 +29,7 @@ public class SealedRunner {
     /**
      * Creates a new sealed runner with the given list of seals and target runnable provided.
      *
-     * @param keys the seals to require before the runnable is invoked
+     * @param keys     the seals to require before the runnable is invoked
      * @param runnable the target code to run once all the seals are broken
      */
     public SealedRunner(List<String> keys, Runnable runnable) {
@@ -67,12 +67,11 @@ public class SealedRunner {
      *
      * @param key - corresponding to a seal
      * @throws java.lang.IllegalArgumentException if you have passed in a key that is not known by the sealed runner
-     * @throws java.lang.IllegalStateException if the seal runner has already run.
+     * @throws java.lang.IllegalStateException    if the seal runner has already run.
      */
     public void repairSeal(final String key) {
         if (key != null && seals.containsKey(key)) {
-            if (hasRun())
-            {
+            if (hasRun()) {
                 throw new IllegalStateException("The seal has already been run");
             }
             seals.put(key, false);
@@ -84,8 +83,7 @@ public class SealedRunner {
     /**
      * @return true all the seals have been broken and the callback has been run
      */
-    public boolean hasRun()
-    {
+    public boolean hasRun() {
         return hasRun.get();
     }
 

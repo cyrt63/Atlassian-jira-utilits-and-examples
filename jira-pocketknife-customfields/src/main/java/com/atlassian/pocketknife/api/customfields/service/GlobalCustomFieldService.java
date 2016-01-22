@@ -5,8 +5,7 @@ import com.atlassian.jira.issue.fields.CustomField;
 /**
  * Service to work with global custom field
  */
-public interface GlobalCustomFieldService
-{
+public interface GlobalCustomFieldService {
 
     /**
      * Get the global custom field that is specified in the meta data. If the custom field does not exist, then it will be created.

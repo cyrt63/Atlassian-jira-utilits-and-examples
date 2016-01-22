@@ -9,12 +9,10 @@ import java.util.Map;
 /**
  * Is Jira Running in Dev Mode?
  */
-public class JiraDevModeCondition implements Condition
-{
+public class JiraDevModeCondition implements Condition {
 
     @Override
-    public void init(Map<String, String> stringStringMap) throws PluginParseException
-    {
+    public void init(Map<String, String> stringStringMap) throws PluginParseException {
     }
 
     @Override

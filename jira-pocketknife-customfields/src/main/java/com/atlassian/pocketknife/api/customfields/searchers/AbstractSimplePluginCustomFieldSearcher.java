@@ -7,16 +7,13 @@ import com.atlassian.jira.jql.query.ClauseQueryFactory;
 import com.atlassian.jira.web.FieldVisibilityManager;
 import com.atlassian.pocketknife.api.customfields.searchers.clausevalidator.AbstractClauseValidator;
 
-public abstract class AbstractSimplePluginCustomFieldSearcher extends AbstractPluginCustomFieldSearcher
-{
-    public AbstractSimplePluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper)
-    {
+public abstract class AbstractSimplePluginCustomFieldSearcher extends AbstractPluginCustomFieldSearcher {
+    public AbstractSimplePluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper) {
         super(fieldVisibilityManager, jqlOperandResolver, customFieldInputHelper);
     }
 
     @Override
-    protected SimpleCustomFieldSearcherClauseHandler getNewCustomFieldSearcherClauseHandler(AbstractClauseValidator validator, ClauseQueryFactory clauseQueryFactory)
-    {
+    protected SimpleCustomFieldSearcherClauseHandler getNewCustomFieldSearcherClauseHandler(AbstractClauseValidator validator, ClauseQueryFactory clauseQueryFactory) {
         return new SimpleCustomFieldSearcherClauseHandler(validator, clauseQueryFactory, validator.getValidOperators(), getDataType());
     }
 }

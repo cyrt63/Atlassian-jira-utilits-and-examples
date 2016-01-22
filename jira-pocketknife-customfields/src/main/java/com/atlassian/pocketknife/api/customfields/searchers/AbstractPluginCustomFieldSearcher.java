@@ -1,8 +1,5 @@
 package com.atlassian.pocketknife.api.customfields.searchers;
 
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.atlassian.jira.JiraDataType;
 import com.atlassian.jira.issue.customfields.CustomFieldSearcher;
 import com.atlassian.jira.issue.customfields.CustomFieldValueProvider;
@@ -26,12 +23,14 @@ import com.atlassian.jira.plugin.customfield.CustomFieldSearcherModuleDescriptor
 import com.atlassian.jira.web.FieldVisibilityManager;
 import com.atlassian.pocketknife.api.customfields.searchers.clausevalidator.AbstractClauseValidator;
 
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * This is an abstract class for a searcher that is designed so that plugins can quickly write custom field searchers. It does the initialisation for
  * you so long as you provide it with the bits it needs.
  */
-public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitializationCustomFieldSearcher implements CustomFieldSearcher
-{
+public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitializationCustomFieldSearcher implements CustomFieldSearcher {
     private final FieldVisibilityManager fieldVisibilityManager;
     private final JqlOperandResolver jqlOperandResolver;
     private final CustomFieldInputHelper customFieldInputHelper;
@@ -41,8 +40,7 @@ public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitiali
     private volatile SearchRenderer searchRenderer;
     private volatile CustomFieldSearcherClauseHandler customFieldSearcherClauseHandler;
 
-    public AbstractPluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper)
-    {
+    public AbstractPluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper) {
         this.fieldVisibilityManager = fieldVisibilityManager;
         this.jqlOperandResolver = jqlOperandResolver;
         this.customFieldInputHelper = customFieldInputHelper;
@@ -59,7 +57,7 @@ public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitiali
      * instance of itself
      */
     protected abstract FieldIndexer getNewCustomFieldIndexer(FieldVisibilityManager fieldVisibilityManager, CustomField field);
-    
+
     /**
      * Renderer that draws the 'view' and 'edit' views for the 'simple search' on the issue nav. If you do not want your custom field to appear on the
      * issue nav's simple search(ie, you only want it searched using JQL) then return an instance of the EmptySearchRenderer. Should return a new
@@ -96,15 +94,14 @@ public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitiali
     protected abstract JiraDataType getDataType();
 
     @Override
-    public void init(CustomField field)
-    {
+    public void init(CustomField field) {
         ClauseNames names = field.getClauseNames();
         IndexValueConverter indexValueConverter = getNewIndexValueConverter();
 
         FieldIndexer indexer = getNewCustomFieldIndexer(fieldVisibilityManager, field);
 
         CustomFieldValueProvider customFieldValueProvider = new SingleValueCustomFieldValueProvider();
-        this.searcherInformation = new CustomFieldSearcherInformation(field.getId(), field.getNameKey(), Collections.<FieldIndexer> singletonList(indexer), new AtomicReference<CustomField>(field));
+        this.searcherInformation = new CustomFieldSearcherInformation(field.getId(), field.getNameKey(), Collections.<FieldIndexer>singletonList(indexer), new AtomicReference<CustomField>(field));
         this.searchRenderer = getNewCustomFieldSearchRenderer(names, getDescriptor(), field, customFieldValueProvider, fieldVisibilityManager);
         this.searchInputTransformer = getNewSearchInputTransformer(field, customFieldInputHelper);
 
@@ -117,40 +114,32 @@ public abstract class AbstractPluginCustomFieldSearcher extends AbstractInitiali
      */
 
     @Override
-    public SearcherInformation<CustomField> getSearchInformation()
-    {
-        if (searcherInformation == null)
-        {
+    public SearcherInformation<CustomField> getSearchInformation() {
+        if (searcherInformation == null) {
             throw new IllegalStateException("Attempt to retrieve SearcherInformation off uninitialised custom field searcher.");
         }
         return searcherInformation;
     }
 
     @Override
-    public SearchInputTransformer getSearchInputTransformer()
-    {
-        if (searchInputTransformer == null)
-        {
+    public SearchInputTransformer getSearchInputTransformer() {
+        if (searchInputTransformer == null) {
             throw new IllegalStateException("Attempt to retrieve searchInputTransformer off uninitialised custom field searcher.");
         }
         return searchInputTransformer;
     }
 
     @Override
-    public SearchRenderer getSearchRenderer()
-    {
-        if (searchRenderer == null)
-        {
+    public SearchRenderer getSearchRenderer() {
+        if (searchRenderer == null) {
             throw new IllegalStateException("Attempt to retrieve searchRenderer off uninitialised custom field searcher.");
         }
         return searchRenderer;
     }
 
     @Override
-    public CustomFieldSearcherClauseHandler getCustomFieldSearcherClauseHandler()
-    {
-        if (customFieldSearcherClauseHandler == null)
-        {
+    public CustomFieldSearcherClauseHandler getCustomFieldSearcherClauseHandler() {
+        if (customFieldSearcherClauseHandler == null) {
             throw new IllegalStateException("Attempt to retrieve customFieldSearcherClauseHandler off uninitialised custom field searcher.");
         }
         return customFieldSearcherClauseHandler;

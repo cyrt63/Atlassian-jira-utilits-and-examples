@@ -15,8 +15,7 @@ import java.util.Set;
  *
  * @author ahennecke
  */
-public class CustomFieldMetadata
-{
+public class CustomFieldMetadata {
 
     private final String fieldName;
     private final String fieldDescription;
@@ -29,8 +28,7 @@ public class CustomFieldMetadata
     private final String lockFieldDescription;
     private final boolean requireField;
 
-    public CustomFieldMetadata(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField)
-    {
+    public CustomFieldMetadata(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField) {
         this.fieldName = fieldName;
         this.fieldDescription = fieldDescription;
         this.fieldType = fieldType;
@@ -43,65 +41,55 @@ public class CustomFieldMetadata
         this.requireField = requireField;
     }
 
-    public static Builder builder()
-    {
+    public static Builder builder() {
         return new Builder();
     }
 
     /**
      * the custom field name used by JIRA
      */
-    public String getFieldName()
-    {
+    public String getFieldName() {
         return fieldName;
     }
 
     /**
      * the custom field description used by JIRA
      */
-    public String getFieldDescription()
-    {
+    public String getFieldDescription() {
         return fieldDescription;
     }
 
     /**
      * the key of the custom field declaration in atlassian-plugins.xml
      */
-    public String getFieldType()
-    {
+    public String getFieldType() {
         return fieldType;
     }
 
     /**
      * the key of the custom field searcher declaration in atlassian-plugins.xml
      */
-    public String getFieldSearcher()
-    {
+    public String getFieldSearcher() {
         return fieldSearcher;
     }
 
-    public Option<IssueTypeProvider> getIssueTypeProvider()
-    {
+    public Option<IssueTypeProvider> getIssueTypeProvider() {
         return issueTypeProvider;
     }
 
-    public List<String> getOptionNames()
-    {
+    public List<String> getOptionNames() {
         return optionNames;
     }
 
-    public String getDefaultOptionName()
-    {
+    public String getDefaultOptionName() {
         return defaultOptionName;
     }
 
-    public boolean isLockField()
-    {
+    public boolean isLockField() {
         return lockField;
     }
 
-    public String getLockFieldDescription()
-    {
+    public String getLockFieldDescription() {
         return lockFieldDescription;
     }
 
@@ -110,14 +98,12 @@ public class CustomFieldMetadata
      *
      * @return
      */
-    public boolean isRequireField()
-    {
+    public boolean isRequireField() {
         return requireField;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("fieldName", fieldName).append("fieldDescription", fieldDescription).append("fieldType", fieldType).append("fieldSearcher", fieldSearcher).append("optionNames", optionNames).append("defaultOptionName", defaultOptionName).append("lockField", lockField).append("lockFieldDescription", lockFieldDescription).append("requireField", requireField).toString();
     }
 
@@ -126,8 +112,7 @@ public class CustomFieldMetadata
      * Provide a {@link com.atlassian.pocketknife.api.customfields.service.IssueTypeProvider} which acts a util to convert
      * IssueType from String literal to the instance that JIRA managed
      */
-    public static class Builder
-    {
+    public static class Builder {
         private String fieldName;
         private String fieldDescription;
         private String fieldType;
@@ -140,12 +125,10 @@ public class CustomFieldMetadata
         private String lockFieldDescription;
         private boolean requireField;
 
-        public Builder()
-        {
+        public Builder() {
         }
 
-        public Builder(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, Set<String> issueTypes, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField)
-        {
+        public Builder(String fieldName, String fieldDescription, String fieldType, String fieldSearcher, Option<IssueTypeProvider> issueTypeProvider, Set<String> issueTypes, List<String> optionNames, String defaultOptionName, boolean lockField, String lockFieldDescription, boolean requireField) {
             this.fieldName = fieldName;
             this.fieldDescription = fieldDescription;
             this.fieldType = fieldType;
@@ -159,93 +142,76 @@ public class CustomFieldMetadata
             this.requireField = requireField;
         }
 
-        public Builder fieldName(String fieldName)
-        {
+        public Builder fieldName(String fieldName) {
             this.fieldName = fieldName;
             return this;
         }
 
-        public Builder fieldDescription(String fieldDescription)
-        {
+        public Builder fieldDescription(String fieldDescription) {
             this.fieldDescription = fieldDescription;
             return this;
         }
 
-        public Builder fieldType(String fieldType)
-        {
+        public Builder fieldType(String fieldType) {
             this.fieldType = fieldType;
             return this;
         }
 
-        public Builder fieldSearcher(String fieldSearcher)
-        {
+        public Builder fieldSearcher(String fieldSearcher) {
             this.fieldSearcher = fieldSearcher;
             return this;
         }
 
-        public Builder issueTypeProvider(IssueTypeProvider issueTypeProvider)
-        {
-            if (issueTypeProvider != null)
-            {
+        public Builder issueTypeProvider(IssueTypeProvider issueTypeProvider) {
+            if (issueTypeProvider != null) {
                 this.issueTypeProvider = Option.option(issueTypeProvider);
-            }
-            else
-            {
+            } else {
                 this.issueTypeProvider = Option.none();
             }
             return this;
         }
 
-        public Builder issueTypes(String... issueTypes)
-        {
+        public Builder issueTypes(String... issueTypes) {
             this.issueTypes.clear();
             this.issueTypes.addAll(Arrays.asList(issueTypes));
             return this;
         }
 
-        public Builder issueTypes(Set<String> issueTypes)
-        {
+        public Builder issueTypes(Set<String> issueTypes) {
             this.issueTypes.clear();
             this.issueTypes.addAll(issueTypes);
             return this;
         }
 
-        public Builder optionNames(String... optionNames)
-        {
+        public Builder optionNames(String... optionNames) {
             this.optionNames.clear();
             this.optionNames.addAll(Arrays.asList(optionNames));
             return this;
         }
 
-        public Builder optionNames(String defaultOptionName)
-        {
-            if (this.optionNames.contains(defaultOptionName))
-            {
+        public Builder optionNames(String defaultOptionName) {
+            if (this.optionNames.contains(defaultOptionName)) {
                 this.defaultOptionName = defaultOptionName;
             }
             return this;
         }
 
-        public Builder lockField(boolean lockField)
-        {
+        public Builder lockField(boolean lockField) {
             this.lockField = lockField;
             return this;
         }
 
-        public Builder lockFieldDescription(String lockFieldDescription)
-        {
+        public Builder lockFieldDescription(String lockFieldDescription) {
             this.lockFieldDescription = lockFieldDescription;
             return this;
         }
 
-        public Builder requireField(boolean requireField)
-        {
+        public Builder requireField(boolean requireField) {
             this.requireField = requireField;
             return this;
         }
 
-        public CustomFieldMetadata build()
-        {
+        public CustomFieldMetadata build() {
             return new CustomFieldMetadata(fieldName, fieldDescription, fieldType, fieldSearcher, issueTypeProvider, optionNames, defaultOptionName, lockField, lockFieldDescription, requireField);
         }
     }

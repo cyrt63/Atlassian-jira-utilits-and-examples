@@ -8,18 +8,15 @@ import com.atlassian.jira.user.ApplicationUsers;
 
 /**
  * Is the user logged in?
- *
+ * <p>
  * A reimplementation of a basic condition such that we get around some OSGI problems
  */
-public class UserLoggedInCondition extends AbstractJiraCondition
-{
-    public boolean shouldDisplay(User user, JiraHelper jiraHelper)
-    {
+public class UserLoggedInCondition extends AbstractJiraCondition {
+    public boolean shouldDisplay(User user, JiraHelper jiraHelper) {
         return shouldDisplay(ApplicationUsers.from(user), jiraHelper);
     }
 
-    public boolean shouldDisplay(ApplicationUser user, JiraHelper jiraHelper)
-    {
+    public boolean shouldDisplay(ApplicationUser user, JiraHelper jiraHelper) {
         return user != null;
     }
 }

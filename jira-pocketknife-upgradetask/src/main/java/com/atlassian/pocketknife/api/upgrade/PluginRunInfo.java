@@ -5,8 +5,7 @@ import org.joda.time.DateTime;
 /**
  * Information about when a plugin has run before.
  */
-public interface PluginRunInfo extends Comparable<PluginRunInfo>
-{
+public interface PluginRunInfo extends Comparable<PluginRunInfo> {
     int compareTo(PluginRunInfo that);
 
     String getCurrentVersion();

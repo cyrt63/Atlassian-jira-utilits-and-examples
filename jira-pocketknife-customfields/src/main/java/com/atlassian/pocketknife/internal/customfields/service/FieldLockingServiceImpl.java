@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
  * Allows locking down field configuration
  */
 @Component
-public class FieldLockingServiceImpl implements FieldLockingService
-{
+public class FieldLockingServiceImpl implements FieldLockingService {
     private final Logger logger = LoggerFactory.getLogger(FieldLockingServiceImpl.class);
 
     @Autowired
@@ -29,13 +28,11 @@ public class FieldLockingServiceImpl implements FieldLockingService
     private ManagedConfigurationItemService managedConfigurationItemService;
 
     @Override
-    public ErrorCollection lockField(final CustomField field, String descI18nKey)
-    {
+    public ErrorCollection lockField(final CustomField field, String descI18nKey) {
         logger.info("Configuration locked for field {}", field.getFieldName());
 
         final ManagedConfigurationItem managedConfigurationItem = managedConfigurationItemService.getManagedCustomField(field);
-        if (isLocked(managedConfigurationItem))
-        {
+        if (isLocked(managedConfigurationItem)) {
             return new SimpleErrorCollection();
         }
 

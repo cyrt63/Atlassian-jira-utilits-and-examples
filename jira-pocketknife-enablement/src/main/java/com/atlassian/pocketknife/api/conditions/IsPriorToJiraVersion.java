@@ -8,15 +8,12 @@ import java.util.Map;
 /**
  * Condition to check whether JIRA is older than a given version.
  */
-public class IsPriorToJiraVersion extends AbstractJiraVersionCondition
-{
-    public IsPriorToJiraVersion(BuildUtilsInfo buildUtilsInfo)
-    {
+public class IsPriorToJiraVersion extends AbstractJiraVersionCondition {
+    public IsPriorToJiraVersion(BuildUtilsInfo buildUtilsInfo) {
         super(buildUtilsInfo);
     }
 
-    public boolean shouldDisplay(final Map<String, Object> context)
-    {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         return jiraVersion.isLessThan(version);
     }
 }

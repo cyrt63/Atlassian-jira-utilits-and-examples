@@ -26,24 +26,21 @@ import static org.apache.commons.lang.Validate.notNull;
 
 /**
  * Implementation of the PersistenceService interface
- * <p/>
+ * <p>
  * Wraps JiraPropertySetFactory for persistence.
  */
 @Service
-public class PersistenceServiceImpl implements PersistenceService
-{
+public class PersistenceServiceImpl implements PersistenceService {
     private final Logger log = Logger.getLogger(getClass());
 
     private JiraPropertySetFactory propertySetFactory;
 
     @Autowired
-    public PersistenceServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory)
-    {
+    public PersistenceServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory) {
         this.propertySetFactory = propertySetFactory;
     }
 
-    private static void assertPreconditions(String entityName, Long entityId, String key)
-    {
+    private static void assertPreconditions(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -52,8 +49,7 @@ public class PersistenceServiceImpl implements PersistenceService
     /**
      * Set a Long property.
      */
-    public void setLong(String entityName, Long entityId, String key, Long value)
-    {
+    public void setLong(String entityName, Long entityId, String key, Long value) {
         assertPreconditions(entityName, entityId, key);
         notNull(value);
 
@@ -63,16 +59,14 @@ public class PersistenceServiceImpl implements PersistenceService
     /**
      * Get a Long property.
      */
-    public Long getLong(String entityName, Long entityId, String key)
-    {
+    public Long getLong(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         return exists(entityName, entityId, key) ? getPropertySet(entityName, entityId).getLong(key) : null;
     }
 
     @Override
-    public void setText(String entityName, Long entityId, String key, String value)
-    {
+    public void setText(String entityName, Long entityId, String key, String value) {
         assertPreconditions(entityName, entityId, key);
         notNull(value);
 
@@ -80,8 +74,7 @@ public class PersistenceServiceImpl implements PersistenceService
     }
 
     @Override
-    public String getText(String entityName, Long entityId, String key)
-    {
+    public String getText(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         return exists(entityName, entityId, key) ? getPropertySet(entityName, entityId).getText(key) : null;
@@ -90,8 +83,7 @@ public class PersistenceServiceImpl implements PersistenceService
     /**
      * Set a Double property.
      */
-    public void setDouble(String entityName, Long entityId, String key, Double value)
-    {
+    public void setDouble(String entityName, Long entityId, String key, Double value) {
         assertPreconditions(entityName, entityId, key);
         notNull(value);
 
@@ -101,16 +93,14 @@ public class PersistenceServiceImpl implements PersistenceService
     /**
      * Get a Double property.
      */
-    public Double getDouble(String entityName, Long entityId, String key)
-    {
+    public Double getDouble(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         return exists(entityName, entityId, key) ? getPropertySet(entityName, entityId).getDouble(key) : null;
     }
 
     @Override
-    public void setBoolean(String entityName, Long entityId, String key, Boolean value)
-    {
+    public void setBoolean(String entityName, Long entityId, String key, Boolean value) {
         assertPreconditions(entityName, entityId, key);
         notNull(value);
 
@@ -118,8 +108,7 @@ public class PersistenceServiceImpl implements PersistenceService
     }
 
     @Override
-    public Boolean getBoolean(String entityName, Long entityId, String key)
-    {
+    public Boolean getBoolean(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         return exists(entityName, entityId, key) ? getPropertySet(entityName, entityId).getBoolean(key) : null;
@@ -130,14 +119,12 @@ public class PersistenceServiceImpl implements PersistenceService
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> getData(String entityName, Long entityId, String key)
-    {
+    public Map<String, Object> getData(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         // Fetch the value
         String serializedData = getPropertySet(entityName, entityId).getText(key);
-        if (serializedData == null)
-        {
+        if (serializedData == null) {
             return null;
         }
         return toMap(serializedData);
@@ -147,8 +134,7 @@ public class PersistenceServiceImpl implements PersistenceService
      * Converts the provided data map into a text property and stores it under key.
      */
     @Override
-    public void setData(String entityName, Long entityId, String key, Map<String, Object> data)
-    {
+    public void setData(String entityName, Long entityId, String key, Map<String, Object> data) {
         assertPreconditions(entityName, entityId, key);
         notNull(data);
 
@@ -162,16 +148,14 @@ public class PersistenceServiceImpl implements PersistenceService
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object> getListData(String entityName, Long entityId, String key)
-    {
+    public List<Object> getListData(String entityName, Long entityId, String key) {
         notNull(entityName, "entityName must not be null");
         notNull(entityId, "entityId must not be null");
         notNull(key, "key must not be null");
 
         // Fetch the value
         String serializedData = getPropertySet(entityName, entityId).getText(key);
-        if (serializedData == null)
-        {
+        if (serializedData == null) {
             return null;
         }
 
@@ -180,8 +164,7 @@ public class PersistenceServiceImpl implements PersistenceService
     }
 
     @Override
-    public void setListData(String entityName, Long entityId, String key, List<Object> data)
-    {
+    public void setListData(String entityName, Long entityId, String key, List<Object> data) {
         notNull(entityName, "entityName must not be null");
         notNull(entityId, "entityId must not be null");
         notNull(key, "key must not be null");
@@ -190,8 +173,7 @@ public class PersistenceServiceImpl implements PersistenceService
         // serialize the list
         String serializedData = new JSONArray(data).toString();
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug("Storing list data in property set: " + entityName + ":" + entityId + " => " + key + ":" + serializedData);
         }
 
@@ -199,40 +181,30 @@ public class PersistenceServiceImpl implements PersistenceService
         getPropertySet(entityName, entityId).setText(key, serializedData);
     }
 
-    private Map<String, Object> toMap(String serializedData)
-    {
-        try
-        {
+    private Map<String, Object> toMap(String serializedData) {
+        try {
             Map<String, Object> map = new HashMap<String, Object>();
             JSONObject jsonObject = new JSONObject(serializedData);
-            for (Iterator<String> it = jsonObject.keys(); it.hasNext(); )
-            {
+            for (Iterator<String> it = jsonObject.keys(); it.hasNext(); ) {
                 String key = it.next();
                 map.put(key, jsonObject.get(key));
             }
             return map;
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             throw new RuntimeException("Code Assertion : How did we store JSON and not be able to parse it?", e);
         }
     }
 
-    private List<Object> toList(String serializedData)
-    {
-        try
-        {
+    private List<Object> toList(String serializedData) {
+        try {
             List<Object> list = new ArrayList<Object>();
             JSONArray array = new JSONArray(serializedData);
-            for (int i = 0; i < array.length(); i++)
-            {
+            for (int i = 0; i < array.length(); i++) {
                 list.add(array.get(i));
 
             }
             return list;
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             throw new RuntimeException("Code Assertion : How did we store JSON and not be able to parse it?", e);
         }
     }
@@ -242,22 +214,19 @@ public class PersistenceServiceImpl implements PersistenceService
      */
     @Override
     @SuppressWarnings("rawtypes")
-    public Set<String> getKeys(String entityName, Long entityId)
-    {
+    public Set<String> getKeys(String entityName, Long entityId) {
         notNull(entityName);
         notNull(entityId);
 
         // fetch the keys
         Collection keys = getPropertySet(entityName, entityId).getKeys();
-        if (keys.isEmpty())
-        {
+        if (keys.isEmpty()) {
             return Collections.emptySet();
         }
 
         // convert to a set of Strings
         Set<String> keySet = new HashSet<String>();
-        for (Object key : keys)
-        {
+        for (Object key : keys) {
             keySet.add((String) key);
         }
         return keySet;
@@ -267,8 +236,7 @@ public class PersistenceServiceImpl implements PersistenceService
      * Does a given key exist?
      */
     @Override
-    public boolean exists(String entityName, Long entityId, String key)
-    {
+    public boolean exists(String entityName, Long entityId, String key) {
         return getPropertySet(entityName, entityId).exists(key);
     }
 
@@ -276,8 +244,7 @@ public class PersistenceServiceImpl implements PersistenceService
      * Remove a property for a given entity name and entity id couple
      */
     @Override
-    public void delete(String entityName, Long entityId, String key)
-    {
+    public void delete(String entityName, Long entityId, String key) {
         assertPreconditions(entityName, entityId, key);
 
         PropertySet propertySet = getPropertySet(entityName, entityId);
@@ -289,16 +256,14 @@ public class PersistenceServiceImpl implements PersistenceService
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public void deleteAll(String entityName, Long entityId)
-    {
+    public void deleteAll(String entityName, Long entityId) {
         notNull(entityName);
         notNull(entityId);
 
         // remove all properties of this set
         PropertySet propertySet = getPropertySet(entityName, entityId);
         Collection keys = propertySet.getKeys();
-        for (Object key : keys)
-        {
+        for (Object key : keys) {
             removeProperty(propertySet, (String) key);
         }
     }
@@ -309,8 +274,7 @@ public class PersistenceServiceImpl implements PersistenceService
      * @return a PropertySet for the given entityName and entityId.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private PropertySet getPropertySet(String entityName, Long entityId)
-    {
+    private PropertySet getPropertySet(String entityName, Long entityId) {
         notNull(entityName);
         notNull(entityId);
         return propertySetFactory.buildCachingPropertySet(entityName, entityId, false);
@@ -319,17 +283,12 @@ public class PersistenceServiceImpl implements PersistenceService
     /**
      * Removes a property. Silently swallows thrown exception
      */
-    private void removeProperty(PropertySet propertySet, String key)
-    {
-        try
-        {
-            if (propertySet.exists(key))
-            {
+    private void removeProperty(PropertySet propertySet, String key) {
+        try {
+            if (propertySet.exists(key)) {
                 propertySet.remove(key);
             }
-        }
-        catch (PropertyException e)
-        {
+        } catch (PropertyException e) {
             log.warn(e, e);
         }
     }

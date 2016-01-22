@@ -8,8 +8,7 @@ import java.util.List;
 /**
  * A common interface for DAOs which handle an AO record {@link T} which has a relationship with parent record {@link P}.
  */
-public interface RelatedEntityDao<PK, P extends Entity, T extends Entity, U>
-{
+public interface RelatedEntityDao<PK, P extends Entity, T extends Entity, U> {
     /**
      * Return all the records for the specified parent.
      *

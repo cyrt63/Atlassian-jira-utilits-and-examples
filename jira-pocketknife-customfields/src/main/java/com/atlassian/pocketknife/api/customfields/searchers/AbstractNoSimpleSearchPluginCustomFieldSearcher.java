@@ -15,28 +15,23 @@ import com.atlassian.jira.web.FieldVisibilityManager;
 import com.atlassian.pocketknife.api.customfields.searchers.inputtransformer.NoSimpleSearchInputTransformer;
 import com.atlassian.pocketknife.api.customfields.searchers.renderer.EmptySearchRenderer;
 
-public abstract class AbstractNoSimpleSearchPluginCustomFieldSearcher extends AbstractSimplePluginCustomFieldSearcher
-{
-    public AbstractNoSimpleSearchPluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper)
-    {
+public abstract class AbstractNoSimpleSearchPluginCustomFieldSearcher extends AbstractSimplePluginCustomFieldSearcher {
+    public AbstractNoSimpleSearchPluginCustomFieldSearcher(FieldVisibilityManager fieldVisibilityManager, JqlOperandResolver jqlOperandResolver, CustomFieldInputHelper customFieldInputHelper) {
         super(fieldVisibilityManager, jqlOperandResolver, customFieldInputHelper);
     }
 
     @Override
-    protected CustomFieldRenderer getNewCustomFieldSearchRenderer(ClauseNames clauseNames, CustomFieldSearcherModuleDescriptor customFieldSearcherModuleDescriptor, CustomField field, CustomFieldValueProvider customFieldValueProvider, FieldVisibilityManager fieldVisibilityManager)
-    {
+    protected CustomFieldRenderer getNewCustomFieldSearchRenderer(ClauseNames clauseNames, CustomFieldSearcherModuleDescriptor customFieldSearcherModuleDescriptor, CustomField field, CustomFieldValueProvider customFieldValueProvider, FieldVisibilityManager fieldVisibilityManager) {
         return new EmptySearchRenderer(clauseNames, customFieldSearcherModuleDescriptor, field, customFieldValueProvider, fieldVisibilityManager);
     }
 
     @Override
-    protected SearchInputTransformer getNewSearchInputTransformer(CustomField field, CustomFieldInputHelper customFieldInputHelper)
-    {
+    protected SearchInputTransformer getNewSearchInputTransformer(CustomField field, CustomFieldInputHelper customFieldInputHelper) {
         return new NoSimpleSearchInputTransformer(field, customFieldInputHelper);
     }
 
     @Override
-    protected ClauseQueryFactory getNewClauseQueryFactory(CustomField field, JqlOperandResolver jqlOperandResolver, IndexValueConverter indexValueConverter)
-    {
+    protected ClauseQueryFactory getNewClauseQueryFactory(CustomField field, JqlOperandResolver jqlOperandResolver, IndexValueConverter indexValueConverter) {
         return new ActualValueCustomFieldClauseQueryFactory(field.getId(), jqlOperandResolver, indexValueConverter, true);
     }
 }

@@ -6,8 +6,7 @@ import java.util.List;
 /**
  * A service to help an add on run its own upgrade tasks and also give a history when all upgrade tasks have been run
  */
-public interface UpgradeVersionService
-{
+public interface UpgradeVersionService {
     boolean runUpgradeTasks() throws UpgradeTaskException;
 
     boolean hasLastUpgradeTaskCompleted();

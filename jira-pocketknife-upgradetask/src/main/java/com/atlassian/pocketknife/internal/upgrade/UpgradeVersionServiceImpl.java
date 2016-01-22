@@ -2,11 +2,11 @@ package com.atlassian.pocketknife.internal.upgrade;
 
 import com.atlassian.jira.util.lang.Pair;
 import com.atlassian.pocketknife.api.autowire.PluginAutowirer;
-import com.atlassian.pocketknife.api.upgrade.DowngradeException;
-import com.atlassian.pocketknife.api.upgrade.UpgradeTaskException;
 import com.atlassian.pocketknife.api.persistence.PersistenceService;
+import com.atlassian.pocketknife.api.upgrade.DowngradeException;
 import com.atlassian.pocketknife.api.upgrade.PluginRunInfo;
 import com.atlassian.pocketknife.api.upgrade.UpgradeHistoryDetail;
+import com.atlassian.pocketknife.api.upgrade.UpgradeTaskException;
 import com.atlassian.pocketknife.api.upgrade.UpgradeVersionService;
 import com.atlassian.pocketknife.spi.ao.PocketKnifeActiveObjectsIntegration;
 import com.atlassian.pocketknife.spi.info.PocketKnifePluginInfo;
@@ -34,8 +34,7 @@ import static java.lang.String.valueOf;
  * Keeps track of the last upgrade task number to run. Checks if upgrades are currently running.
  */
 @Service
-public class UpgradeVersionServiceImpl implements UpgradeVersionService
-{
+public class UpgradeVersionServiceImpl implements UpgradeVersionService {
     private static final String UPGRADE_HISTORY = "Upgrade.History";
     private static final String RUN_HISTORY = "Run.History";
 
@@ -61,23 +60,18 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
 
 
     // sorted by ascending build number
-    private static final Comparator<PluginUpgradeTask> UPGRADE_TASK_COMPARATOR = new Comparator<PluginUpgradeTask>()
-    {
+    private static final Comparator<PluginUpgradeTask> UPGRADE_TASK_COMPARATOR = new Comparator<PluginUpgradeTask>() {
         @Override
-        public int compare(PluginUpgradeTask task, PluginUpgradeTask task2)
-        {
+        public int compare(PluginUpgradeTask task, PluginUpgradeTask task2) {
             return task.getBuildNumber() - task2.getBuildNumber();
         }
     };
 
-    private LazyReference<List<PluginUpgradeTask>> upgradeTasksToRun = new LazyReference<List<PluginUpgradeTask>>()
-    {
+    private LazyReference<List<PluginUpgradeTask>> upgradeTasksToRun = new LazyReference<List<PluginUpgradeTask>>() {
         @Override
-        protected List<PluginUpgradeTask> create() throws Exception
-        {
+        protected List<PluginUpgradeTask> create() throws Exception {
             List<Class<? extends PluginUpgradeTask>> upgradeTaskClasses = pocketKnifeUpgradeTaskInfo.getUpgradeTasks();
-            if (upgradeTaskClasses == null)
-            {
+            if (upgradeTaskClasses == null) {
                 return Collections.emptyList();
             }
             List<PluginUpgradeTask> pluginUpgradeTasks = instantiateTasks(upgradeTaskClasses);
@@ -89,11 +83,9 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
     };
 
 
-    private List<PluginUpgradeTask> instantiateTasks(List<Class<? extends PluginUpgradeTask>> upgradeTaskClasses)
-    {
+    private List<PluginUpgradeTask> instantiateTasks(List<Class<? extends PluginUpgradeTask>> upgradeTaskClasses) {
         List<PluginUpgradeTask> pluginUpgradeTasks = Lists.newArrayList();
-        for (Class<? extends PluginUpgradeTask> upgradeTask : upgradeTaskClasses)
-        {
+        for (Class<? extends PluginUpgradeTask> upgradeTask : upgradeTaskClasses) {
             PluginUpgradeTask instantiatedUpgradeTask = pluginAutowirer.autowire(upgradeTask);
             pluginUpgradeTasks.add(instantiatedUpgradeTask);
         }
@@ -106,30 +98,25 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      * @return true if all the plugin upgrade tasks have succeeded
      */
     @Override
-    public boolean runUpgradeTasks() throws UpgradeTaskException
-    {
+    public boolean runUpgradeTasks() throws UpgradeTaskException {
         return new UpgradeTaskRunner(this).runUpgradeTasks(pocketKnifePluginInfo, upgradeTasksToRun.get(), upgradeInfoBackDoor.getLastUpgradeTaskRun());
     }
 
     @Override
-    public boolean hasLastUpgradeTaskCompleted()
-    {
+    public boolean hasLastUpgradeTaskCompleted() {
         return getExpectedUpgradeTask() == upgradeInfoBackDoor.getLastUpgradeTaskRun();
     }
 
-    private int getExpectedUpgradeTask()
-    {
+    private int getExpectedUpgradeTask() {
         List<PluginUpgradeTask> pluginUpgradeTasks = upgradeTasksToRun.get();
-        if (pluginUpgradeTasks.isEmpty())
-        {
+        if (pluginUpgradeTasks.isEmpty()) {
             return 0;
         }
         return Iterables.getLast(pluginUpgradeTasks).getBuildNumber();
     }
 
     @Override
-    public boolean hasLastActiveObjectsUpgradeTaskCompleted()
-    {
+    public boolean hasLastActiveObjectsUpgradeTaskCompleted() {
         return pocketKnifeActiveObjectsIntegration.getExpectedAOModelVersion() == upgradeInfoBackDoor.getActiveObjectsModelVersion();
     }
 
@@ -137,23 +124,19 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      * @return true if the version looks kosher from an upgrade and plugin version point of view
      */
     @Override
-    public boolean versionLooksKosher()
-    {
+    public boolean versionLooksKosher() {
         return !getCurrentPluginRunInfo().isDowngrade() && hasLastUpgradeTaskCompleted();
     }
 
     @Override
-    public void checkForDowngrade() throws DowngradeException
-    {
+    public void checkForDowngrade() throws DowngradeException {
         PluginRunInfoImpl currentPluginRunInfo = getCurrentPluginRunInfo();
-        if (currentPluginRunInfo.isDowngrade())
-        {
+        if (currentPluginRunInfo.isDowngrade()) {
             throw new DowngradeException(currentPluginRunInfo);
         }
     }
 
-    private String pfx(String key)
-    {
+    private String pfx(String key) {
         return pocketKnifePluginInfo.getPluginKey() + ":" + key;
     }
 
@@ -166,8 +149,7 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      */
 
     @Override
-    public PluginRunInfoImpl recordPluginStarted()
-    {
+    public PluginRunInfoImpl recordPluginStarted() {
         Pair<PluginRunInfoImpl, Boolean> pair = getPluginRunInfoImpl();
 
         PluginRunInfoImpl current = pair.first();
@@ -175,8 +157,7 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
         persistenceService.setData(pfx(RUN_HISTORY), 1L, RUN_HISTORY, current.toPersistenceMap());
 
         // pair.second means we found no previous data
-        if (pair.second() || current.isDifferentPlugin())
-        {
+        if (pair.second() || current.isDifferentPlugin()) {
             //
             // now add a history item to show we have changed versions. NOTE : we use a DIFFERENT entity id (2) here to segment the data
             // and we use now DateTime() as the unique key generation
@@ -191,29 +172,23 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      * @return the current plugin run info, which can tell if there has been a down grade
      */
     @Override
-    public PluginRunInfoImpl getCurrentPluginRunInfo()
-    {
-        if (currentRunInfo == null)
-        {
+    public PluginRunInfoImpl getCurrentPluginRunInfo() {
+        if (currentRunInfo == null) {
             Pair<PluginRunInfoImpl, Boolean> pair = getPluginRunInfoImpl();
             currentRunInfo = pair.first();
         }
         return currentRunInfo;
     }
 
-    private Pair<PluginRunInfoImpl, Boolean> getPluginRunInfoImpl()
-    {
+    private Pair<PluginRunInfoImpl, Boolean> getPluginRunInfoImpl() {
 
         PluginRunInfoImpl previousRunInfo;
         Map<String, Object> prevData = persistenceService.getData(pfx(RUN_HISTORY), 1L, RUN_HISTORY);
-        if (prevData == null)
-        {
+        if (prevData == null) {
             // we have never recorded this before - synthesize one
             Integer latestUpgradeTaskRun = nvl(upgradeInfoBackDoor.getLastUpgradeTaskRun(), 0);
             previousRunInfo = new PluginRunInfoImpl(new DateTime(), Long.valueOf(latestUpgradeTaskRun), pocketKnifePluginInfo);
-        }
-        else
-        {
+        } else {
             previousRunInfo = new PluginRunInfoImpl(prevData, pocketKnifePluginInfo);
         }
         PluginRunInfoImpl pluginRunInfo = new PluginRunInfoImpl(previousRunInfo.getPreviousRanOn(), previousRunInfo.getLatestUpgradeTaskRun(), previousRunInfo.getCurrentVersion(), previousRunInfo.getCurrentBuildDate(), previousRunInfo.getPreviousChangeSet(), pocketKnifePluginInfo);
@@ -227,15 +202,12 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      * @return the list of plugin run history
      */
     @Override
-    public List<PluginRunInfo> getPluginRunHistory()
-    {
+    public List<PluginRunInfo> getPluginRunHistory() {
         List<PluginRunInfo> runInfoList = Lists.newArrayList();
         Set<String> keys = defaultSet(persistenceService.getKeys(pfx(RUN_HISTORY), 2L));
-        for (String key : keys)
-        {
+        for (String key : keys) {
             Map<String, Object> data = persistenceService.getData(pfx(RUN_HISTORY), 2L, key);
-            if (data != null)
-            {
+            if (data != null) {
                 runInfoList.add(new PluginRunInfoImpl(data, pocketKnifePluginInfo));
             }
         }
@@ -248,8 +220,7 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      *
      * @param buildNumber the build number of the upgrade task
      */
-    public void recordUpgradeTaskStarted(String buildNumber)
-    {
+    public void recordUpgradeTaskStarted(String buildNumber) {
         recordUpgradeTaskRan(valueOf(buildNumber), -1, 1L);
     }
 
@@ -258,18 +229,15 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      *
      * @param buildNumber the build number of the upgrade task
      */
-    public void recordUpgradeTaskEnded(String buildNumber, long timeTaken)
-    {
+    public void recordUpgradeTaskEnded(String buildNumber, long timeTaken) {
         recordUpgradeTaskRan(valueOf(buildNumber), timeTaken, 2L);
     }
 
-    void setLatestUpgradedVersion(int buildNumber)
-    {
+    void setLatestUpgradedVersion(int buildNumber) {
         upgradeInfoBackDoor.setLastUpgradeTaskRun(buildNumber);
     }
 
-    private void recordUpgradeTaskRan(final String buildNumber, final long timeTaken, final Long entityId)
-    {
+    private void recordUpgradeTaskRan(final String buildNumber, final long timeTaken, final Long entityId) {
         Map<String, Object> data = Maps.newHashMap();
         data.put("ranOn", toIsoDateStr(new DateTime()));
         data.put("buildNumber", valueOf(buildNumber));
@@ -284,26 +252,21 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
      * @return a history of the plugin upgrade that have run
      */
     @Override
-    public List<UpgradeHistoryDetail> getUpgradeHistory()
-    {
+    public List<UpgradeHistoryDetail> getUpgradeHistory() {
 
         Set<String> startedKeys = defaultSet(persistenceService.getKeys(pfx(UPGRADE_HISTORY), 1L));
         Set<String> endedKeys = defaultSet(persistenceService.getKeys(pfx(UPGRADE_HISTORY), 2L));
 
         List<UpgradeHistoryDetail> upgradeHistoryDetails = Lists.newArrayList();
-        for (String key : startedKeys)
-        {
+        for (String key : startedKeys) {
             Map<String, Object> data = persistenceService.getData(pfx(UPGRADE_HISTORY), 1L, key);
-            if (data != null)
-            {
+            if (data != null) {
                 upgradeHistoryDetails.add(new UpgradeHistoryDetailImpl(data));
             }
         }
-        for (String key : endedKeys)
-        {
+        for (String key : endedKeys) {
             Map<String, Object> data = persistenceService.getData(pfx(UPGRADE_HISTORY), 2L, key);
-            if (data != null)
-            {
+            if (data != null) {
                 upgradeHistoryDetails.add(new UpgradeHistoryDetailImpl(data));
             }
         }
@@ -311,18 +274,15 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService
         return upgradeHistoryDetails;
     }
 
-    private Set<String> defaultSet(final Set<String> keys)
-    {
+    private Set<String> defaultSet(final Set<String> keys) {
         return keys == null ? Sets.<String>newHashSet() : keys;
     }
 
-    private Integer nvl(final Integer l1, final Integer defaultVal)
-    {
+    private Integer nvl(final Integer l1, final Integer defaultVal) {
         return l1 == null ? defaultVal : l1;
     }
 
-    private static String toIsoDateStr(final DateTime dateTime)
-    {
+    private static String toIsoDateStr(final DateTime dateTime) {
         return dateTime.toString(ISODateTimeFormat.dateTime());
     }
 

@@ -1,5 +1,17 @@
 package com.atlassian.pocketknife.internal.propertysets.service;
 
+import com.atlassian.jira.propertyset.JiraPropertySetFactory;
+import com.atlassian.jira.util.json.JSONArray;
+import com.atlassian.jira.util.json.JSONException;
+import com.atlassian.jira.util.json.JSONObject;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.pocketknife.api.propertysets.service.PropertySetService;
+import com.opensymphony.module.propertyset.PropertyException;
+import com.opensymphony.module.propertyset.PropertySet;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,45 +22,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.atlassian.jira.propertyset.JiraPropertySetFactory;
-import com.atlassian.jira.util.json.JSONArray;
-import com.atlassian.jira.util.json.JSONException;
-import com.atlassian.jira.util.json.JSONObject;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.pocketknife.api.propertysets.service.PropertySetService;
-
-import com.opensymphony.module.propertyset.PropertyException;
-import com.opensymphony.module.propertyset.PropertySet;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
  * Implementation of the PersistenceService interface
- * <p/>
+ * <p>
  * Wraps JiraPropertySetFactory for persistence.
  */
 @Service(PropertySetService.SERVICE)
-public class PropertySetServiceImpl implements PropertySetService
-{
+public class PropertySetServiceImpl implements PropertySetService {
     private final Logger log = Logger.getLogger(getClass());
 
     private final JiraPropertySetFactory propertySetFactory;
 
     @Autowired
-    public PropertySetServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory)
-    {
+    public PropertySetServiceImpl(@ComponentImport JiraPropertySetFactory propertySetFactory) {
         this.propertySetFactory = propertySetFactory;
     }
 
     /**
      * Set a Long property.
      */
-    public void setLong(String entityName, Long entityId, String key, Long value)
-    {
+    public void setLong(String entityName, Long entityId, String key, Long value) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -60,8 +55,7 @@ public class PropertySetServiceImpl implements PropertySetService
     /**
      * Get a Long property.
      */
-    public Long getLong(String entityName, Long entityId, String key)
-    {
+    public Long getLong(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -72,8 +66,7 @@ public class PropertySetServiceImpl implements PropertySetService
     /**
      * Set a Double property.
      */
-    public void setDouble(String entityName, Long entityId, String key, Double value)
-    {
+    public void setDouble(String entityName, Long entityId, String key, Double value) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -85,8 +78,7 @@ public class PropertySetServiceImpl implements PropertySetService
     /**
      * Get a Double property.
      */
-    public Double getDouble(String entityName, Long entityId, String key)
-    {
+    public Double getDouble(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -95,8 +87,7 @@ public class PropertySetServiceImpl implements PropertySetService
     }
 
     @Override
-    public void setBoolean(String entityName, Long entityId, String key, Boolean value)
-    {
+    public void setBoolean(String entityName, Long entityId, String key, Boolean value) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -106,8 +97,7 @@ public class PropertySetServiceImpl implements PropertySetService
     }
 
     @Override
-    public Boolean getBoolean(String entityName, Long entityId, String key)
-    {
+    public Boolean getBoolean(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -120,16 +110,14 @@ public class PropertySetServiceImpl implements PropertySetService
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> getData(String entityName, Long entityId, String key)
-    {
+    public Map<String, Object> getData(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
 
         // Fetch the value
         String serializedData = getPropertySet(entityName, entityId).getText(key);
-        if (serializedData == null)
-        {
+        if (serializedData == null) {
             return null;
         }
         return toMap(serializedData);
@@ -139,8 +127,7 @@ public class PropertySetServiceImpl implements PropertySetService
      * Converts the provided data map into a text property and stores it under key.
      */
     @Override
-    public void setData(String entityName, Long entityId, String key, Map<String, Object> data)
-    {
+    public void setData(String entityName, Long entityId, String key, Map<String, Object> data) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -156,16 +143,14 @@ public class PropertySetServiceImpl implements PropertySetService
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object> getListData(String entityName, Long entityId, String key)
-    {
+    public List<Object> getListData(String entityName, Long entityId, String key) {
         notNull(entityName, "entityName must not be null");
         notNull(entityId, "entityId must not be null");
         notNull(key, "key must not be null");
 
         // Fetch the value
         String serializedData = getPropertySet(entityName, entityId).getText(key);
-        if (serializedData == null)
-        {
+        if (serializedData == null) {
             return null;
         }
 
@@ -174,8 +159,7 @@ public class PropertySetServiceImpl implements PropertySetService
     }
 
     @Override
-    public void setListData(String entityName, Long entityId, String key, List<Object> data)
-    {
+    public void setListData(String entityName, Long entityId, String key, List<Object> data) {
         notNull(entityName, "entityName must not be null");
         notNull(entityId, "entityId must not be null");
         notNull(key, "key must not be null");
@@ -184,8 +168,7 @@ public class PropertySetServiceImpl implements PropertySetService
         // serialize the list
         String serializedData = new JSONArray(data).toString();
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug("Storing list data in property set: " + entityName + ":" + entityId + " => " + key + ":" + serializedData);
         }
 
@@ -193,40 +176,30 @@ public class PropertySetServiceImpl implements PropertySetService
         getPropertySet(entityName, entityId).setText(key, serializedData);
     }
 
-    private Map<String, Object> toMap(String serializedData)
-    {
-        try
-        {
+    private Map<String, Object> toMap(String serializedData) {
+        try {
             Map<String, Object> map = new HashMap<String, Object>();
             JSONObject jsonObject = new JSONObject(serializedData);
-            for (Iterator<String> it = jsonObject.keys(); it.hasNext(); )
-            {
+            for (Iterator<String> it = jsonObject.keys(); it.hasNext(); ) {
                 String key = it.next();
                 map.put(key, jsonObject.get(key));
             }
             return map;
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             throw new RuntimeException("Code Assertion : How did we store JSON and not be able to parse it?", e);
         }
     }
 
-    private List<Object> toList(String serializedData)
-    {
-        try
-        {
+    private List<Object> toList(String serializedData) {
+        try {
             List<Object> list = new ArrayList<Object>();
             JSONArray array = new JSONArray(serializedData);
-            for (int i = 0; i < array.length(); i++)
-            {
+            for (int i = 0; i < array.length(); i++) {
                 list.add(array.get(i));
 
             }
             return list;
-        }
-        catch (JSONException e)
-        {
+        } catch (JSONException e) {
             throw new RuntimeException("Code Assertion : How did we store JSON and not be able to parse it?", e);
         }
     }
@@ -236,22 +209,19 @@ public class PropertySetServiceImpl implements PropertySetService
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public Set<String> getKeys(String entityName, Long entityId)
-    {
+    public Set<String> getKeys(String entityName, Long entityId) {
         notNull(entityName);
         notNull(entityId);
 
         // fetch the keys
         Collection keys = getPropertySet(entityName, entityId).getKeys();
-        if (keys.isEmpty())
-        {
+        if (keys.isEmpty()) {
             return Collections.emptySet();
         }
 
         // convert to a set of Strings
         Set<String> keySet = new HashSet<String>();
-        for (Object key : keys)
-        {
+        for (Object key : keys) {
             keySet.add((String) key);
         }
         return keySet;
@@ -261,8 +231,7 @@ public class PropertySetServiceImpl implements PropertySetService
      * Does a given key exist?
      */
     @Override
-    public boolean exists(String entityName, Long entityId, String key)
-    {
+    public boolean exists(String entityName, Long entityId, String key) {
         return getPropertySet(entityName, entityId).exists(key);
     }
 
@@ -270,8 +239,7 @@ public class PropertySetServiceImpl implements PropertySetService
      * Remove a property for a given entity name and entity id couple
      */
     @Override
-    public void delete(String entityName, Long entityId, String key)
-    {
+    public void delete(String entityName, Long entityId, String key) {
         notNull(entityName);
         notNull(entityId);
         notNull(key);
@@ -285,16 +253,14 @@ public class PropertySetServiceImpl implements PropertySetService
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public void deleteAll(String entityName, Long entityId)
-    {
+    public void deleteAll(String entityName, Long entityId) {
         notNull(entityName);
         notNull(entityId);
 
         // remove all properties of this set
         PropertySet propertySet = getPropertySet(entityName, entityId);
         Collection keys = propertySet.getKeys();
-        for (Object key : keys)
-        {
+        for (Object key : keys) {
             removeProperty(propertySet, (String) key);
         }
     }
@@ -304,25 +270,19 @@ public class PropertySetServiceImpl implements PropertySetService
      *
      * @return a PropertySet for the given entityName and entityId.
      */
-    private PropertySet getPropertySet(String entityName, Long entityId)
-    {
+    private PropertySet getPropertySet(String entityName, Long entityId) {
         return propertySetFactory.buildCachingPropertySet(entityName, entityId, false);
     }
 
     /**
      * Removes a property. Silently swallows thrown exception
      */
-    private void removeProperty(PropertySet propertySet, String key)
-    {
-        try
-        {
-            if (propertySet.exists(key))
-            {
+    private void removeProperty(PropertySet propertySet, String key) {
+        try {
+            if (propertySet.exists(key)) {
                 propertySet.remove(key);
             }
-        }
-        catch (PropertyException e)
-        {
+        } catch (PropertyException e) {
             log.warn(e, e);
         }
     }

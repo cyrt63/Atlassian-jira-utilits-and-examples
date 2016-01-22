@@ -14,42 +14,33 @@ import static com.atlassian.pocketknife.api.search.issue.util.NumberUtil.toLong;
  *
  * @author ahennecke
  */
-public class PluginDataCollector extends FieldableDocumentHitCollector
-{
+public class PluginDataCollector extends FieldableDocumentHitCollector {
     private final FieldSelector fieldSelector;
     private final DataCallback callback;
 
-    public PluginDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, DataCallback callback)
-    {
+    public PluginDataCollector(IndexSearcher searcher, FieldSelector fieldSelector, DataCallback callback) {
         super(searcher);
         this.fieldSelector = fieldSelector;
         this.callback = callback;
     }
 
     @Override
-    protected FieldSelector getFieldSelector()
-    {
+    protected FieldSelector getFieldSelector() {
         return fieldSelector;
     }
 
     @Override
-    public void collect(Document d)
-    {
+    public void collect(Document d) {
         Long issueId = toLong(d.get(DocumentConstants.ISSUE_ID));
         String issueKey = d.get(DocumentConstants.ISSUE_KEY);
 
-        for (String fieldName : callback.getFields())
-        {
+        for (String fieldName : callback.getFields()) {
             String[] values = d.getValues(fieldName);
-            if (values.length > 0)
-            {
-                for (String value : values)
-                {
+            if (values.length > 0) {
+                for (String value : values) {
                     callback.fieldData(issueId, issueKey, fieldName, value);
                 }
-            }
-            else
-            {
+            } else {
                 callback.fieldData(issueId, issueKey, fieldName, null);
             }
         }

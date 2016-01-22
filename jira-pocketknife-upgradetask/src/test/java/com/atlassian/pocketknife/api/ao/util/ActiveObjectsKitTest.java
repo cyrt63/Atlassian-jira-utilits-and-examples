@@ -12,24 +12,19 @@ import static com.atlassian.pocketknife.api.ao.util.ActiveObjectsKit.getSchemaEn
 /**
  */
 @SuppressWarnings("unchecked")
-public class ActiveObjectsKitTest
-{
+public class ActiveObjectsKitTest {
 
-    private static class SchemaWithNothing
-    {
+    private static class SchemaWithNothing {
 
     }
 
-    private static class SchemaWithNoEntities
-    {
+    private static class SchemaWithNoEntities {
 
     }
 
-    private static class SchemaWitEntitiesButNoTableAnnotation
-    {
+    private static class SchemaWitEntitiesButNoTableAnnotation {
 
-        public static interface Moocows extends Entity
-        {
+        public static interface Moocows extends Entity {
 
             public String getName();
         }
@@ -37,53 +32,44 @@ public class ActiveObjectsKitTest
 
     }
 
-    private static class SchemaWithTwoEntitiesAndSomeOtherStuff
-    {
+    private static class SchemaWithTwoEntitiesAndSomeOtherStuff {
 
         @Table("cows")
-        public static interface Moocows extends Entity
-        {
+        public static interface Moocows extends Entity {
 
             public String getName();
         }
 
         @Table("lambs")
-        public static interface Baalambs extends Entity
-        {
+        public static interface Baalambs extends Entity {
 
             public String getName();
         }
 
-        class SomeOtherStuff
-        {
+        class SomeOtherStuff {
 
-            public String getThisSHouldNotCount()
-            {
+            public String getThisSHouldNotCount() {
                 return null;
             }
         }
 
     }
 
-    private static class SchemaWithTwoInheritance
-    {
-        public static interface Animal extends Entity
-        {
+    private static class SchemaWithTwoInheritance {
+        public static interface Animal extends Entity {
 
             public String getName();
         }
 
 
         @Table("woof")
-        public static interface Woofers extends Animal
-        {
+        public static interface Woofers extends Animal {
 
             public String getName();
         }
 
         @Table("meow")
-        public static interface Meowers extends Animal
-        {
+        public static interface Meowers extends Animal {
 
             public String getName();
         }
@@ -94,38 +80,33 @@ public class ActiveObjectsKitTest
     @Table("cows")
     private static interface CowReplacement extends RawEntity<Long> {
 
-            public String getSounds();
+        public String getSounds();
     }
 
     @Table("elephants")
     private static interface ElephantReplacement extends RawEntity<Long> {
 
-            public String getSounds();
+        public String getSounds();
     }
 
 
-
     @Test(expected = IllegalArgumentException.class)
-    public void testNothingInTheSchema() throws Exception
-    {
+    public void testNothingInTheSchema() throws Exception {
         getSchemaEntitiesWithReplacements(SchemaWithNothing.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNoEntitiesInSchema() throws Exception
-    {
+    public void testNoEntitiesInSchema() throws Exception {
         getSchemaEntitiesWithReplacements(SchemaWithNoEntities.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNoTableAnnotations() throws Exception
-    {
+    public void testNoTableAnnotations() throws Exception {
         getSchemaEntitiesWithReplacements(SchemaWitEntitiesButNoTableAnnotation.class);
     }
 
     @Test
-    public void testHasTwoEntities() throws Exception
-    {
+    public void testHasTwoEntities() throws Exception {
         Class[] entities = getSchemaEntitiesWithReplacements(SchemaWithTwoEntitiesAndSomeOtherStuff.class);
         Assert.assertThat(entities, Matchers.<Class>arrayContainingInAnyOrder(
                 SchemaWithTwoEntitiesAndSomeOtherStuff.Moocows.class,
@@ -134,8 +115,7 @@ public class ActiveObjectsKitTest
     }
 
     @Test
-    public void testHasTwoEntitiesWithReplacementAndAddition() throws Exception
-    {
+    public void testHasTwoEntitiesWithReplacementAndAddition() throws Exception {
         Class[] entities = getSchemaEntitiesWithReplacements(SchemaWithTwoEntitiesAndSomeOtherStuff.class, CowReplacement.class, ElephantReplacement.class);
         Assert.assertThat(entities, Matchers.<Class>arrayContainingInAnyOrder(
                 SchemaWithTwoEntitiesAndSomeOtherStuff.Baalambs.class,
@@ -145,8 +125,7 @@ public class ActiveObjectsKitTest
     }
 
     @Test
-    public void testHasTwoEntitiesWithInheritance() throws Exception
-    {
+    public void testHasTwoEntitiesWithInheritance() throws Exception {
         Class[] entities = getSchemaEntitiesWithReplacements(SchemaWithTwoInheritance.class);
         Assert.assertThat(entities, Matchers.<Class>arrayContainingInAnyOrder(
                 SchemaWithTwoInheritance.Woofers.class,

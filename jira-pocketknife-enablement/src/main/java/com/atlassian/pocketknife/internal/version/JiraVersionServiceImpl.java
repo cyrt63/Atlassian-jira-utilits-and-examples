@@ -11,20 +11,17 @@ import org.springframework.stereotype.Service;
  * Service to fetch the current JIRA version
  */
 @Service
-public class JiraVersionServiceImpl implements JiraVersionService
-{
+public class JiraVersionServiceImpl implements JiraVersionService {
     private final SoftwareVersion jiraVersion;
 
     @Autowired
-    public JiraVersionServiceImpl(BuildUtilsInfo buildUtilsInfo)
-    {
+    public JiraVersionServiceImpl(BuildUtilsInfo buildUtilsInfo) {
         String versionString = buildUtilsInfo.getVersion();
         jiraVersion = VersionKit.parse(versionString);
     }
 
     @Override
-    public SoftwareVersion version()
-    {
+    public SoftwareVersion version() {
         return jiraVersion;
     }
 }

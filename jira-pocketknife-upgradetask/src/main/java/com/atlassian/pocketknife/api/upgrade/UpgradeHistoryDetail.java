@@ -5,8 +5,7 @@ import org.joda.time.DateTime;
 /**
  * Information about what upgrade tasks have run for a plugin before
  */
-public interface UpgradeHistoryDetail extends Comparable<UpgradeHistoryDetail>
-{
+public interface UpgradeHistoryDetail extends Comparable<UpgradeHistoryDetail> {
     DateTime getRanOn();
 
     String getRanOnStr();
