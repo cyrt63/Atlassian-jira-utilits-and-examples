@@ -28,7 +28,6 @@ import com.atlassian.pocketknife.api.customfields.service.FieldLockingService;
 import com.atlassian.pocketknife.api.customfields.service.IssueTypeProvider;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.ofbiz.core.entity.GenericValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +83,7 @@ public class CustomFieldServiceImpl implements CustomFieldService {
             Option<CustomFieldType> type = Option.option(customFieldManager.getCustomFieldType(fieldMetadata.getFieldType()));
             Option<CustomFieldSearcher> searcher = Option.option(customFieldManager.getCustomFieldSearcher(fieldMetadata.getFieldSearcher()));
             Set<String> issueTypeIds = getIssueTypeIds(fieldMetadata.getIssueTypeProvider());
-            List<GenericValue> genericIssueTypeValues = convert(issueTypeIds);
+            List<IssueType> genericIssueTypeValues = convert(issueTypeIds);
 
             // we use the global context here (all projects), since we're creating a field programmatically and don't really want anything project-specific
             List<JiraContextNode> contexts = CustomFieldUtils
@@ -153,11 +152,11 @@ public class CustomFieldServiceImpl implements CustomFieldService {
      * @param issueTypeIds
      * @return
      */
-    private List<GenericValue> convert(Set<String> issueTypeIds) {
+    private List<IssueType> convert(Set<String> issueTypeIds) {
         Set<String> ids = new HashSet<String>();
         ids.addAll(issueTypeIds);
 
-        List<GenericValue> values = CustomFieldUtils.buildIssueTypes(constantsManager, ids.toArray(new String[ids.size()]));
+        List<IssueType> values = CustomFieldUtils.buildIssueTypes(constantsManager, ids.toArray(new String[ids.size()]));
         return values;
     }
 
