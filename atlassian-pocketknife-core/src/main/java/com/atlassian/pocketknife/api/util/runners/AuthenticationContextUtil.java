@@ -1,7 +1,8 @@
 package com.atlassian.pocketknife.api.util.runners;
 
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.util.Supplier;
+
+import java.util.concurrent.Callable;
 
 /**
  * Utility component for executing code under a specific user authentication context
@@ -24,6 +25,6 @@ public interface AuthenticationContextUtil {
      * @param <T> return type of the action
      * @return result of the action
      */
-    public <T> T runAs(ApplicationUser user, Supplier<T> action);
+    public <T> T runAs(ApplicationUser user, Callable<T> action);
 
 }

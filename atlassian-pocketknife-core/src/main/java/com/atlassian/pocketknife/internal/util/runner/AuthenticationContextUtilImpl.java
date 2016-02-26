@@ -1,14 +1,16 @@
 package com.atlassian.pocketknife.internal.util.runner;
 
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.util.Supplier;
 import com.atlassian.jira.util.thread.JiraThreadLocalUtil;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.pocketknife.api.util.runners.AuthenticationContextUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.Callable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,20 +23,23 @@ public final class AuthenticationContextUtilImpl implements AuthenticationContex
     // this component to work
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final JiraThreadLocalUtil jiraThreadLocalUtil;
+    private final PermissionManager permissionManager;
 
     @Autowired
     public AuthenticationContextUtilImpl(
             @ComponentImport JiraAuthenticationContext jiraAuthenticationContext,
-            @ComponentImport JiraThreadLocalUtil jiraThreadLocalUtil) {
+            @ComponentImport JiraThreadLocalUtil jiraThreadLocalUtil,
+            @ComponentImport PermissionManager permissionManager) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.jiraThreadLocalUtil = jiraThreadLocalUtil;
+        this.permissionManager = permissionManager;
     }
 
     @Override
     public void runAs(ApplicationUser user, final Runnable action) {
-        runAs(user, new Supplier<Void>() {
+        runAs(user, new Callable<Void>() {
             @Override
-            public Void get() {
+            public Void call() throws Exception {
                 action.run();
                 return null;
             }
@@ -42,16 +47,21 @@ public final class AuthenticationContextUtilImpl implements AuthenticationContex
     }
 
     @Override
-    public <T> T runAs(ApplicationUser user, Supplier<T> action) {
+    public <T> T runAs(ApplicationUser user, Callable<T> action) {
         checkNotNull(action, "action cannot be null");
         ApplicationUser previous = jiraAuthenticationContext.getLoggedInUser();
         try {
             jiraThreadLocalUtil.preCall();
             jiraAuthenticationContext.setLoggedInUser(user);
-            return action.get();
+            return action.call();
+        } catch (Exception e) {
+            String msg = String.format("Unexpected error while running action as user '%s'", user.getUsername());
+            LOGGER.error(msg, e);
+            throw new RuntimeException(msg, e);
         } finally {
             jiraAuthenticationContext.setLoggedInUser(previous);
             jiraThreadLocalUtil.postCall(LOGGER);
+            permissionManager.flushCache();
         }
     }
 
