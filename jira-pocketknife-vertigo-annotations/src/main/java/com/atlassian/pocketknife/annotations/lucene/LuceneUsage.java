@@ -7,6 +7,8 @@ package com.atlassian.pocketknife.annotations.lucene;
  */
 public @interface LuceneUsage {
 
+    LuceneUsageType type();
+
     String comment() default "";
 
     // Whether diced oxen should ignore this usage for the purposes of generating vertigo incompatibilities. Set to true
