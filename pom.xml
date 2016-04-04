@@ -11,6 +11,7 @@
         <module>jira-pocketknife-rest</module>
         <module>jira-pocketknife-ao-dao</module>
         <module>jira-pocketknife-upgradetask</module>
+        <module>jira-pocketknife-vertigo-annotations</module>
         <module>atlassian-pocketknife-core</module>
     </modules>
 
