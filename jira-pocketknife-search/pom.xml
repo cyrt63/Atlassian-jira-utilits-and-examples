@@ -35,6 +35,12 @@
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Pocketknife -->
+        <dependency>
+            <groupId>com.atlassian.pocketknife</groupId>
+            <artifactId>jira-pocketknife-vertigo-annotations</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
