@@ -25,6 +25,7 @@ public @interface LuceneUsage {
         TimeSeriesAggregation,
         IssuePropertyCollection,
         IssuePropertyAggregation,
+        Indexer,
 
         // Catch-all, use {@link #comment()} to elaborate why it doesn't fit other categories or add a type here.
         Unknown
