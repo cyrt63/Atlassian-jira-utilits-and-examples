@@ -23,6 +23,8 @@ public @interface LuceneUsage {
         IssueAggregation,
         TimeSeriesCollection,
         TimeSeriesAggregation,
+        IssuePropertyCollection,
+        IssuePropertyAggregation,
 
         // Catch-all, use {@link #comment()} to elaborate why it doesn't fit other categories or add a type here.
         Unknown
