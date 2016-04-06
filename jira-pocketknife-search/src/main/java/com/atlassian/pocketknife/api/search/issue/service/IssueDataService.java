@@ -12,7 +12,10 @@ import com.atlassian.query.Query;
  * already provide hooks to underlying services. This is meant for a few fields only.
  *
  * @author ahennecke
+ *
+ * @deprecated This service will no longer be valid after Vertigo. The new search API should be used instead.
  */
+@Deprecated
 public interface IssueDataService {
     /**
      * Execute the query, and for each issue in the result, extract the data as specified by the fields in the callback and send them over to the

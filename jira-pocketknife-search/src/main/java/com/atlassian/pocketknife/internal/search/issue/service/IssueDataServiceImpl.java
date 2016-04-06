@@ -9,6 +9,7 @@ import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.util.NotNull;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import com.atlassian.pocketknife.api.search.issue.callback.DataCallback;
 import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
 import com.atlassian.pocketknife.api.search.issue.service.IssueDataService;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
  * @author ahennecke
  */
 @Service
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.Unknown,
+             comment = "Abstraction for Lucene Collectors - to be removed once the new API is available")
 public class IssueDataServiceImpl implements IssueDataService {
     private final SearchProviderFactory searchProviderFactory;
     private final SearchProvider searchProvider;
