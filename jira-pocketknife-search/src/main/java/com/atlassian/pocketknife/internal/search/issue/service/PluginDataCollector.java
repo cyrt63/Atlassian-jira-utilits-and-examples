@@ -2,6 +2,7 @@ package com.atlassian.pocketknife.internal.search.issue.service;
 
 import com.atlassian.jira.issue.index.DocumentConstants;
 import com.atlassian.jira.issue.statistics.util.FieldableDocumentHitCollector;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import com.atlassian.pocketknife.api.search.issue.callback.DataCallback;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
@@ -14,6 +15,7 @@ import static com.atlassian.pocketknife.api.search.issue.util.NumberUtil.toLong;
  *
  * @author ahennecke
  */
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.IssueCollection)
 public class PluginDataCollector extends FieldableDocumentHitCollector {
     private final FieldSelector fieldSelector;
     private final DataCallback callback;

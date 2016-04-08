@@ -8,6 +8,7 @@ import com.atlassian.jira.issue.search.providers.LuceneSearchProvider;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.ApplicationUsers;
 import com.atlassian.jira.web.bean.PagerFilter;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import com.atlassian.pocketknife.api.search.issue.service.ExtendedSearchService;
 import com.atlassian.query.Query;
 import org.apache.log4j.Logger;
@@ -25,6 +26,7 @@ import java.lang.reflect.Method;
  * reflection.
  */
 @Service
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.Unknown, comment = "Lucene types")
 public class ExtendedSearchServiceImpl implements ExtendedSearchService {
     private static final Logger log = Logger.getLogger(ExtendedSearchServiceImpl.class);
 

@@ -4,6 +4,7 @@ import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.NotNull;
 import com.atlassian.jira.web.bean.PagerFilter;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import com.atlassian.pocketknife.api.search.issue.callback.DataCallback;
 import com.atlassian.query.Query;
 
@@ -16,6 +17,7 @@ import com.atlassian.query.Query;
  * @deprecated This service will no longer be valid after Vertigo. The new search API should be used instead.
  */
 @Deprecated
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.Unknown, comment = "Lucene types (need to convert consumers)")
 public interface IssueDataService {
     /**
      * Execute the query, and for each issue in the result, extract the data as specified by the fields in the callback and send them over to the
