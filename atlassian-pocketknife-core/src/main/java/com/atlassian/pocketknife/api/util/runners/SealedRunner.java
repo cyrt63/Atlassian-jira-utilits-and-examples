@@ -1,6 +1,5 @@
 package com.atlassian.pocketknife.api.util.runners;
 
-import com.atlassian.annotations.tenancy.TenancyScope;
 import com.atlassian.annotations.tenancy.TenantAware;
 import com.atlassian.util.concurrent.Assertions;
 import org.apache.commons.lang.StringUtils;
@@ -9,6 +8,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.atlassian.annotations.tenancy.TenancyScope.UNRESOLVED;
 
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
@@ -31,7 +32,7 @@ public class SealedRunner {
     private AtomicBoolean hasRun;
     private final Runnable runnable;
 
-    @TenantAware(value = TenancyScope.UNRESOLVED)
+    @TenantAware(UNRESOLVED)
     private ConcurrentHashMap<String, Boolean> seals;
 
     /**
