@@ -33,6 +33,7 @@ public @interface LuceneUsage {
         IssuePropertyAggregation,
         Indexer,
         IssueSearchExtractor,
+        FieldSelector,
 
         // Catch-all, use {@link #comment()} to elaborate why it doesn't fit other categories or add a type here.
         Unknown
