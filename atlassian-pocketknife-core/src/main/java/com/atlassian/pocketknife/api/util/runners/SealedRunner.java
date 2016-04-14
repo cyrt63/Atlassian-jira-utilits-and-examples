@@ -1,5 +1,6 @@
 package com.atlassian.pocketknife.api.util.runners;
 
+import com.atlassian.annotations.tenancy.TenantAware;
 import com.atlassian.util.concurrent.Assertions;
 import org.apache.commons.lang.StringUtils;
 
@@ -7,6 +8,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.atlassian.annotations.tenancy.TenancyScope.UNRESOLVED;
 
 /**
  * Often, in movies and games you will be sent on a quest to unlock something by activating a number of seals. Like the
@@ -19,11 +22,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Once all the seals have been broken, the runnable will run once and never again. If there are no seals provided,
  * then the Runnable will never run.
  * <p>
+ *
+ * @deprecated This class should not be used, as the 'seals' map contains tenanted data that may behave in an
+ * unexpected way post-Vertigo.
  */
+@Deprecated
 @ThreadSafe
 public class SealedRunner {
     private AtomicBoolean hasRun;
     private final Runnable runnable;
+
+    @TenantAware(UNRESOLVED)
     private ConcurrentHashMap<String, Boolean> seals;
 
     /**
@@ -35,7 +44,7 @@ public class SealedRunner {
     public SealedRunner(List<String> keys, Runnable runnable) {
         this.hasRun = new AtomicBoolean(false);
         this.runnable = Assertions.notNull("runnable", runnable);
-        this.seals = new ConcurrentHashMap<String, Boolean>();
+        this.seals = new ConcurrentHashMap<>();
 
         for (String key : keys) {
             if (StringUtils.isNotBlank(key)) {
