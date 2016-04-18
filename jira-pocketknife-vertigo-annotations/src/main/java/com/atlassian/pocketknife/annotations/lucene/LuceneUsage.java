@@ -32,8 +32,14 @@ public @interface LuceneUsage {
         IssuePropertyCollection,
         IssuePropertyAggregation,
         Indexer,
-        IssueSearchExtractor,
+        SearchExtractor,
         FieldSelector,
+
+        /**
+         * @deprecated  Use SearchExtractor instead
+         */
+        @Deprecated
+        IssueSearchExtractor,
 
         // Catch-all, use {@link #comment()} to elaborate why it doesn't fit other categories or add a type here.
         Unknown
