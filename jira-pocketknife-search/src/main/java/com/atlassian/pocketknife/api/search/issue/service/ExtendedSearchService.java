@@ -3,12 +3,14 @@ package com.atlassian.pocketknife.api.search.issue.service;
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import com.atlassian.query.Query;
 import org.apache.lucene.search.Collector;
 
 /**
  * Exposes SearchService methods missing/unexposed in the original
  */
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.Unknown, comment = "Lucene types (need to convert consumers)")
 public interface ExtendedSearchService {
     /**
      * Perform an issue search using the specified user and query and return the number of results. User's permissions

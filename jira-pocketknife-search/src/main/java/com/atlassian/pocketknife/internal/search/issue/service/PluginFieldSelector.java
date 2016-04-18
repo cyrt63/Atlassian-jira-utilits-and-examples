@@ -1,6 +1,7 @@
 package com.atlassian.pocketknife.internal.search.issue.service;
 
 import com.atlassian.jira.issue.index.DocumentConstants;
+import com.atlassian.pocketknife.annotations.lucene.LuceneUsage;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 
@@ -12,6 +13,7 @@ import java.util.Set;
  *
  * @author ahennecke
  */
+@LuceneUsage(type = LuceneUsage.LuceneUsageType.Unknown, comment = "Lucene types (need to convert consumers)")
 public class PluginFieldSelector implements FieldSelector {
 
     private static final long serialVersionUID = -1279623447149899950L;
