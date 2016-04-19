@@ -34,6 +34,8 @@ public @interface LuceneUsage {
         Indexer,
         SearchExtractor,
         FieldSelector,
+        SystemFields,
+        CustomFields,
 
         /**
          * @deprecated  Use SearchExtractor instead
