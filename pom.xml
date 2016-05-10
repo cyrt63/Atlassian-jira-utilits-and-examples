@@ -65,7 +65,7 @@
         <atlassian.spring.scanner.version>1.2.3</atlassian.spring.scanner.version>
         <atlassian.annotations.version>1.1.0</atlassian.annotations.version>
         <atlassian.webfragments.api>4.1.0</atlassian.webfragments.api>
-        <atlassian.plugins.api>4.1.0-m002</atlassian.plugins.api>
+        <atlassian.plugins.api>4.1.0</atlassian.plugins.api>
         <refapp.version>2.22.3</refapp.version>
         <dom4j.version>1.6.1</dom4j.version>
 
