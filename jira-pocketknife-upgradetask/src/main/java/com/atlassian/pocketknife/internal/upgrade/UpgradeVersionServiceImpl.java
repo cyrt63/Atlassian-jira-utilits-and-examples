@@ -13,6 +13,7 @@ import com.atlassian.pocketknife.spi.info.PocketKnifePluginInfo;
 import com.atlassian.pocketknife.spi.upgrade.PocketKnifeUpgradeTaskInfo;
 import com.atlassian.sal.api.upgrade.PluginUpgradeTask;
 import com.atlassian.util.concurrent.LazyReference;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,29 +36,39 @@ import static java.lang.String.valueOf;
  */
 @Service
 public class UpgradeVersionServiceImpl implements UpgradeVersionService {
-    private static final String UPGRADE_HISTORY = "Upgrade.History";
-    private static final String RUN_HISTORY = "Run.History";
+    static final String UPGRADE_HISTORY = "Upgrade.History";
+    static final String RUN_HISTORY = "Run.History";
 
-    @Autowired
     private PersistenceService persistenceService;
 
-    @Autowired
     private PluginAutowirer pluginAutowirer;
 
-    @Autowired
     PocketKnifePluginInfo pocketKnifePluginInfo;
 
-    @Autowired
     PocketKnifeUpgradeTaskInfo pocketKnifeUpgradeTaskInfo;
 
-    @Autowired
     PocketKnifeActiveObjectsIntegration pocketKnifeActiveObjectsIntegration;
 
-    @Autowired
     SalUpgradeInfoBackDoor upgradeInfoBackDoor;
 
-    private transient PluginRunInfoImpl currentRunInfo = null;
+    @Autowired
+    public UpgradeVersionServiceImpl(
+            PersistenceService persistenceService,
+            PluginAutowirer pluginAutowirer,
+            PocketKnifePluginInfo pocketKnifePluginInfo,
+            PocketKnifeUpgradeTaskInfo pocketKnifeUpgradeTaskInfo,
+            PocketKnifeActiveObjectsIntegration pocketKnifeActiveObjectsIntegration,
+            SalUpgradeInfoBackDoor upgradeInfoBackDoor) {
 
+        this.persistenceService = persistenceService;
+        this.pluginAutowirer = pluginAutowirer;
+        this.pocketKnifePluginInfo = pocketKnifePluginInfo;
+        this.pocketKnifeUpgradeTaskInfo = pocketKnifeUpgradeTaskInfo;
+        this.pocketKnifeActiveObjectsIntegration = pocketKnifeActiveObjectsIntegration;
+        this.upgradeInfoBackDoor = upgradeInfoBackDoor;
+    }
+
+    private transient PluginRunInfoImpl currentRunInfo = null;
 
     // sorted by ascending build number
     private static final Comparator<PluginUpgradeTask> UPGRADE_TASK_COMPARATOR = new Comparator<PluginUpgradeTask>() {
@@ -180,7 +191,8 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
         return currentRunInfo;
     }
 
-    private Pair<PluginRunInfoImpl, Boolean> getPluginRunInfoImpl() {
+    @VisibleForTesting
+    Pair<PluginRunInfoImpl, Boolean> getPluginRunInfoImpl() {
 
         PluginRunInfoImpl previousRunInfo;
         Map<String, Object> prevData = persistenceService.getData(pfx(RUN_HISTORY), 1L, RUN_HISTORY);
@@ -191,9 +203,8 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
         } else {
             previousRunInfo = new PluginRunInfoImpl(prevData, pocketKnifePluginInfo);
         }
-        PluginRunInfoImpl pluginRunInfo = new PluginRunInfoImpl(previousRunInfo.getPreviousRanOn(), previousRunInfo.getLatestUpgradeTaskRun(), previousRunInfo.getCurrentVersion(), previousRunInfo.getCurrentBuildDate(), previousRunInfo.getPreviousChangeSet(), pocketKnifePluginInfo);
 
-        return Pair.of(pluginRunInfo, prevData == null);
+        return Pair.of(previousRunInfo, prevData == null);
     }
 
     /**
