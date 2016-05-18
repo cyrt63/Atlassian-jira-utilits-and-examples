@@ -43,13 +43,13 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
 
     private PluginAutowirer pluginAutowirer;
 
-    PocketKnifePluginInfo pocketKnifePluginInfo;
+    private PocketKnifePluginInfo pocketKnifePluginInfo;
 
-    PocketKnifeUpgradeTaskInfo pocketKnifeUpgradeTaskInfo;
+    private PocketKnifeUpgradeTaskInfo pocketKnifeUpgradeTaskInfo;
 
-    PocketKnifeActiveObjectsIntegration pocketKnifeActiveObjectsIntegration;
+    private PocketKnifeActiveObjectsIntegration pocketKnifeActiveObjectsIntegration;
 
-    SalUpgradeInfoBackDoor upgradeInfoBackDoor;
+    private SalUpgradeInfoBackDoor upgradeInfoBackDoor;
 
     @Autowired
     public UpgradeVersionServiceImpl(
@@ -68,7 +68,7 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
         this.upgradeInfoBackDoor = upgradeInfoBackDoor;
     }
 
-    private transient PluginRunInfoImpl currentRunInfo = null;
+    private volatile PluginRunInfoImpl currentRunInfo = null;
 
     // sorted by ascending build number
     private static final Comparator<PluginUpgradeTask> UPGRADE_TASK_COMPARATOR = new Comparator<PluginUpgradeTask>() {
