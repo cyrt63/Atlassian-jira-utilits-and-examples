@@ -68,8 +68,6 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
         this.upgradeInfoBackDoor = upgradeInfoBackDoor;
     }
 
-    private volatile PluginRunInfoImpl currentRunInfo = null;
-
     // sorted by ascending build number
     private static final Comparator<PluginUpgradeTask> UPGRADE_TASK_COMPARATOR = new Comparator<PluginUpgradeTask>() {
         @Override
@@ -184,11 +182,7 @@ public class UpgradeVersionServiceImpl implements UpgradeVersionService {
      */
     @Override
     public PluginRunInfoImpl getCurrentPluginRunInfo() {
-        if (currentRunInfo == null) {
-            Pair<PluginRunInfoImpl, Boolean> pair = getPluginRunInfoImpl();
-            currentRunInfo = pair.first();
-        }
-        return currentRunInfo;
+        return getPluginRunInfoImpl().first();
     }
 
     @VisibleForTesting
