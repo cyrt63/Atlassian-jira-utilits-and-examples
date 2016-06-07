@@ -37,6 +37,8 @@ public @interface LuceneUsage {
         SystemFields,
         CustomFields,
 
+        SafeToRemove,
+
         /**
          * @deprecated  Use SearchExtractor instead
          */
